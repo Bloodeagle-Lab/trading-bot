@@ -30,3 +30,15 @@ routine's own commit was lost.*
 - Full sleeve-score/feature breakdown not captured in the recovered
   summary — this entry is a partial reconstruction, not the routine's
   full original output.
+
+## 2026-08-20 (second run, 20:09 UTC / 16:09 ET — post-close)
+
+- State: STRONG_TREND
+- Confidence: 0.392
+- Scores: {STRONG_TREND: 0.60, CHOPPY: 0.00, HIGH_VOL: 0.55, RISK_OFF: 0.00, TRANSITION: 0.00}
+- Trend (SPY/QQQ): 0.584 / 0.587 | Volatility (20d): 0.1811 | VIX: 14.89 | Breadth (%>50dma): null (not obtainable from research sources)
+- Sleeve weights in effect today: {momentum 1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8}
+- Note: second `pre-market` firing of the day (first was 12:12 UTC).
+  Same state and effectively the same confidence (0.39) as the morning
+  run — confidence remains just below the 0.40 NO-TRADE minimum for the
+  second consecutive classification.
