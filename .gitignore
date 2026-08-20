@@ -1,0 +1,18 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# trained model binaries — keep metadata (json) in git, not the weights
+models/champion/*.joblib
+models/challengers/*.joblib
+
+# local scratch, not durable memory
+research/reports/*.html
+research/reports/*.png
+.pytest_cache/
+
+# reconciliation self-heals this from live Alpaca state every run —
+# durable memory lives in memory/*.md (git-committed), not here.
+state/*.json

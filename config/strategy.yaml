@@ -1,0 +1,76 @@
+# Starter configuration — Adaptive AI Quant Trading Bot v2
+# Values marked VALIDATE must not be trusted until research/backtest.py,
+# research/walk_forward.py and research/monte_carlo.py have produced
+# out-of-sample evidence for them. Everything here is read by
+# quant/config.py — do not hard-code thresholds elsewhere.
+
+universe:
+  asset_class: us_equity
+  min_avg_dollar_volume: 5000000     # 20-day avg $ volume floor
+  exclude_halted: true
+  exclude_abnormal_spreads: true
+  max_spread_pct: 0.5                # reject quotes wider than this %
+
+portfolio:
+  max_positions: 6
+  max_position_pct: 0.20
+  max_new_trades_per_week: 3
+  target_deployment_pct: [0.75, 0.85]
+
+strategy:
+  sleeves:
+    momentum: true
+    trend: true
+    breakout: true
+    mean_reversion: true
+    relative_strength: true
+  # regime -> sleeve weight (0 disables a sleeve for that regime)
+  regime_weights:
+    STRONG_TREND:  {momentum: 1.0, trend: 1.0, breakout: 1.0, mean_reversion: 0.0, relative_strength: 0.8}
+    CHOPPY:        {momentum: 0.2, trend: 0.2, breakout: 0.3, mean_reversion: 1.0, relative_strength: 0.5}
+    HIGH_VOL:      {momentum: 0.3, trend: 0.3, breakout: 0.2, mean_reversion: 0.4, relative_strength: 0.5}
+    RISK_OFF:      {momentum: 0.0, trend: 0.0, breakout: 0.0, mean_reversion: 0.0, relative_strength: 0.0}
+    TRANSITION:    {momentum: 0.4, trend: 0.4, breakout: 0.3, mean_reversion: 0.3, relative_strength: 0.4}
+  minimum_ensemble_score: VALIDATE   # e.g. start testing around 0.55
+  minimum_ml_probability: VALIDATE   # e.g. start testing around 0.55
+  reward_risk_minimum: 2.0
+
+risk:
+  max_risk_per_trade_pct: VALIDATE   # see quant/risk.py RISK_BUDGET_TABLE for starting ranges
+  max_portfolio_heat_pct: VALIDATE   # e.g. start testing around 2.5-3.0% of equity
+  volatility_adjustment: true
+  correlation_adjustment: true
+  max_correlated_cluster_risk_pct: 1.0   # cap on summed risk across correlated positions
+
+no_trade:
+  probability_threshold: VALIDATE
+  min_regime_confidence: 0.4
+  min_setup_quality: 60
+  require_catalyst_verification: true
+
+ml_model:
+  target_r_multiple_win: 2.0
+  target_r_multiple_loss: -1.0
+  horizon_days: 10
+  algo: logistic_regression   # logistic_regression | gradient_boosting
+
+stops:
+  initial_method: volatility_or_structure
+  original_reference_trailing_stop_pct: 10
+  winner_trail_1_pct: 7
+  winner_trail_1_trigger_gain_pct: 15
+  winner_trail_2_pct: 5
+  winner_trail_2_trigger_gain_pct: 20
+  hard_loss_cut_pct: 7
+
+validation:
+  walk_forward: true
+  monte_carlo_runs: 10000
+  stress_slippage_multipliers: [1.25, 1.50, 2.00]
+  champion_challenger: true
+  min_out_of_sample_trades: 30
+  max_drawdown_increase_pct: 5.0
+
+live_mode:
+  default: paper
+  require_production_gate: true
