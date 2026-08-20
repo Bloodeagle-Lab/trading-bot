@@ -82,8 +82,13 @@ def to_jsonable(obj: Any) -> Any:
         return bool(obj)
     if isinstance(obj, np.integer):
         return int(obj)
-    if isinstance(obj, np.floating):
-        return float(obj)
+    if isinstance(obj, (np.floating, float)):
+        f = float(obj)
+        # NaN/Infinity are not valid JSON tokens — json.dumps emits them
+        # anyway (a non-standard extension), producing output most JSON
+        # readers, including Claude reading this as structured data, can't
+        # parse. `null` is the honest representation of "no value here."
+        return None if (f != f or f in (float("inf"), float("-inf"))) else f
     if isinstance(obj, pd.Timestamp):
         return obj.isoformat()
     return obj
@@ -176,10 +181,17 @@ def _build_clients(cfg: Config):
 
 
 def _fetch_daily_bars(data_client, symbol: str, lookback_days: int = 300) -> pd.DataFrame:
+    from datetime import datetime, timedelta
+
     from alpaca.data.requests import StockBarsRequest
     from alpaca.data.timeframe import TimeFrame
 
-    req = StockBarsRequest(symbol_or_symbols=symbol, timeframe=TimeFrame.Day, limit=lookback_days)
+    # `limit` alone, with no `start`, only returns the single latest bar —
+    # Alpaca's historical bars endpoint needs an explicit date range to
+    # actually page back through history. 1.6x + a 10-day buffer covers
+    # lookback_days TRADING days worth of calendar days (weekends/holidays).
+    start = datetime.now() - timedelta(days=int(lookback_days * 1.6) + 10)
+    req = StockBarsRequest(symbol_or_symbols=symbol, timeframe=TimeFrame.Day, start=start, limit=lookback_days)
     bars = data_client.get_stock_bars(req).df
     if bars.empty:
         raise ValueError(f"no bar data returned for {symbol}")
@@ -471,7 +483,7 @@ def cmd_positions(cfg: Config, args: argparse.Namespace) -> dict:
         "equity": float(account.equity),
         "cash": float(account.cash),
         "buying_power": float(account.buying_power),
-        "daytrade_count": int(account.daytrade_count),
+        "daytrade_count": int(account.daytrade_count or 0),
         "positions": positions,
         "flags": flags,
     }

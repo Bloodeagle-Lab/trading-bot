@@ -22,6 +22,16 @@ def test_to_jsonable_converts_numpy_scalars():
     assert isinstance(to_jsonable(np.float64(3.5)), float)
 
 
+def test_to_jsonable_converts_nan_and_infinity_to_null():
+    # NaN/Infinity are not valid JSON tokens — json.dumps emits them anyway
+    # (a non-standard Python extension), which broke a real regime-command
+    # output ("trend_spy": NaN) during manual smoke testing.
+    assert to_jsonable(float("nan")) is None
+    assert to_jsonable(np.float64("nan")) is None
+    assert to_jsonable(float("inf")) is None
+    assert to_jsonable(float("-inf")) is None
+
+
 def test_to_jsonable_converts_timestamp():
     ts = pd.Timestamp("2024-01-01")
     out = to_jsonable(ts)

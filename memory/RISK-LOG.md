@@ -34,3 +34,6 @@ don't be surprised to see them interleaved with the manual entries below.
 
 No entries yet. Populated automatically (reconciliation) and by
 `market-open`/`midday` routines as gates fire.
+
+### Reconciliation — 2026-08-20 12:12:02
+No drift — local state matched broker.
