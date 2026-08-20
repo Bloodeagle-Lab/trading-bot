@@ -1,15 +1,55 @@
 from __future__ import annotations
 
 import dataclasses
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from scripts.quant_cli import (
-    build_parser, compute_stops_check_actions, print_result, to_jsonable, validate_tighten_stop,
+    _latest_quote, build_parser, compute_stops_check_actions, print_result, to_jsonable, validate_tighten_stop,
 )
 from tests.conftest import make_config
+
+
+class _FakeDataClient:
+    """Stands in for alpaca.data.historical.StockHistoricalDataClient for
+    _latest_quote tests — indexable-by-symbol response, matching alpaca-py's
+    actual shape (data_client.get_stock_latest_quote(req)[symbol])."""
+
+    def __init__(self, bid_price, ask_price):
+        self.bid_price = bid_price
+        self.ask_price = ask_price
+
+    def get_stock_latest_quote(self, req):
+        return {"XYZ": SimpleNamespace(bid_price=self.bid_price, ask_price=self.ask_price)}
+
+
+# ---- _latest_quote --------------------------------------------------------
+
+def test_latest_quote_returns_valid_prices():
+    quote = _latest_quote(_FakeDataClient(bid_price=49.95, ask_price=50.05), "XYZ")
+    assert quote == {"bid_price": 49.95, "ask_price": 50.05}
+
+
+def test_latest_quote_raises_on_zero_prices():
+    # Found via a live run: a degraded/empty quote silently produced
+    # entry_price=0.0 and a negative stop_price downstream in cmd_evaluate,
+    # only accidentally caught by the liquidity gate rather than rejected
+    # at the source.
+    with pytest.raises(ValueError, match="no usable quote"):
+        _latest_quote(_FakeDataClient(bid_price=0.0, ask_price=0.0), "XYZ")
+
+
+def test_latest_quote_raises_on_none_prices():
+    with pytest.raises(ValueError, match="no usable quote"):
+        _latest_quote(_FakeDataClient(bid_price=None, ask_price=None), "XYZ")
+
+
+def test_latest_quote_raises_on_negative_price():
+    with pytest.raises(ValueError, match="no usable quote"):
+        _latest_quote(_FakeDataClient(bid_price=-1.0, ask_price=50.0), "XYZ")
 
 
 # ---- to_jsonable ------------------------------------------------------

@@ -206,7 +206,17 @@ def _latest_quote(data_client, symbol: str) -> dict:
 
     req = StockLatestQuoteRequest(symbol_or_symbols=symbol)
     quote = data_client.get_stock_latest_quote(req)[symbol]
-    return {"bid_price": float(quote.bid_price), "ask_price": float(quote.ask_price)}
+    bid = float(quote.bid_price or 0)
+    ask = float(quote.ask_price or 0)
+    if bid <= 0 or ask <= 0:
+        # A degraded/empty quote (e.g. an outage behind a 200, or a stale
+        # response after-hours) must not silently become entry_price=0.0 /
+        # a negative stop_price downstream in cmd_evaluate — found via a
+        # live run where a bad quote (bid=ask=0) produced stop_price=-8.49
+        # and only accidentally got caught by the liquidity gate rather
+        # than being rejected at the source.
+        raise ValueError(f"no usable quote for {symbol} (bid={bid}, ask={ask}) — market data may be degraded or stale")
+    return {"bid_price": bid, "ask_price": ask}
 
 
 def _enum_tail(value) -> str:
