@@ -29,7 +29,20 @@ fi
 
 MODEL="${PERPLEXITY_MODEL:-sonar}"
 
-payload="$(python3 -c "
+# Pick a working Python interpreter. `command -v python3` can find a
+# non-functional stub (e.g. Windows' App Execution Alias, which just prints
+# a Microsoft Store nag and exits nonzero) — probe that it actually runs,
+# don't just check that the name exists on PATH.
+PYTHON_BIN=""
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c "" >/dev/null 2>&1; then
+    PYTHON_BIN="$candidate"
+    break
+  fi
+done
+: "${PYTHON_BIN:?no working python3/python interpreter found on PATH}"
+
+payload="$("$PYTHON_BIN" -c "
 import json, sys
 print(json.dumps({
     'model': sys.argv[1],

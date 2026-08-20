@@ -45,7 +45,18 @@ fi
 # goes in the description so nothing is lost either way.
 name="$(printf '%s' "$msg" | head -n1 | cut -c1-100)"
 
-payload="$(python3 -c "
+# Pick a working Python interpreter — see scripts/perplexity.sh's comment
+# on why `command -v python3` alone isn't a reliable enough check.
+PYTHON_BIN=""
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c "" >/dev/null 2>&1; then
+    PYTHON_BIN="$candidate"
+    break
+  fi
+done
+: "${PYTHON_BIN:?no working python3/python interpreter found on PATH}"
+
+payload="$("$PYTHON_BIN" -c "
 import json, sys
 print(json.dumps({'name': sys.argv[1], 'description': sys.argv[2]}))
 " "$name" "$msg")"
