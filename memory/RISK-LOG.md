@@ -71,3 +71,24 @@ read-only), and/or reconnect GitHub under Claude's own connectors
 settings. Do not schedule the other four routines (`market-open`,
 `midday`, `daily-summary`, `weekly-review`) until a test `pre-market` run
 successfully pushes to `main` on its own.
+
+## 2026-08-20 20:1x UTC — RESOLVED: cloud routine push to `main` now works
+
+Re-tested during the second cloud `pre-market` run of the day. The
+routine's own mandatory persistence step succeeded on its own:
+
+- `git push origin HEAD:main` → `6ab5b35..d9446a7  HEAD -> main`, exit 0.
+- No 403, no permission error. Writes to `main` are now allowed for the
+  cloud session's git credentials.
+
+This supersedes the "SYSTEMIC: cloud routine persistence blocked" entry
+above. The precondition that entry set — *"do not schedule the other four
+routines until a test `pre-market` run successfully pushes to `main` on
+its own"* — **is now satisfied**. `market-open`, `midday`,
+`daily-summary`, and `weekly-review` can be scheduled.
+
+Unrelated open item from this run: the routine fired at 20:09 UTC
+(16:09 ET, post-close) rather than the intended 6:00 AM America/Chicago
+slot, so every quote it pulled was post-close and unusable for sizing.
+See `memory/RESEARCH-LOG.md`'s Risk Factors for detail. Check the cron's
+configured timezone before relying on the schedule.
