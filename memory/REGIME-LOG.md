@@ -18,4 +18,15 @@ sleeves/sizing wrong" — the two failure modes need different fixes.
 
 ---
 
-No entries yet. The first `pre-market` routine run appends here.
+## 2026-08-20
+
+*Reconstructed locally from the first cloud `pre-market` routine run's
+reported summary — see `memory/RESEARCH-LOG.md`'s note on why the
+routine's own commit was lost.*
+
+- State: STRONG_TREND
+- Confidence: 0.39
+- VIX: 15.82 | SPX: ~7,689 (ES -0.28%)
+- Full sleeve-score/feature breakdown not captured in the recovered
+  summary — this entry is a partial reconstruction, not the routine's
+  full original output.

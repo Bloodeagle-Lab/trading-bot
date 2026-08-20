@@ -43,12 +43,21 @@ stops before doing anything else.
 
 ---
 
-## Day 0 — EOD Snapshot (pre-launch placeholder)
+## Day 0 — EOD Snapshot (real baseline, first live pre-market run)
 
-**Portfolio:** $10,000.00 (placeholder) | **Cash:** $10,000.00 (100%) | **Day P&L:** $0 | **Phase P&L:** $0
+**Portfolio:** $100,000.00 | **Cash:** $100,000.00 (100%) | **Day P&L:** $0 | **Phase P&L:** $0
 
-No positions yet. Bot has not been run against a live Alpaca account.
-**The first `daily-summary` (or `pre-market`) routine to actually run MUST
-replace this placeholder with the real `bash scripts/alpaca.sh account`
-equity figure** — every later day-over-day P&L calculation in this file
-depends on that baseline being accurate, not illustrative.
+Real baseline as of 2026-08-20, replacing the pre-launch $10,000
+placeholder — confirmed via `bash scripts/alpaca.sh account` against paper
+account PA3M8YH661WT. No positions, no open orders. This is the actual
+figure every later day-over-day and phase P&L calculation in this file is
+measured against.
+
+*Note: this entry was reconstructed locally from the first cloud
+`pre-market` routine run's reported summary, not committed by the routine
+itself — that run's commit was stranded on an ephemeral session branch and
+lost when the workspace was reclaimed, because the Claude GitHub App does
+not yet have write access to this repo (`git push` returned 403). See
+`memory/RISK-LOG.md` for that finding. This does not happen for local
+runs or for this recovery commit, both of which use working git
+credentials.*
