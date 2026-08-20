@@ -106,3 +106,111 @@ None — all three evaluated candidates (MRNA, MRVL, MRK) returned NO-TRADE.
 
 ### Decision
 HOLD — no order placed. Correct outcome given the NO-TRADE results above.
+
+---
+
+## 2026-08-20 — Pre-market Research (post-close re-run, 16:10 ET)
+
+*Timing note: this scheduled `pre-market` cloud routine fired at 16:10 ET —
+**after** Thursday's close, not before the open. The 12:12 ET entry above is
+the same trading day's first run. All quotes below are closing-auction
+prints (timestamped exactly 20:00:00Z), not pre-market quotes. Nothing here
+was actionable for today's session; it is logged for the audit trail and as
+evidence the routine's cron schedule is wrong. See "Risk Factors."*
+
+### Account
+- Equity: $100,000.00 | Cash: $100,000.00 | Buying power: $400,000
+  (4x intraday) | Daytrade count: 0 (paper account PA3M8YH661WT)
+- Positions: none. Open orders: none.
+
+### Market Context
+- Regime: STRONG_TREND (confidence 0.39 with VIX supplied; 0.32 on the
+  scan's own unsupplied-VIX call) — see `memory/REGIME-LOG.md`
+- WTI: ~$86.2-86.6 (+2.4-2.6% on the day) | Brent: ~$93.0 (+1.6%)
+  — supply-constraint bid, no diplomatic resolution priced in
+- VIX: 15.82 intraday (14.89 prior close) | S&P 500: ~7,708
+- Today's catalysts: Treasury said it will more than double buybacks of
+  10y/20y/30y debt — yields fell Wednesday, then rebounded Thursday and
+  pressured equities, erasing most of the prior day's rally. Higher oil and
+  weak Walmart results added to the drag.
+- Earnings before open: Walmart (slowest quarterly sales growth in 6+
+  years, -6%), Deere (DE), Alibaba (BABA), Advance Auto Parts (AAP)
+- Economic calendar: 8:30 ET initial + continuing jobless claims,
+  Philadelphia Fed manufacturing survey; 10:00 ET Conference Board Leading
+  Index; weekly EIA natural gas inventories
+- Sector momentum (YTD): Energy +43.1% (leader), Technology +27.7%,
+  Industrials +17.6%, Communication Services -5.1% (laggard)
+- Held-ticker news: n/a — no open positions
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| DE | 0.665 | — (no champion) | 83.2 tech / 70 sector | Earnings today; new 20d high, +16.9% 20d |
+| JNJ | 0.463 | — (no champion) | 73.2 tech / 55 sector | Earnings beat, +5.1% pre-market |
+| MRK | 0.430 | — (no champion) | 71.5 tech / 55 sector | +13% on Phase 3 cancer-vaccine data with MRNA |
+| NVDA | -0.133 | — | — | Data-center strength, but -10.8% 20d, RS -9.3% |
+| XOM | -0.199 | — | — | Oil +2.5%, but RS(60d) -28.8% — sector strong, stock is not |
+| PFE | -0.255 | — | — | FDA approval, +8.9% pre-market; MA structure -1.00 |
+| BABA | -0.620 | — | — | Earnings; -23.5% 20d, RSI 19.8 — falling knife |
+
+### Trade Ideas
+None. All three top-scoring candidates returned NO-TRADE from
+`scripts/quant_cli.py evaluate`. No order was placed or staged.
+
+### NO-TRADE Candidates
+- **DE** — entry $664.65, stop $637.52, target $718.91 (R:R 2.0). Reasons,
+  verbatim: no ML probability available yet (champion model not trained) —
+  insufficient evidence; sleeve disagreement (mean_reversion -0.748 against
+  breakout +0.90); regime confidence 0.32 below minimum 0.40;
+  spread/liquidity failed (spread 11.08% > 0.5%).
+- **JNJ** — entry $0.00 (!), stop -$8.49, target $16.98. Reasons, verbatim:
+  no ML probability available yet; sleeve disagreement; regime confidence
+  0.32 below minimum 0.40; spread/liquidity failed (spread 100.00%). The
+  zero entry price is a quote-path failure, not a market fact — see Risk
+  Factors.
+- **MRK** — entry $158.44, stop $153.48, target $168.36 (R:R 2.0). Reasons,
+  verbatim: no ML probability available yet; sleeve disagreement; regime
+  confidence 0.32 below minimum 0.40; spread/liquidity failed (spread
+  10.12% > 0.5%).
+
+### Risk Factors
+- **The routine fired post-close.** A `pre-market` run at 16:10 ET cannot
+  inform an open it has already missed. Until the cron schedule is moved to
+  a genuine pre-market slot (~07:00-09:00 ET), this routine produces
+  after-the-fact commentary, and `market-open` would have no same-morning
+  research to act on. This is the single most important item in this entry.
+- **Quote path returns garbage instead of failing on an API error.**
+  `bash scripts/alpaca.sh quote JNJ` returned HTTP 502; `evaluate JNJ` did
+  not surface that error — it produced `entry_price 0.0`, `stop_price
+  -8.49`, `spread_pct 100.0` and carried on. The NO-TRADE gate caught it
+  (correct fail-safe), but a $0.00 entry reaching `quant/risk.py` sizing
+  would divide risk dollars by a nonsense risk-per-share. A failed quote
+  fetch should raise, not degrade into a zero price. Worth a fix in the
+  quote path before `market-open` ever runs unattended.
+- **Wide spreads here are closing-auction artifacts, not illiquidity.**
+  Every quote came back stamped 20:00:00Z (16:00:00 ET) — DE ask $664.65
+  against bid $591.04, MRK ask $158.44 against bid $142.40. This is the
+  same "stale quote" pattern flagged in the 12:12 ET entry, and it is a
+  consequence of the timing problem above, not a property of these names.
+  The spread gate firing on it is correct behavior on bad input.
+- **No champion ML model exists** (`models/champion/` empty), so every
+  candidate fails the ML-evidence gate regardless of setup. The pipeline
+  will HOLD every single day until a champion is deliberately trained and
+  promoted (`quant/model.py` `train_challenger` → `research/promotion.py`
+  `evaluate_promotion`). Expected, fail-safe, and unchanged from this
+  morning — but it means these daily NO-TRADE results carry no information
+  about the candidates themselves yet.
+- **Regime confidence 0.32-0.39 is a persistent near-miss** of the 0.40
+  minimum — second run in a row. Both runs classify STRONG_TREND on trend
+  features (SPY +0.584, QQQ +0.587) while HIGH_VOL scores 0.55 against
+  STRONG_TREND's 0.60, which is what holds confidence down. Worth reviewing
+  at Friday's weekly review whether that is the engine being appropriately
+  humble or a miscalibration.
+- Sector-vs-stock divergence: Energy leads YTD (+43.1%) and oil rallied
+  2.5% today, but XOM's own relative strength is -28.8% over 60d. Do not
+  read the sector's YTD number as a catalyst for the megacaps in it.
+
+### Decision
+**HOLD** — no order placed, none staged. Correct and expected outcome: all
+three evaluated candidates returned NO-TRADE on gates that are working as
+designed, and this run happened after the close in any case.

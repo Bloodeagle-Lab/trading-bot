@@ -30,3 +30,16 @@ routine's own commit was lost.*
 - Full sleeve-score/feature breakdown not captured in the recovered
   summary — this entry is a partial reconstruction, not the routine's
   full original output.
+
+## 2026-08-20 (post-close re-run, 16:10 ET)
+
+Second `pre-market` routine firing for the same trading day, this one after
+the close — logged separately rather than overwriting the 12:12 ET entry.
+
+- State: STRONG_TREND
+- Confidence: 0.39 (with `--vix 15.82` supplied) / 0.32 (scan's own call,
+  VIX unsupplied) — both below the 0.40 NO-TRADE minimum
+- Scores: {STRONG_TREND: 0.60, CHOPPY: 0.00, HIGH_VOL: 0.55, RISK_OFF: 0.00, TRANSITION: 0.00}
+- Trend (SPY/QQQ): 0.584 / 0.587 | Volatility (20d): 0.1811 | VIX: 15.82 | Breadth (%>50dma): not supplied
+- Note: HIGH_VOL at 0.55 sitting just under STRONG_TREND's 0.60 is what
+  keeps confidence below the minimum. Same pattern as the 12:12 ET run.
