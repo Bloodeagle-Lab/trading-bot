@@ -156,3 +156,43 @@ technical indicators) or a reconsideration of the prediction target
 (shorter/longer horizon, different R:R) — both real research work, not a
 same-day retry. This is a legitimate, informative negative result, not a
 failure to find something that was there to find.
+
+## 2026-08-21 — Two more feature-engineering attempts, same day
+
+Continued the same session after the v2 attempts above, on the theory that
+raw technical indicators alone might be missing signal the system's own
+richer composite calculations already capture.
+
+**Attempt 3 — added sleeve/ensemble/regime features.** Extended
+`research/build_training_data.py` to feed the model the five sleeve scores
+(`quant/strategies.py`), the regime-weighted `ensemble_score`
+(`quant/ensemble.py`), `regime_confidence`, and one-hot regime state
+(`quant/regime.py`) — signals the system already computes but had never
+been given to the model, only raw indicators. Result: test_auc=0.550,
+top_decile_win_rate=0.211. Essentially unchanged. Makes sense in
+hindsight — sleeve scores are deterministic recombinations of the same
+raw indicators already in the feature set, not independent information.
+
+**Attempt 4 — added cross-sectional peer rank.** Added
+`cross_sectional_rank_ret20` / `cross_sectional_rank_ensemble`: each
+ticker's percentile rank against the OTHER 28 tickers in the universe on
+the SAME date, not just vs. SPY — meant to capture rotation/leadership
+effects a single fixed benchmark comparison can't see. Result:
+test_auc=0.548, top_decile_win_rate=0.213. Still unchanged.
+
+**Stopping here for today, deliberately.** Four attempts — 2 data sizes ×
+2 algorithms, plus composite features, plus cross-sectional rank — all
+converge on the same result: AUC hovering 0.53-0.57, top-decile win rate
+20-21%, never within reach of the 33.3% breakeven this strategy's 2:1 R:R
+requires. Continuing to try more variations of the same
+price/volume-derived feature family today would risk fishing for a result
+that clears the bar by chance rather than genuine signal — exactly the
+overfitting `research/backtest.py`'s own docstring warns against
+("optimizing dozens of thresholds until the backtest looks attractive ...
+a direct path to overfitting"). Four consistent negative results across
+meaningfully different attempts is itself the finding: standard technical
+indicators on large-cap liquid names, at this horizon and R:R, don't
+appear to carry a tradeable edge with the methods tried so far. Real next
+steps need a genuinely different data source (news/catalyst NLP,
+fundamentals, options flow) or a fundamentally different prediction setup
+— not another same-session retry.

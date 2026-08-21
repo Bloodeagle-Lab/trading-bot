@@ -85,7 +85,11 @@ def main() -> None:
         sys.exit(1)
 
     log("Building labeled dataset (features + forward-looking labels)...")
-    dataset = build_labeled_dataset(price_data, INDEX_SYMBOL, horizon_days=HORIZON_DAYS)
+    dataset = build_labeled_dataset(
+        price_data, INDEX_SYMBOL, horizon_days=HORIZON_DAYS,
+        regime_weights=cfg.get("strategy.regime_weights", {}),
+        sleeve_enabled=cfg.get("strategy.sleeves", {}),
+    )
     dataset = dataset.sort_values("date").reset_index(drop=True)
     labels = label_outcomes(dataset, win_r=WIN_R, loss_r=LOSS_R, horizon_days=HORIZON_DAYS)
     log(f"Dataset: {len(dataset)} rows, {dataset['ticker'].nunique()} tickers, "

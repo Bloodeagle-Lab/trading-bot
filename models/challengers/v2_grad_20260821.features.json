@@ -20,5 +20,19 @@
   "new_high_break",
   "range_width_pct",
   "relative_strength_20",
-  "relative_strength_60"
+  "relative_strength_60",
+  "sleeve_momentum",
+  "sleeve_trend",
+  "sleeve_breakout",
+  "sleeve_mean_reversion",
+  "sleeve_relative_strength",
+  "ensemble_score",
+  "regime_confidence",
+  "regime_STRONG_TREND",
+  "regime_CHOPPY",
+  "regime_HIGH_VOL",
+  "regime_RISK_OFF",
+  "regime_TRANSITION",
+  "cross_sectional_rank_ret20",
+  "cross_sectional_rank_ensemble"
 ]
