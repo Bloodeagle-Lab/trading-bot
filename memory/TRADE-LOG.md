@@ -61,3 +61,25 @@ not yet have write access to this repo (`git push` returned 403). See
 `memory/RISK-LOG.md` for that finding. This does not happen for local
 runs or for this recovery commit, both of which use working git
 credentials.*
+
+## 2026-08-21 — EOD Snapshot (Day 1, Friday)
+
+**Portfolio:** $100,000.00 | **Cash:** $100,000.00 (100%) | **Day P&L:** $0.00 (0.00%) | **Phase P&L:** $0.00 (0.00%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| (none) | | | | | | |
+
+**Notes:** No open positions and no trades today — regime confidence
+(0.392) stayed below the 0.40 minimum for a third straight run (per
+`REGIME-LOG.md`), and the day's earnings-driven candidates were either
+negative-ensemble or failed the evaluate gates (per `RESEARCH-LOG.md`),
+so no order was placed. Equity flat at the $100,000 baseline, zero day
+and phase P&L. Zero trades this week against the cap of 3. No stop-flag
+issues (`positions` returned an empty `flags` list). *Persistence flag:
+this session was assigned working branch `claude/brave-rubin-g81u3p`
+with an explicit no-push-elsewhere-without-permission constraint, the
+same failure mode already logged in `memory/RISK-LOG.md` for
+2026-08-20 — this commit is pushed there, not to `main`, and needs a
+human to merge it before tomorrow's `daily-summary` run can find
+today's snapshot for day-over-day P&L.*
