@@ -158,3 +158,16 @@ assigned the branch `claude/sharp-rubin-ng4nj9` and instructed not to push
 anywhere else, so this run's memory commit lands there. It must be merged to
 `main` for the next routine's fresh clone to see it. Related to, but
 distinct from, the GitHub App write-403 finding above.
+
+## 2026-08-21 — Persistence: weekly-review run also landed on a session branch, not main
+
+Same pattern as above, recurring. This `weekly-review` session was assigned
+`claude/admiring-albattani-jsaf40` with an explicit "never push to a
+different branch" instruction, which overrides `routines/weekly-review.md`
+STEP 9's `git push origin main`. The 2026-08-21 review entry (and this
+note) landed on that branch, not `main` — it must be merged before the
+next routine's fresh clone will see this week's review or any of this
+week's other memory updates that may be sitting on other session branches.
+Worth checking before Monday's `pre-market` run whether `main` is actually
+up to date, since a fresh clone from `main` would otherwise silently miss
+a full week of memory.
