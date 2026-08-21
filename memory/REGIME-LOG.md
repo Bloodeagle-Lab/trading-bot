@@ -55,3 +55,15 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
 - Trend (SPY/QQQ): 0.584 / 0.587 | Volatility (20d): 0.1811 | VIX: 15.82 | Breadth (%>50dma): not supplied
 - Note: HIGH_VOL at 0.55 sitting just under STRONG_TREND's 0.60 is what
   keeps confidence below the minimum. Same pattern as the 12:12 ET run.
+
+## 2026-08-21
+
+- State: STRONG_TREND
+- Confidence: 0.392 (with `--vix 15.72`)
+- Scores: {STRONG_TREND: 0.60, CHOPPY: 0.00, HIGH_VOL: 0.55, RISK_OFF: 0.00, TRANSITION: 0.00}
+- Trend (SPY/QQQ): 0.584 / 0.587 | Volatility (20d): 0.1811 | VIX: 15.72 | Breadth (%>50dma): null (not obtainable from research sources)
+- Sleeve weights in effect today: {momentum 1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8}
+- Note: third consecutive near-miss of the 0.40 confidence minimum
+  (2026-08-20 x2, now 2026-08-21), always on the same HIGH_VOL-vs-
+  STRONG_TREND margin. Genuinely pre-market run this time (7:08 ET) —
+  the earlier scheduling problem does not explain this one.

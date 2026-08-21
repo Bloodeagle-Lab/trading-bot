@@ -320,3 +320,97 @@ None. All three top-scoring candidates returned NO-TRADE from
 **HOLD** — no order placed, none staged. Correct and expected outcome: all
 three evaluated candidates returned NO-TRADE on gates that are working as
 designed, and this run happened after the close in any case.
+
+## 2026-08-21 — Pre-market Research
+
+Run fired 11:08 UTC / 7:08 ET — genuinely pre-market for the first time,
+inside the intended 07:00-09:00 ET window flagged in `memory/RISK-LOG.md`'s
+2026-08-20 scheduling note. Noting the fix; no further action needed on
+that item unless it regresses.
+
+### Account
+- Equity: $100,000 | Cash: $100,000 (100%) | Buying power: $400,000 |
+  Daytrade count: 0/4
+- Positions: none | Open orders: none
+
+### Market Context
+- Regime: STRONG_TREND (confidence 0.392) — see `memory/REGIME-LOG.md`
+- WTI / Brent: ~$86.50 / ~$93.60 (both down slightly on the day, per
+  Oilprice.com)
+- S&P 500 futures / VIX: ES roughly flat-to-down (~7,690-7,730 range
+  depending on feed, down ~0.3% on the clearest quote); VIX ~15.7
+  (up modestly, ~+5-6% on the day, still a low-vol print)
+- Today's catalysts: light U.S. macro calendar — S&P Global flash
+  Manufacturing/Services PMI at 9:45 ET is the main scheduled item; BLS
+  State Employment and Unemployment (July) at 10:00 ET; semiconductor
+  (SMH) and energy (XLE) flagged as the relative-strength leaders this
+  week; no Fed appearance or CPI/PPI today
+- Earnings before open: BJ (BJ's Wholesale), UI (Ubiquiti), BKE (Buckle),
+  BEKE (KE Holdings) — the four calendar-confirmed pre-open reports
+- Economic calendar: no CPI/PPI/FOMC/jobs report today — CPI (Aug 12),
+  PPI (Aug 13), and FOMC minutes (Aug 19) already out; next jobs report is
+  Sept 4
+- Sector momentum: Energy still the clear YTD leader (+37-45% depending on
+  source), Technology +27.5%, Materials +16.5%; Financials and
+  Communication Services lagging/negative
+- Held-ticker news: n/a — no open positions
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| BJ | -0.057 | — (no champion) | n/a — quote error | Earnings today; weak breakout/mean-rev only, RS(60d) -24.9% |
+| BKE | -0.254 | — (no champion) | 57 (37.3 tech / 40 sector / 100 cat / 10 liq) | Earnings today; evaluated, NO-TRADE |
+| UI | -0.353 | — | — | Earnings today; scanned only, RS(60d) -50.4%, 60d ret -36.5% |
+| BEKE | -0.437 | — | — | Earnings today; scanned only, RS(60d) -15.8%, weakest of the four |
+
+### Trade Ideas
+None. All four earnings-day candidates scored negative ensemble (no
+bullish setup regardless of catalyst) — none warranted a constructive
+thesis. Ran `evaluate` on the top two anyway per the pipeline:
+
+- **BJ** — `evaluate` raised a hard error: "no usable quote for BJ
+  (bid=85.77, ask=0.0) — market data may be degraded or stale." This is
+  the correct behavior for the quote-path bug flagged in
+  `memory/RISK-LOG.md` on 2026-08-20 (a dead/one-sided quote used to
+  degrade into a $0.00 entry price and slip past unnoticed) — worth
+  confirming as a fix, not just a NO-TRADE input. No entry/stop/target
+  produced; nothing reached sizing.
+- **BKE** — entry $48.55 / stop $46.25 / target $53.15 (R:R 2.0), NO-TRADE.
+
+### NO-TRADE Candidates
+- **BJ** — quote path errored (ask=0.0) before reaching the NO-TRADE gate;
+  treated as unusable, not evaluated further.
+- **BKE** — reasons, verbatim: no ML probability available yet (champion
+  model not trained) — insufficient evidence; sleeve disagreement
+  {momentum -0.335, trend -0.584, breakout 0.273, mean_reversion 0.667,
+  relative_strength -0.398}; regime confidence 0.32 below minimum 0.40;
+  setup quality 57 below minimum 60; spread/liquidity failed (spread
+  25.56% > 0.5%).
+- UI, BEKE — not run through `evaluate`; ensemble scores (-0.353, -0.437)
+  and negative 60d relative strength made them clearly weaker than BJ/BKE,
+  no need to spend an evaluate call confirming a NO-TRADE on a worse setup.
+
+### Risk Factors
+- **Regime confidence 0.39 (with VIX) / 0.32 (scan's own call) is now a
+  third consecutive near-miss** of the 0.40 minimum (2026-08-20 morning
+  0.39, 2026-08-20 post-close 0.32/0.39, today 0.392/0.317). HIGH_VOL
+  scoring 0.55 against STRONG_TREND's 0.60 is consistently what holds
+  confidence down. This is a pattern now, not noise — flag for Friday's
+  weekly review regardless of which Friday lands next.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate fails the ML-evidence gate regardless of setup. Expected,
+  fail-safe, unchanged from prior runs.
+- All four earnings names today are in structural downtrends (MA
+  structure -0.40 to -1.00, negative 60d relative strength) — earnings
+  reports alone are not a long catalyst here; would need a clean
+  post-earnings reaction to reconsider, not pre-positioning.
+- Quote-path bug from 2026-08-20 (dead quote degrading to $0.00 entry)
+  appears to now raise a hard error instead (see BJ above) — good, but
+  only directly observed for one ticker in one direction (ask=0.0); not
+  a full regression test.
+
+### Decision
+**HOLD** — no order placed, none staged. All four earnings-day candidates
+carry negative ensemble scores (no bullish setup), the one evaluated
+survivor (BKE) is NO-TRADE on multiple gates, and BJ's quote path errored
+outright. Correct, expected outcome.
