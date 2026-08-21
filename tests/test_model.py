@@ -61,10 +61,48 @@ def test_probability_model_fit_predict_roundtrip():
     assert meta.n_test == len(X_test)
     assert 0.0 <= meta.test_auc <= 1.0
     assert meta.train_positive_rate == pytest.approx(y_train.mean())
+    assert meta.win_r == 2.0 and meta.loss_r == -1.0  # defaults when not passed
+    assert 0.0 <= meta.top_decile_win_rate <= 1.0
 
     proba = model.predict_proba(X_test)
     assert proba.shape == (len(X_test),)
     assert ((proba >= 0) & (proba <= 1)).all()
+
+
+def test_probability_model_fit_records_custom_win_loss_r():
+    X, y = _separable_dataset()
+    model = ProbabilityModel(algo="logistic_regression")
+    meta = model.fit(
+        X.iloc[:45], y.iloc[:45], X.iloc[45:], y.iloc[45:],
+        train_window="2020:2021", validation_window="2022", threshold=0.55, version="v1",
+        win_r=3.0, loss_r=-1.5,
+    )
+    assert meta.win_r == 3.0
+    assert meta.loss_r == -1.5
+
+
+def test_probability_model_top_decile_win_rate_matches_manual_computation():
+    # Construct a dataset where the model's confidence ranking is exactly
+    # predictable, so top_decile_win_rate can be checked against a manual
+    # computation rather than just asserting it's in [0, 1].
+    rng = np.random.default_rng(7)
+    n = 100
+    x1 = np.concatenate([rng.normal(2, 0.1, 20), rng.normal(-2, 0.1, 80)])  # top 20 rows clearly positive-leaning
+    y = np.concatenate([np.ones(20), np.zeros(80)]).astype(int)
+    # shuffle together so row order isn't already sorted by the feature
+    order = rng.permutation(n)
+    X = pd.DataFrame({"f1": x1[order]})
+    y = pd.Series(y[order])
+
+    model = ProbabilityModel(algo="logistic_regression")
+    meta = model.fit(X.iloc[:70], y.iloc[:70], X.iloc[70:], y.iloc[70:],
+                      train_window="t", validation_window="v", threshold=0.5, version="v1")
+
+    proba_test = model.predict_proba(X.iloc[70:])
+    y_test = y.iloc[70:].values
+    n_top = max(1, len(y_test) // 10)
+    expected = float(y_test[np.argsort(proba_test)[-n_top:]].mean())
+    assert meta.top_decile_win_rate == pytest.approx(expected)
 
 
 def test_probability_model_rejects_unknown_algo():

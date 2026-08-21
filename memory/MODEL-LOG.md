@@ -95,7 +95,64 @@ own OOS numbers look reasonably sound on this first pass — Monte Carlo
 median return +2.2% (block-bootstrap, 5,000 runs), P(max drawdown > 15%)
 = 0.1%, expectancy only drops 0.093R under combined worst-case stress. The
 rule engine passed every criterion that actually tested it. The gap is
-specifically the ML layer, which needs a real model-improvement pass
-(more/better features, more data, trying gradient_boosting, addressing the
-16.9% class imbalance) before another training attempt — not something to
-retry today expecting a different result from the same approach.
+specifically the ML layer.
+
+## 2026-08-21 — Trained challengers v2 (10 years of data, two algorithms)
+
+Two more attempts same day, same session, after extending
+`scripts/train_champion.py`'s lookback from 750 to 2,500 trading days
+(this account's data goes back to 2016 — ~10 years were available, not
+just 3) and widening walk-forward to the originally-intended 24mo
+train / 6mo test windows (15 windows, 543 OOS trades, vs. 2 windows/87
+trades on the smaller dataset).
+
+**v2_logi_20260821 (logistic_regression, 66,410 rows, 29 tickers,
+2016-10-17:2025-11-24):** test_auc=0.532, test_brier=0.248 — more data
+made it *worse*, not better. RETIRED, `model_quality` FAIL on both AUC and
+Brier.
+
+**v2_grad_20260821 (gradient_boosting, same dataset):** test_auc=0.556,
+test_brier=0.139 — technically clears both the AUC floor (0.550) and the
+Brier-vs-baseline check (0.142). **This is the run that exposed a real gap
+in the two criteria added after the first attempt**: AUC/Brier only ask
+"better than random" and "better than guessing the average" — neither
+asks whether the model is good enough to make money at *this specific
+strategy's* economics. Manual decile analysis on the held-out test set
+showed the model's own best bucket (top 10% most-confident predictions)
+had only a **20.8-20.9% realized win rate**, far short of the **33.3%**
+breakeven this strategy's 2:1 reward:risk ratio requires. Every other
+decile was worse. No probability threshold on this model corresponds to a
+profitable edge.
+
+**Fix applied**: added a fifth sub-check to `model_quality` —
+`ModelMetadata` now records `win_r`, `loss_r`, and `top_decile_win_rate`
+(the empirical win rate of the test set's most-confident 10%), and
+`evaluate_promotion()` requires `top_decile_win_rate >= |loss_r| / (win_r
++ |loss_r|)` (+ optional `PromotionCriteria.min_edge_margin` for extra
+slack). Re-ran v2_grad_20260821 through the corrected criteria:
+
+```
+- [PASS] min_out_of_sample_trades: 543 OOS trades (need >= 30)
+- [PASS] max_drawdown_increase: no existing champion to compare against — skipped (bootstrap case)
+- [PASS] regime_stability: no regime with >=5 trades shows negative expectancy
+- [PASS] stress_resilience: expectancy drops 0.092R under combined worst-case stress (allowed up to 0.500R)
+- [FAIL] model_quality: test_auc=0.557, test_brier=0.139, top_decile_win_rate=0.209 vs breakeven=0.333 (need >= 0.333)
+```
+
+Action taken: **RETIRED**, both v2 attempts. `models/champion/` remains
+empty. Artifacts kept at `models/challengers/v2_logi_20260821.*` and
+`v2_grad_20260821.*` for reference.
+
+**Where this leaves things**: three attempts (v1, v2 logistic, v2 gradient
+boosting), across 3 years and 10 years of data, two algorithms — none
+found a probability bucket that clears this strategy's real breakeven win
+rate. More data and a different off-the-shelf algorithm did NOT fix it.
+That points toward the 22-feature technical/momentum/mean-reversion
+feature set itself not containing enough signal for a 10-day, 2:1-R:R
+prediction target, not toward "try the same approach again." A real next
+attempt would need either materially different features (catalyst/news
+signal, sector-relative or options-flow data — not just more of the same
+technical indicators) or a reconsideration of the prediction target
+(shorter/longer horizon, different R:R) — both real research work, not a
+same-day retry. This is a legitimate, informative negative result, not a
+failure to find something that was there to find.

@@ -46,6 +46,10 @@ class PromotionCriteria:
                                                # (1 - positive_rate)); 1.0 means
                                                # "at least as good as guessing
                                                # the base rate", no slack
+    min_edge_margin: float = 0.0              # extra slack ABOVE bare breakeven
+                                               # required of top_decile_win_rate;
+                                               # 0.0 means "must at least clear
+                                               # breakeven, no margin either way"
 
     @classmethod
     def from_config(cls, cfg: Config) -> "PromotionCriteria":
@@ -198,12 +202,27 @@ def evaluate_promotion(
         baseline_brier = m.train_positive_rate * (1 - m.train_positive_rate)
         auc_ok = bool(m.test_auc == m.test_auc and m.test_auc >= criteria.min_model_auc)  # NaN-safe (NaN != NaN)
         brier_ok = bool(m.test_brier <= baseline_brier * criteria.max_brier_vs_baseline_ratio)
-        ok = auc_ok and brier_ok
+
+        # The question that actually matters: does the model's BEST bucket
+        # clear this strategy's real breakeven win rate? AUC/Brier can both
+        # pass while every probability bucket, including the top one, still
+        # loses money on an R-multiple basis — found exactly this on a real
+        # trained model (top decile win rate 20.8% vs a 33.3% breakeven for
+        # this strategy's 2:1 reward:risk). criteria.min_edge_margin adds
+        # optional extra slack above bare breakeven (default 0 = must at
+        # least clear it, no margin either way).
+        denom = m.win_r + abs(m.loss_r)
+        breakeven_win_rate = abs(m.loss_r) / denom if denom > 0 else 1.0
+        edge_ok = bool(m.top_decile_win_rate >= breakeven_win_rate + criteria.min_edge_margin)
+
+        ok = auc_ok and brier_ok and edge_ok
         results.append(CriterionResult(
             "model_quality", ok,
             f"test_auc={m.test_auc:.3f} (need >= {criteria.min_model_auc:.3f}), "
             f"test_brier={m.test_brier:.3f} vs naive-baseline={baseline_brier:.3f} "
-            f"(need <= {baseline_brier * criteria.max_brier_vs_baseline_ratio:.3f})",
+            f"(need <= {baseline_brier * criteria.max_brier_vs_baseline_ratio:.3f}), "
+            f"top_decile_win_rate={m.top_decile_win_rate:.3f} vs breakeven={breakeven_win_rate:.3f} "
+            f"(need >= {breakeven_win_rate + criteria.min_edge_margin:.3f}, from win_r={m.win_r}/loss_r={m.loss_r})",
         ))
     else:
         results.append(CriterionResult(

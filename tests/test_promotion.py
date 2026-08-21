@@ -13,11 +13,16 @@ from research.stress_test import StressTestReport
 from tests.conftest import make_config
 
 
-def _model_metadata(test_auc=0.65, test_brier=0.15, train_positive_rate=0.30) -> ModelMetadata:
+def _model_metadata(test_auc=0.65, test_brier=0.15, train_positive_rate=0.30,
+                     win_r=2.0, loss_r=-1.0, top_decile_win_rate=0.45) -> ModelMetadata:
+    # top_decile_win_rate default (0.45) comfortably clears the default
+    # win_r=2.0/loss_r=-1.0 breakeven (0.333), so tests targeting the
+    # AUC/Brier checks specifically aren't accidentally also failing edge.
     return ModelMetadata(
         version="v1", algo="logistic_regression", feature_version="1.0.0", feature_columns=["f1"],
         train_window="2020:2021", validation_window="2022", threshold=0.55,
         test_auc=test_auc, test_brier=test_brier, train_positive_rate=train_positive_rate,
+        win_r=win_r, loss_r=loss_r, top_decile_win_rate=top_decile_win_rate,
         n_train=100, n_test=25, created_ts=0.0,
     )
 
@@ -198,6 +203,35 @@ def test_model_quality_handles_nan_auc_safely():
     decision = evaluate_promotion(trades, None, make_config(), criteria=lenient, challenger_model_metadata=nan_model)
     quality = next(c for c in decision.criteria if c.name == "model_quality")
     assert quality.passed is False  # NaN AUC must never silently pass
+
+
+def test_model_quality_fails_when_best_bucket_still_misses_breakeven():
+    # The exact real-world case that motivated this check: AUC and Brier
+    # both look acceptable, but the model's own best bucket (20.8% win
+    # rate) never clears this strategy's real 2:1 R:R breakeven (33.3%) —
+    # meaning there's no evidence any threshold on this model is tradeable.
+    trades = _winning_trades(40)
+    lenient = PromotionCriteria(min_out_of_sample_trades=10, max_drawdown_increase_pct=1000.0,
+                                 min_regime_trades_for_stability_check=1000, max_stress_expectancy_drop_r=1000.0)
+    no_edge_model = _model_metadata(test_auc=0.556, test_brier=0.10, train_positive_rate=0.30,
+                                     win_r=2.0, loss_r=-1.0, top_decile_win_rate=0.208)
+    decision = evaluate_promotion(trades, None, make_config(), criteria=lenient, challenger_model_metadata=no_edge_model)
+    quality = next(c for c in decision.criteria if c.name == "model_quality")
+    assert quality.passed is False
+    assert "top_decile_win_rate" in quality.detail
+    assert decision.decision == "RETIRE"
+
+
+def test_model_quality_edge_margin_requires_slack_above_bare_breakeven():
+    trades = _winning_trades(40)
+    strict_margin = PromotionCriteria(min_out_of_sample_trades=10, max_drawdown_increase_pct=1000.0,
+                                       min_regime_trades_for_stability_check=1000, max_stress_expectancy_drop_r=1000.0,
+                                       min_edge_margin=0.10)
+    # exactly at breakeven (0.333), no margin -> fails a 0.10 margin requirement
+    at_breakeven_model = _model_metadata(top_decile_win_rate=1 / 3, win_r=2.0, loss_r=-1.0)
+    decision = evaluate_promotion(trades, None, make_config(), criteria=strict_margin, challenger_model_metadata=at_breakeven_model)
+    quality = next(c for c in decision.criteria if c.name == "model_quality")
+    assert quality.passed is False
 
 
 # ---- promote_challenger ---------------------------------------------------

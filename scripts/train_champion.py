@@ -48,11 +48,14 @@ UNIVERSE = [
     "CAT", "GE",
 ]
 INDEX_SYMBOL = "SPY"
-LOOKBACK_TRADING_DAYS = 750  # ~3 calendar years, for meaningful walk-forward windows
+LOOKBACK_TRADING_DAYS = 2500  # ~10 calendar years -- this account's data goes back to
+                              # ~2016; spans multiple regimes (2020 crash, 2022 bear,
+                              # 2023-24 bull), not just one recent 3-year window.
 HORIZON_DAYS = 10
 WIN_R, LOSS_R = 2.0, -1.0
 STARTING_EQUITY = 100_000.0
 STARTING_THRESHOLD = 0.55  # config/strategy.yaml's own suggested starting point
+ALGO = "gradient_boosting"  # or "logistic_regression" -- see quant/model.py's ALGOS
 
 
 def log(msg: str) -> None:
@@ -89,14 +92,14 @@ def main() -> None:
         f"{dataset['date'].min().date()} -> {dataset['date'].max().date()}")
     log(f"Class balance: {labels.mean():.1%} positive (reached +{WIN_R}R before {LOSS_R}R within {HORIZON_DAYS}d)")
 
-    log("Training challenger model (time-aware split, logistic regression)...")
-    version = f"v1_{time.strftime('%Y%m%d')}"
+    log(f"Training challenger model (time-aware split, {ALGO})...")
+    version = f"v2_{ALGO[:4]}_{time.strftime('%Y%m%d')}"
     dataset_with_labels = dataset.copy()
     model = train_challenger(
         dataset_with_labels, feature_columns=FEATURE_COLUMNS,
         train_window=f"{dataset['date'].min().date()}:{dataset['date'].max().date()}",
         validation_window="held-out 20% tail (time-aware split)",
-        threshold=STARTING_THRESHOLD, version=version,
+        threshold=STARTING_THRESHOLD, version=version, algo=ALGO,
         win_r=WIN_R, loss_r=LOSS_R, horizon_days=HORIZON_DAYS, test_size=0.2,
     )
     log(f"Model trained: test_auc={model.metadata.test_auc:.3f}, test_brier={model.metadata.test_brier:.3f}, "
@@ -105,7 +108,7 @@ def main() -> None:
     log("Running walk-forward validation of the rule-based sleeve engine...")
     windows = run_walk_forward(
         price_data, INDEX_SYMBOL, cfg,
-        train_months=18, test_months=6, step_months=6,
+        train_months=24, test_months=6, step_months=6,
         min_ensemble_score=STARTING_THRESHOLD, reward_risk=WIN_R, horizon_days=HORIZON_DAYS,
     )
     oos_trades = [t for w in windows for t in w.result.trades]

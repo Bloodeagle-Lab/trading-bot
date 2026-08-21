@@ -61,6 +61,15 @@ class ModelMetadata:
                                  # score train_positive_rate * (1 - train_positive_rate);
                                  # a model with test_brier worse than that is
                                  # worse than guessing the base rate.
+    win_r: float                # the +winR/-lossR label definition this model
+    loss_r: float                # was trained against (label_outcomes' win_r/loss_r)
+    top_decile_win_rate: float  # empirical win rate of the test set's most
+                                 # confident 10% of predictions — the question
+                                 # that actually matters: does the model's BEST
+                                 # bucket clear this strategy's real breakeven
+                                 # win rate (|loss_r| / (win_r + |loss_r|))?
+                                 # AUC/Brier alone can pass while every bucket,
+                                 # including the best one, still loses money.
     n_train: int
     n_test: int
     created_ts: float
@@ -112,6 +121,8 @@ class ProbabilityModel:
         validation_window: str,
         threshold: float,
         version: str,
+        win_r: float = 2.0,
+        loss_r: float = -1.0,
     ) -> ModelMetadata:
         self.feature_columns = list(X_train.columns)
         self.model.fit(X_train.values, y_train.values)
@@ -119,6 +130,14 @@ class ProbabilityModel:
         proba_test = self.model.predict_proba(X_test.values)[:, 1]
         auc = roc_auc_score(y_test, proba_test) if y_test.nunique() > 1 else float("nan")
         brier = brier_score_loss(y_test, proba_test)
+
+        # Empirical win rate of the most-confident 10% of test predictions —
+        # the number that actually answers "is there tradeable edge here",
+        # since AUC/Brier can both look fine while every bucket, including
+        # the best one, still loses money at this strategy's real R:R.
+        n_top = max(1, len(y_test) // 10)
+        top_idx = np.argsort(proba_test)[-n_top:]
+        top_decile_win_rate = float(np.asarray(y_test)[top_idx].mean())
 
         self.metadata = ModelMetadata(
             version=version,
@@ -131,6 +150,9 @@ class ProbabilityModel:
             test_auc=float(auc),
             test_brier=float(brier),
             train_positive_rate=float(y_train.mean()),
+            win_r=win_r,
+            loss_r=loss_r,
+            top_decile_win_rate=top_decile_win_rate,
             n_train=len(X_train),
             n_test=len(X_test),
             created_ts=time.time(),
@@ -206,7 +228,8 @@ def train_challenger(
     y_train, y_test = labels.iloc[:split], labels.iloc[split:]
 
     model = ProbabilityModel(algo=algo)
-    model.fit(X_train, y_train, X_test, y_test, train_window, validation_window, threshold, version)
+    model.fit(X_train, y_train, X_test, y_test, train_window, validation_window, threshold, version,
+              win_r=win_r, loss_r=loss_r)
     model.save(version, directory=save_dir if save_dir is not None else CHALLENGERS_DIR)
     return model
 

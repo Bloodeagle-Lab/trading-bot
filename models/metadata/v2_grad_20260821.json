@@ -1,6 +1,6 @@
 {
-  "version": "v1_20260821",
-  "algo": "logistic_regression",
+  "version": "v2_grad_20260821",
+  "algo": "gradient_boosting",
   "feature_version": "1.0.0",
   "feature_columns": [
     "ret_1d",
@@ -26,13 +26,16 @@
     "relative_strength_20",
     "relative_strength_60"
   ],
-  "train_window": "2024-02-14:2026-04-10",
+  "train_window": "2016-10-17:2025-11-24",
   "validation_window": "held-out 20% tail (time-aware split)",
   "threshold": 0.55,
-  "test_auc": 0.5671164684215628,
-  "test_brier": 0.24772671874768068,
-  "train_positive_rate": 0.1669859514687101,
-  "n_train": 12528,
-  "n_test": 3132,
-  "created_ts": 1787325873.0899506
+  "test_auc": 0.5567327489842766,
+  "test_brier": 0.1389715332945904,
+  "train_positive_rate": 0.17087035085077548,
+  "win_r": 2.0,
+  "loss_r": -1.0,
+  "top_decile_win_rate": 0.2085843373493976,
+  "n_train": 53128,
+  "n_test": 13282,
+  "created_ts": 1787327289.508401
 }
