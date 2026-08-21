@@ -60,6 +60,7 @@ def test_probability_model_fit_predict_roundtrip():
     assert meta.n_train == 45
     assert meta.n_test == len(X_test)
     assert 0.0 <= meta.test_auc <= 1.0
+    assert meta.train_positive_rate == pytest.approx(y_train.mean())
 
     proba = model.predict_proba(X_test)
     assert proba.shape == (len(X_test),)

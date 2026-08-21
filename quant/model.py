@@ -56,6 +56,11 @@ class ModelMetadata:
     threshold: float
     test_auc: float
     test_brier: float
+    train_positive_rate: float  # fraction of y_train == 1 — the naive "always
+                                 # predict this constant" baseline has Brier
+                                 # score train_positive_rate * (1 - train_positive_rate);
+                                 # a model with test_brier worse than that is
+                                 # worse than guessing the base rate.
     n_train: int
     n_test: int
     created_ts: float
@@ -125,6 +130,7 @@ class ProbabilityModel:
             threshold=threshold,
             test_auc=float(auc),
             test_brier=float(brier),
+            train_positive_rate=float(y_train.mean()),
             n_train=len(X_train),
             n_test=len(X_test),
             created_ts=time.time(),

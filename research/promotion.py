@@ -27,6 +27,7 @@ import pandas as pd
 
 import quant.model as model_mod
 from quant.config import Config
+from quant.model import ModelMetadata
 from research.backtest import Trade, compute_metrics
 from research.stress_test import StressTestReport, _equity_curve_from_trades, regime_breakdown, run_full_stress_suite
 
@@ -38,6 +39,13 @@ class PromotionCriteria:
     min_regime_trades_for_stability_check: int = 5
     min_regime_expectancy_r: float = 0.0
     max_stress_expectancy_drop_r: float = 0.5
+    min_model_auc: float = 0.55
+    max_brier_vs_baseline_ratio: float = 1.0  # test_brier must be <= this x
+                                               # the naive constant-prediction
+                                               # baseline (positive_rate *
+                                               # (1 - positive_rate)); 1.0 means
+                                               # "at least as good as guessing
+                                               # the base rate", no slack
 
     @classmethod
     def from_config(cls, cfg: Config) -> "PromotionCriteria":
@@ -81,6 +89,7 @@ def evaluate_promotion(
     starting_equity: float = 100_000.0,
     stress_report: StressTestReport | None = None,
     criteria: PromotionCriteria | None = None,
+    challenger_model_metadata: ModelMetadata | None = None,
 ) -> PromotionDecision:
     """
     Deterministic promote/retire decision. challenger_trades /
@@ -101,6 +110,19 @@ def evaluate_promotion(
     to apply a stricter regime-stability or stress-resilience floor than the
     defaults, which don't have their own YAML fields yet). Defaults to
     PromotionCriteria.from_config(cfg).
+
+    challenger_model_metadata: the ModelMetadata from the challenger's own
+    training run (quant/model.py's ProbabilityModel.fit()/train_challenger()).
+    IMPORTANT: the other four criteria only evaluate the rule-based sleeve
+    engine's realized trades — none of them say anything about whether the
+    ML model itself is any good. Passing this in adds the fifth criterion
+    that actually checks the model (AUC above a floor, and Brier score no
+    worse than the naive "always predict the base rate" baseline). Omitting
+    it SKIPS that check — do this only deliberately (e.g. evaluating a
+    rule-only strategy with no ML layer), never by accident, since a
+    genuinely bad model can otherwise sail through on the rule engine's
+    numbers alone (this is exactly what happened before this parameter
+    existed — see memory/MODEL-LOG.md).
     """
     if not challenger_trades:
         raise ValueError("evaluate_promotion requires at least one challenger trade")
@@ -168,6 +190,26 @@ def evaluate_promotion(
         ))
     else:
         results.append(CriterionResult("stress_resilience", False, "no combined_worst_case stress scenario found"))
+
+    # 5. The ML model itself must actually be predictive — none of the
+    # criteria above test this; they only test the rule-based engine.
+    if challenger_model_metadata is not None:
+        m = challenger_model_metadata
+        baseline_brier = m.train_positive_rate * (1 - m.train_positive_rate)
+        auc_ok = bool(m.test_auc == m.test_auc and m.test_auc >= criteria.min_model_auc)  # NaN-safe (NaN != NaN)
+        brier_ok = bool(m.test_brier <= baseline_brier * criteria.max_brier_vs_baseline_ratio)
+        ok = auc_ok and brier_ok
+        results.append(CriterionResult(
+            "model_quality", ok,
+            f"test_auc={m.test_auc:.3f} (need >= {criteria.min_model_auc:.3f}), "
+            f"test_brier={m.test_brier:.3f} vs naive-baseline={baseline_brier:.3f} "
+            f"(need <= {baseline_brier * criteria.max_brier_vs_baseline_ratio:.3f})",
+        ))
+    else:
+        results.append(CriterionResult(
+            "model_quality", True,
+            "no challenger_model_metadata provided — SKIPPED, not verified (pass it explicitly to check the model)",
+        ))
 
     decision = "PROMOTE" if all(r.passed for r in results) else "RETIRE"
     return PromotionDecision(

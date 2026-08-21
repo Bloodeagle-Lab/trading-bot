@@ -105,16 +105,31 @@ def run_backtest(
     equity = starting_equity
     equity_curve = {}
     trades: list[Trade] = []
-    open_tickers: set[str] = set()
 
     regime_weights = cfg.get("strategy.regime_weights", {})
     sleeve_enabled = cfg.get("strategy.sleeves", {})
+    max_positions = cfg.get("portfolio.max_positions", 6)
+    max_new_trades_per_week = cfg.get("portfolio.max_new_trades_per_week", 3)
 
     for date in all_dates:
         regime = classify_regime(index_features.loc[date])
 
+        # Portfolio-level caps, mirroring quant/execution.py's live gates —
+        # without these the backtest can (and did) simulate far more
+        # concurrent positions and weekly entries than the live strategy is
+        # ever allowed to hold, making its trade count and returns
+        # unrepresentative of what actually gets traded.
+        open_count = sum(1 for t in trades if t.entry_date <= date <= t.exit_date)
+        week_key = date.isocalendar()[:2]
+        week_count = sum(1 for t in trades if t.entry_date.isocalendar()[:2] == week_key)
+        open_ticker_set = {t.ticker for t in trades if t.entry_date <= date <= t.exit_date}
+
         for ticker, feats in features_by_ticker.items():
-            if ticker in open_tickers or date not in feats.index:
+            if open_count >= max_positions:
+                break  # no capacity for any more entries today, any ticker
+            if week_count >= max_new_trades_per_week:
+                break  # weekly cap already hit — no more entries this week
+            if ticker in open_ticker_set or date not in feats.index:
                 continue
             row = feats.loc[date]
             if row.isna().get("atr_14", True):
@@ -160,6 +175,9 @@ def run_backtest(
                 shares=sizing.shares, r_multiple=round(r_multiple, 3), pnl_dollars=round(pnl, 2),
                 regime_at_entry=regime.state, ensemble_score=ensemble.ensemble_score, exit_reason=reason,
             ))
+            open_count += 1
+            week_count += 1
+            open_ticker_set.add(ticker)
 
         equity_curve[date] = equity
 
