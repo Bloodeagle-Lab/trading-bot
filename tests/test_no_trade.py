@@ -84,6 +84,56 @@ def test_insufficient_reward_risk_triggers_no_trade():
     assert any("reward/risk" in r for r in result.reasons)
 
 
+def test_reward_risk_exactly_at_minimum_passes_despite_float_noise():
+    # Regression: observed live on a real candidate (MRNA, 2026-08-21) --
+    # (161.56 - 148.3) / (148.3 - 141.67) computes to 1.9999999999999998 in
+    # IEEE754 double precision, not exactly 2.0, and was spuriously
+    # rejected by a strict `<` comparison against a 2.0 minimum.
+    computed = (161.56 - 148.3) / (148.3 - 141.67)
+    assert computed < 2.0  # confirms the float-noise premise this test guards against
+    result = evaluate_no_trade(_good_candidate(reward_risk_ratio=computed), make_config())
+    assert result.decision == "PASS"
+
+
+def test_no_ml_fallback_passes_when_ensemble_score_clears_validated_minimum():
+    c = make_config({"no_trade": {"require_ml_probability": False}, "strategy": {"minimum_ensemble_score": 0.55}})
+    result = evaluate_no_trade(_good_candidate(ml_probability=None, ensemble_score=0.70), c)
+    assert result.decision == "PASS"
+
+
+def test_no_ml_fallback_fails_when_ensemble_score_below_validated_minimum():
+    c = make_config({"no_trade": {"require_ml_probability": False}, "strategy": {"minimum_ensemble_score": 0.55}})
+    result = evaluate_no_trade(_good_candidate(ml_probability=None, ensemble_score=0.40), c)
+    assert result.decision == "NO-TRADE"
+    assert any("ensemble score" in r for r in result.reasons)
+
+
+def test_no_ml_fallback_fails_closed_when_minimum_ensemble_score_still_validate():
+    c = make_config({"no_trade": {"require_ml_probability": False}, "strategy": {"minimum_ensemble_score": "VALIDATE"}})
+    result = evaluate_no_trade(_good_candidate(ml_probability=None, ensemble_score=0.99), c)
+    assert result.decision == "NO-TRADE"
+    assert any("VALIDATE/unset" in r for r in result.reasons)
+
+
+def test_no_ml_fallback_still_requires_catalyst_verification():
+    c = make_config({"no_trade": {"require_ml_probability": False}, "strategy": {"minimum_ensemble_score": 0.55}})
+    result = evaluate_no_trade(
+        _good_candidate(ml_probability=None, ensemble_score=0.90, catalyst_verified=False), c,
+    )
+    assert result.decision == "NO-TRADE"
+    assert any("catalyst" in r for r in result.reasons)
+
+
+def test_require_ml_probability_false_does_not_override_an_active_model_saying_no():
+    # require_ml_probability=false only changes behavior when ml_probability
+    # IS None -- if a champion model exists and actively says no, that's a
+    # stronger signal than "no model yet" and must still block.
+    c = make_config({"no_trade": {"require_ml_probability": False, "probability_threshold": 0.55}})
+    result = evaluate_no_trade(_good_candidate(ml_probability=0.20), c)
+    assert result.decision == "NO-TRADE"
+    assert any("probability" in r for r in result.reasons)
+
+
 def test_risk_off_gate_blocks_unless_exception_validated():
     blocked = evaluate_no_trade(_good_candidate(market_risk_off_gate_active=True), make_config())
     assert blocked.decision == "NO-TRADE"

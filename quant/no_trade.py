@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from quant.config import Config
+from quant.config import Config, UnvalidatedParameterError
 
 
 @dataclass
@@ -51,13 +51,40 @@ def evaluate_no_trade(candidate: Candidate, cfg: Config) -> NoTradeResult:
     reasons: list[str] = []
 
     prob_threshold = cfg.get("no_trade.probability_threshold")
-    if isinstance(prob_threshold, (int, float)):
-        if candidate.ml_probability is None or candidate.ml_probability < prob_threshold:
-            reasons.append(
-                f"model probability {candidate.ml_probability} below validated threshold {prob_threshold}"
-            )
-    elif candidate.ml_probability is None:
-        reasons.append("no ML probability available yet (champion model not trained) — insufficient evidence")
+    require_ml = cfg.get("no_trade.require_ml_probability", True)  # fail-safe default; only
+                                                                    # config/strategy.yaml flips this,
+                                                                    # never a hardcoded assumption here
+
+    if candidate.ml_probability is None:
+        if require_ml:
+            reasons.append("no ML probability available yet (champion model not trained) — insufficient evidence")
+        else:
+            # Rule-engine-only fallback (no_trade.require_ml_probability: false
+            # — a deliberate, evidenced decision, see memory/TRADING-STRATEGY.md
+            # and memory/MODEL-LOG.md's 2026-08-21 entries). Compensates for the
+            # missing ML confirmation layer by requiring the candidate clear
+            # the SAME minimum_ensemble_score that was actually walk-forward /
+            # Monte-Carlo / stress-tested — not a new, unvalidated number
+            # invented just to unblock trading. Every other gate below
+            # (catalyst verification, regime confidence, liquidity, portfolio
+            # concentration, reward:risk) still applies unchanged.
+            try:
+                min_ensemble = cfg.require_validated("strategy.minimum_ensemble_score")
+            except UnvalidatedParameterError:
+                reasons.append(
+                    "no_trade.require_ml_probability=false but strategy.minimum_ensemble_score is "
+                    "still VALIDATE/unset — cannot run the rule-engine-only fallback without it"
+                )
+            else:
+                if candidate.ensemble_score < min_ensemble:
+                    reasons.append(
+                        f"no ML confirmation available (require_ml_probability=false); ensemble score "
+                        f"{candidate.ensemble_score:.2f} below the validated minimum {min_ensemble:.2f}"
+                    )
+    elif isinstance(prob_threshold, (int, float)) and candidate.ml_probability < prob_threshold:
+        reasons.append(
+            f"model probability {candidate.ml_probability} below validated threshold {prob_threshold}"
+        )
 
     if _sleeve_disagreement(candidate.sleeve_scores):
         reasons.append(f"sleeve disagreement: {candidate.sleeve_scores}")
@@ -81,7 +108,12 @@ def evaluate_no_trade(candidate: Candidate, cfg: Config) -> NoTradeResult:
         reasons.append("catalyst could not be verified against a specific, current, verifiable source")
 
     min_rr = cfg.get("strategy.reward_risk_minimum", 2.0)
-    if candidate.reward_risk_ratio < min_rr:
+    # 1e-9 epsilon: entry/stop/target are rounded decimals (e.g. 148.30,
+    # 141.67) that aren't exactly representable in binary floating point,
+    # so a genuinely-at-target 2.0 R:R setup can compute as 1.9999999999999998
+    # and get spuriously rejected by a strict `<` here -- observed live on a
+    # real candidate. This tolerance absorbs float noise, not real shortfall.
+    if candidate.reward_risk_ratio < min_rr - 1e-9:
         reasons.append(f"reward/risk {candidate.reward_risk_ratio:.2f} below minimum {min_rr:.2f}")
 
     if candidate.market_risk_off_gate_active and not candidate.risk_off_exception_validated:

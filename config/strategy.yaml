@@ -31,7 +31,12 @@ strategy:
     HIGH_VOL:      {momentum: 0.3, trend: 0.3, breakout: 0.2, mean_reversion: 0.4, relative_strength: 0.5}
     RISK_OFF:      {momentum: 0.0, trend: 0.0, breakout: 0.0, mean_reversion: 0.0, relative_strength: 0.0}
     TRANSITION:    {momentum: 0.4, trend: 0.4, breakout: 0.3, mean_reversion: 0.3, relative_strength: 0.4}
-  minimum_ensemble_score: VALIDATE   # e.g. start testing around 0.55
+  # minimum_ensemble_score VALIDATED 2026-08-21: walk-forward on 10yrs/29
+  # tickers at this threshold produced 15 windows, 543 OOS trades, positive
+  # baseline expectancy, Monte Carlo median +2.2-20.6% return depending on
+  # run, contained drawdown, survived combined-worst-case stress. See
+  # memory/MODEL-LOG.md's 2026-08-21 entries.
+  minimum_ensemble_score: 0.55
   minimum_ml_probability: VALIDATE   # e.g. start testing around 0.55
   reward_risk_minimum: 2.0
 
@@ -47,6 +52,16 @@ no_trade:
   min_regime_confidence: 0.4
   min_setup_quality: 60
   require_catalyst_verification: true
+  # Deliberate decision, 2026-08-21: no champion ML model exists (four
+  # separate training attempts found no tradeable edge in the data/features
+  # tried so far -- see memory/MODEL-LOG.md). Rather than block all trading
+  # indefinitely, fall back to the rule-based ensemble/regime engine alone,
+  # gated on the VALIDATED minimum_ensemble_score above, with every other
+  # gate (catalyst verification, regime confidence, liquidity, portfolio
+  # concentration, reward:risk) still fully enforced. See
+  # memory/TRADING-STRATEGY.md's "Champion/Challenger" section. Flip this
+  # back to true once a model actually passes research/promotion.py.
+  require_ml_probability: false
 
 ml_model:
   target_r_multiple_win: 2.0

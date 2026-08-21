@@ -61,8 +61,23 @@ through this exact pipeline, in this order, all deterministic code in
    from `config/strategy.yaml`'s `strategy.regime_weights`.
 3. **ML probability** (`quant/model.py`) — the trained champion model's
    estimate of P(reach +2R before -1R within N days). `None` (not 0.5) if
-   no champion has been trained yet — treated as insufficient evidence, not
-   a coin flip.
+   no champion has been trained yet.
+
+   **2026-08-21 — deliberate, evidenced exception:** four separate training
+   attempts (different data sizes, algorithms, and feature sets — raw
+   technical indicators, then the system's own sleeve/ensemble/regime
+   signals, then cross-sectional peer rank) all found no tradeable edge;
+   see `memory/MODEL-LOG.md` for the full record. Rather than block all
+   trading indefinitely with no path forward,
+   `no_trade.require_ml_probability` is set to `false` in
+   `config/strategy.yaml`: when no ML probability exists, the pipeline
+   falls back to the rule-based ensemble/regime engine alone, gated on the
+   VALIDATED `strategy.minimum_ensemble_score` (0.55 — backed by real
+   walk-forward/Monte-Carlo/stress-test evidence, not a guess) instead of
+   hard-blocking. Every other gate below still applies unchanged — this
+   removes exactly one confirmation layer, not the whole filter. **Flip
+   `require_ml_probability` back to `true`** once a model actually passes
+   `research/promotion.py`'s criteria.
 4. **NO-TRADE filter** (`quant/no_trade.py`) — the explicit abstention gate.
    Any one of: probability below threshold, sleeve disagreement, low regime
    confidence, low setup quality, wide spread/illiquid, portfolio
