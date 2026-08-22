@@ -414,3 +414,104 @@ thesis. Ran `evaluate` on the top two anyway per the pipeline:
 carry negative ensemble scores (no bullish setup), the one evaluated
 survivor (BKE) is NO-TRADE on multiple gates, and BJ's quote path errored
 outright. Correct, expected outcome.
+
+## 2026-08-22 — Pre-market Research
+
+### Account
+- Equity: $100,000 | Cash: $100,000 (100%) | Buying power: $400,000 |
+  Daytrade count: 0/4
+- Positions: none | Open orders: none
+
+### Market Context
+- Regime: STRONG_TREND (confidence 0.392 with VIX / 0.317 scan's own call) — see `memory/REGIME-LOG.md`
+- WTI / Brent: ~$86.6-87.1 / ~$94.0-94.4, both modestly higher on the day
+- S&P 500 futures / VIX: ES ~7,691-7,695 (+0.3-0.4%); VIX ~15.4, down
+  ~4-5% on the day — low-vol, mildly risk-on tape
+- Today's catalysts: two FDA PDUFA decisions dated today — Capricor
+  Therapeutics (CAPR) for Deramiocel in Duchenne muscular dystrophy, and
+  Savara (SVRA) for Molbreevi in aPAP; broader market narrative remains
+  cooling-inflation + AI/chip earnings strength + Treasury long-bond
+  buyback support; weekly jobless claims also due today
+- Earnings before open: BJ (BJ's Wholesale), UI (Ubiquiti) — same two
+  names flagged BMO yesterday; some calendars show no reports at all
+  today, so treat as low-confidence
+- Economic calendar: no CPI/PPI/FOMC/jobs report today — initial jobless
+  claims only; next CPI Sept, next jobs report Sept 4
+- Sector momentum: Energy still YTD leader (+44.6%), Technology +27.5%,
+  Materials +16.5%, Utilities +3.9%; Communication Services worst
+  (-5.4%), Consumer Discretionary also negative (-1.9%); breadth broad
+  (9/11 sectors positive YTD)
+- Held-ticker news: n/a — no open positions
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| SVRA | 0.528 | — (no champion) | 76.4 tech / 50 sector / 100 cat / 10 liq | FDA PDUFA today; only positive-score candidate |
+| BJ | -0.057 | — | — | Earnings today (disputed); quote errored on evaluate |
+| CAPR | -0.325 | — | — | FDA PDUFA today; already down 25% (60d) into the decision |
+| UI | -0.353 | — | — | Earnings today (disputed); weakest scan, not evaluated |
+
+### Trade Ideas
+None. Ran `evaluate` on the top three by ensemble score:
+
+- **SVRA** — entry $6.32 / stop $5.91 / target $7.14 (R:R 2.0), NO-TRADE.
+- **BJ** — `evaluate` raised a hard error: "no usable quote for BJ
+  (bid=91.76, ask=0.0) — market data may be degraded or stale." Same
+  quote-path failure mode as 2026-08-20/08-21 (ask=0.0), same correct
+  fail-safe (raises instead of degrading to a $0 entry). No entry/stop/
+  target produced.
+- **CAPR** — `evaluate` raised the identical error: "no usable quote for
+  CAPR (bid=5.34, ask=0.0)." Second ticker today hitting the same
+  ask=0.0 failure.
+
+### NO-TRADE Candidates
+- **SVRA** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.53 below the validated
+  minimum 0.55; sleeve disagreement (mean_reversion -0.768 against
+  momentum +0.705, breakout +0.468, trend +0.462, relative_strength
+  +0.463); regime confidence 0.32 below minimum 0.40; spread/liquidity
+  failed (spread 25.16% > 0.5%).
+- BJ, CAPR — not evaluated past the quote error; no NO-TRADE reasons
+  available since the pipeline never reached the gate chain.
+- UI — not run through `evaluate`; ensemble score -0.353 and negative 60d
+  relative strength (-50.4%) made it clearly the weakest of the four, no
+  need to spend an evaluate call confirming a NO-TRADE on a worse setup.
+
+### Risk Factors
+- **Regime confidence 0.392/0.317 is now a fourth consecutive near-miss**
+  of the 0.40 minimum (2026-08-20 x2, 2026-08-21, now 2026-08-22), always
+  on the same HIGH_VOL (0.55) vs. STRONG_TREND (0.60) margin. This is a
+  structural pattern, not day-to-day noise — still flagged for the next
+  weekly review.
+- **Quote-path `ask=0.0` failure recurred on two more tickers today**
+  (BJ, CAPR), on top of BJ itself yesterday and JNJ on 2026-08-20. Same
+  symbol (BJ) has now hit this exact failure two days running. The
+  NO-TRADE/hard-error fail-safe is working correctly each time, but a
+  bug that reproduces on the same name across days points at something
+  specific to Alpaca's quote feed for these tickers (or a systemic issue
+  the routine keeps encountering at this time of day) rather than random
+  staleness — worth a direct look at `scripts/alpaca.sh quote BJ` outside
+  the pipeline before it recurs a third time.
+- **CAPR's PDUFA catalyst is real but the setup is deteriorating into the
+  decision**: 60d relative strength -38.9%, 20d momentum -15.6%, RSI 36.4
+  — this reads as the market already pricing in a negative/uncertain
+  outcome, not a case for a pre-decision long regardless of what the
+  pipeline's gates say. No options available under this strategy in any
+  case, so no way to structure defined-risk exposure to the binary event.
+- **SVRA is the closest thing to a live idea** (ensemble 0.528, only
+  candidate above 0) but the sleeve disagreement is real and directly
+  event-driven — RSI 71.8 / z-score +1.87 (already extended) heading into
+  a binary FDA readout is not the same setup the momentum/trend sleeves
+  are scoring. The 25% spread here also looks like it could be
+  event-driven wide-quoting ahead of the PDUFA date, not a liquidity
+  defect — worth re-scanning after the decision lands, not chasing pre-event.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate fails the ML-evidence gate regardless of setup. Expected,
+  fail-safe, unchanged from prior runs.
+
+### Decision
+**HOLD** — no order placed, none staged. Only positive-score candidate
+(SVRA) is NO-TRADE on multiple gates and sits on an event-driven extended
+setup into a binary FDA catalyst; the other three candidates are either
+negative-ensemble or blocked by a recurring quote-path error. Correct,
+expected outcome.
