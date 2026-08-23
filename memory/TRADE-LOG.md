@@ -61,3 +61,19 @@ not yet have write access to this repo (`git push` returned 403). See
 `memory/RISK-LOG.md` for that finding. This does not happen for local
 runs or for this recovery commit, both of which use working git
 credentials.*
+
+### 2026-08-23 — EOD Snapshot (Day 3, Sunday)
+
+**Portfolio:** $100,000.00 | **Cash:** $100,000.00 (100%) | **Day P&L:** $0 (0.0%) | **Phase P&L:** $0 (0.0%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+
+**Notes:** No open positions, no trades today, no flags from
+`quant_cli.py positions`. Equity unchanged from the Day 0 baseline —
+today falls on a weekend (market closed since Friday's close), so this
+snapshot reflects the account's flat holding state rather than fresh
+market action. Pipeline continues to correctly NO-TRADE (regime
+confidence has missed the 0.40 minimum four sessions running per
+`memory/REGIME-LOG.md`, and no champion ML model exists yet). Zero
+trades this week against the cap of 3.
