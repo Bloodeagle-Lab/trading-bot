@@ -515,3 +515,82 @@ None. Ran `evaluate` on the top three by ensemble score:
 setup into a binary FDA catalyst; the other three candidates are either
 negative-ensemble or blocked by a recurring quote-path error. Correct,
 expected outcome.
+
+## 2026-08-23 — Pre-market Research
+
+**Note: today is Sunday — markets closed, not a trading day.** Routine
+fired anyway (scheduling issue, see `memory/RISK-LOG.md`). Research
+completed for the record; no scan/evaluate run — see Decision.
+
+### Account
+- Equity: $100,000 | Cash: $100,000 (100%) | Buying power: $400,000 |
+  Daytrade count: 0/4
+- Positions: none | Open orders: none
+
+### Market Context
+- Regime: STRONG_TREND (confidence 0.392) — see `memory/REGIME-LOG.md` for
+  the full record
+- WTI / Brent: ~$87.06 / ~$94.39 (last settle, Friday 8/21; no weekend
+  trading)
+- S&P 500 futures / VIX: ES ~7,691.25 (Friday settle, +0.38%); VIX 15.13
+  (Friday close, -5.5% on the day) — both stale weekend snapshots, not
+  live quotes
+- Today's catalysts: none scheduled — it's Sunday. Broader narrative
+  heading into next week: rising 10-year yield (4.736%) as a headwind for
+  growth/tech, Nvidia earnings and PCE/Jackson Hole flagged as next week's
+  catalysts (week of 8/24-8/28). One low-quality source
+  (interactivecrypto.com) claimed a same-day TSLA "close" on Sunday 8/23 —
+  factually impossible since markets don't trade Sundays; discarded as
+  unreliable, not used as a candidate.
+- Earnings before open: none — multiple calendars (TradingView, Nasdaq,
+  Markets Insider, Tickzen) confirm zero reports scheduled for 8/23
+  (Sunday); next reports are Monday 8/24 (GRRR, AVXL, RR, and ~22 others).
+- Economic calendar: no CPI/PPI/FOMC/jobs data today. CPI (8/12), PPI
+  (8/13) already out; next jobs report Fri 9/4; next PPI 9/10. No
+  legitimate scheduled release found for Sunday 8/23 despite one FRED
+  listing noise ("FOMC Press Release" 7pm CT) that does not match any
+  known FOMC meeting date — disregarded as calendar-source noise.
+- Sector momentum: Energy still YTD leader (+44.3%), Technology +27.6%,
+  Materials +19.0%; Communication Services worst (-4.8%), Consumer
+  Discretionary also negative (-0.8%); breadth 9/11 sectors positive YTD —
+  materially unchanged from 8/22.
+- Held-ticker news: n/a — no open positions
+
+### Candidate Scan (scripts/quant_cli.py scan)
+Not run. No earnings, no scheduled catalysts, and no legitimate same-day
+news exists for a Sunday — nothing meets the "specific, verifiable
+catalyst" bar STEP 5 requires. Running `scan`/`evaluate` against Monday's
+names using weekend-stale quotes would test nothing and risks reproducing
+the ask=0.0 degraded-quote bug on data that isn't even live. Deferred to
+Monday's `pre-market` run, which will have real quotes and real earnings
+names (GRRR, AVXL, RR, +22 others).
+
+### Trade Ideas
+None.
+
+### NO-TRADE Candidates
+None evaluated — no candidates met the catalyst bar (see above).
+
+### Risk Factors
+- **Routine fired on a non-trading day (Sunday).** This is a new
+  scheduling-bug data point beyond the 2026-08-20 post-close-firing issue
+  already logged in `memory/RISK-LOG.md` — that one was a wrong *time*,
+  this one is a wrong *day* entirely. Flagged there in detail; needs a
+  cron-config look before Monday if not already fixed.
+- **`quant/regime.py`'s feature inputs are byte-identical across four
+  separate calendar days** (`trend_spy` 0.584, `trend_qqq` 0.587,
+  `volatility_20` 0.1811 — unchanged 2026-08-20 through 2026-08-23,
+  including today). Confidence has also landed on exactly 0.392 (with VIX
+  supplied) every single time. This is very unlikely to be real market
+  behavior four days running and reads as a stale/cached data source
+  feeding the regime engine rather than a live SPY/QQQ pull — flagged in
+  `memory/RISK-LOG.md` as a new, separate finding; worth checking the
+  regime engine's data source directly before trusting Monday's
+  classification for sizing.
+- No champion ML model exists (`models/champion/` empty) — unchanged,
+  expected.
+
+### Decision
+**HOLD** — no research-driven candidates today; not a trading day. Logged
+per `CLAUDE.md`'s instruction to record every routine firing, expected or
+not.

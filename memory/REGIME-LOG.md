@@ -79,3 +79,16 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
 - Note: fourth consecutive near-miss of the 0.40 confidence minimum
   (2026-08-20 x2, 2026-08-21, now 2026-08-22), always on the same
   HIGH_VOL-vs-STRONG_TREND margin.
+
+## 2026-08-23 (Sunday — non-trading day, routine fired anyway)
+
+- State: STRONG_TREND
+- Confidence: 0.392 (with `--vix 15.13`)
+- Scores: {STRONG_TREND: 0.60, CHOPPY: 0.00, HIGH_VOL: 0.55, RISK_OFF: 0.00, TRANSITION: 0.00}
+- Trend (SPY/QQQ): 0.584 / 0.587 | Volatility (20d): 0.1811 | VIX: 15.13 | Breadth (%>50dma): null
+- Note: **fifth consecutive** identical confidence/feature print
+  (2026-08-20 x2, 08-21, 08-22, now 08-23) — trend/volatility features
+  are now confirmed byte-identical across four separate calendar dates.
+  Combined with today being a Sunday, this run's classification should
+  not be treated as a fresh read of market state — see
+  `memory/RISK-LOG.md` for the stale-data-source finding.

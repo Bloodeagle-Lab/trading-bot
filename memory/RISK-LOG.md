@@ -158,3 +158,53 @@ assigned the branch `claude/sharp-rubin-ng4nj9` and instructed not to push
 anywhere else, so this run's memory commit lands there. It must be merged to
 `main` for the next routine's fresh clone to see it. Related to, but
 distinct from, the GitHub App write-403 finding above.
+
+## 2026-08-23 — SCHEDULING: `pre-market` routine fired on a Sunday (non-trading day)
+
+The cron trigger fired today, 2026-08-23, which is a Sunday — markets are
+closed, no earnings, no economic releases, no live quotes. This is a
+different failure mode than the 2026-08-20 post-close-timing issue already
+logged above (wrong hour on a real trading day): this is the routine
+running on a day the market isn't even open at all.
+
+Consequences this run:
+- All price/index data pulled (WTI, Brent, ES futures, VIX) was Friday
+  8/21's stale settle, not live.
+- No candidate scan/evaluate was run — no legitimate catalyst exists for a
+  Sunday, and testing the pipeline against Monday's names using
+  weekend-stale quotes would produce meaningless output and risked
+  reproducing the known ask=0.0 degraded-quote bug on data that was never
+  live to begin with. See `memory/RESEARCH-LOG.md`'s 2026-08-23 entry.
+
+**Action needed:** verify the cron schedule excludes Saturday/Sunday
+entirely (weekday-only trigger), not just the correct hour on trading
+days. If `market-open` or `midday` fire on a weekend with this
+misconfiguration, they must NOT be allowed to reach the execution gate —
+worth confirming both wrappers/CLI treat a closed market as a hard stop
+independent of the cron schedule, not just relying on the schedule being
+right.
+
+## 2026-08-23 — DATA QUALITY: regime engine's SPY/QQQ features frozen across 4+ days
+
+`python3 scripts/quant_cli.py regime --qqq --vix X` has returned
+byte-identical `trend_spy` (0.584), `trend_qqq` (0.587), and
+`volatility_20` (0.1811) on every `pre-market` run since 2026-08-20 (four
+distinct calendar dates: 08-20 x2, 08-21, 08-22, 08-23), producing the same
+0.392 confidence every time VIX is supplied in the same ~15-16 range.
+`breadth_pct_above_50dma` has also returned `null` every single run.
+
+This is very unlikely to reflect real market behavior across four separate
+days (SPY/QQQ trend and 20-day realized vol do not stay static day to day
+even in a genuinely quiet tape) and reads as `quant/regime.py` (or
+whatever data source feeds it) pulling from a stale/cached snapshot rather
+than a live SPY/QQQ series. Today's run (a Sunday) can't distinguish "no
+new bar exists yet" from "the feed is stuck," but the pattern already
+spanned three real trading days before today.
+
+**Action needed:** check `quant/regime.py`'s SPY/QQQ data source directly
+(not just the CLI's JSON output) to confirm it's pulling a fresh daily bar
+before the confidence score from any future `regime`/`scan`/`evaluate` call
+is trusted for real sizing. If it's genuinely stuck, every NO-TRADE
+decision citing "regime confidence below minimum" since 2026-08-20 was
+correct by coincidence (frozen inputs happen to sit under the 0.40 bar),
+not because the gate evaluated real data.
