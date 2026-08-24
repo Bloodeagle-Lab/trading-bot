@@ -64,6 +64,10 @@ credentials.*
 
 ## 2026-08-21 — EOD Snapshot (Day 1, Friday)
 
+---
+
+### 2026-08-22 — EOD Snapshot (Day 2, Saturday)
+
 **Portfolio:** $100,000.00 | **Cash:** $100,000.00 (100%) | **Day P&L:** $0.00 (0.00%) | **Phase P&L:** $0.00 (0.00%)
 
 | Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
@@ -83,3 +87,17 @@ same failure mode already logged in `memory/RISK-LOG.md` for
 2026-08-20 — this commit is pushed there, not to `main`, and needs a
 human to merge it before tomorrow's `daily-summary` run can find
 today's snapshot for day-over-day P&L.*
+
+| — | — | — | — | — | — | — |
+
+**Notes:** Market closed (Saturday) — `quant_cli.py positions` returns the
+Friday close carried forward: equity flat at $100,000.00, no open
+positions, no flags. Zero trades since Day 0 baseline (2026-08-20); regime
+has missed the 0.40 NO-TRADE confidence minimum four sessions running
+(2026-08-20 x2, 08-21, 08-22), always on the same HIGH_VOL-vs-STRONG_TREND
+margin, so the pipeline has correctly stayed in NO-TRADE the whole phase.
+This is the first EOD snapshot committed by the `daily-summary` routine
+itself — prior days have no logged snapshot (no committed daily-summary
+run found in history), so day-over-day P&L here is measured against the
+Day 0 baseline rather than a prior daily-summary entry. Trades this week:
+0/3.
