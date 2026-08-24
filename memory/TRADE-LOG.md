@@ -117,3 +117,45 @@ market action. Pipeline continues to correctly NO-TRADE (regime
 confidence has missed the 0.40 minimum four sessions running per
 `memory/REGIME-LOG.md`, and no champion ML model exists yet). Zero
 trades this week against the cap of 3.
+
+### 2026-08-24 — BUY BAC — MANUAL MECHANISM TEST, NOT A STRATEGY SIGNAL
+
+- Shares: 169 @ $62.30 (buy order id: 3e1dcfc2-4114-4b8d-8fc1-242ec62ae878)
+- Stop: 10% trailing GTC, ~$56.06 initial (stop order id:
+  85214135-e5a1-4df2-abc4-1cd4cd946e68) — placed manually via direct
+  TradingClient call after the automated stop-placement path failed (see
+  below), not by `execute`'s own `_place_protective_stop`.
+- Target: none set — not a scored setup, no thesis to size a target against.
+- Catalyst: **none — BAC was never scored by `evaluate`/`no_trade`.** Called
+  `scripts/quant_cli.py execute` directly, deliberately bypassing the
+  strategy-scoring gates (sleeve/ensemble/regime/ML), at the user's explicit
+  request specifically to verify the order-placement mechanism works
+  end-to-end, after today's actual top-scored candidate (AYI, ensemble
+  0.598) was correctly blocked by real sleeve disagreement (extended
+  technicals ahead of earnings — a legitimate NO-TRADE, not a bug). BAC was
+  picked only for a genuinely tight spread (0.02%), to isolate the
+  execution mechanism from today's separate data-quality findings.
+- Regime at entry: STRONG_TREND (confidence 0.605 — post-fix, see
+  `memory/REGIME-LOG.md`)
+- Ensemble score: not computed (bypassed) | ML probability: not computed
+  (no champion model)
+- Risk budget: 0.3% of equity ($300 risked), sized via `quant.risk.size_position`
+  the same way a real trade would be
+
+**Bug found and fixed in the process:** `execute`'s automated stop-placement
+never ran. The buy filled instantly (confirmed directly against Alpaca:
+`filled_qty="169"`, `filled_avg_price="62.3"`), but
+`quant/execution.py`'s `_poll_for_fill` compared `str(order.status)`
+against `"filled"` — alpaca-py's real status stringifies as
+`"OrderStatus.FILLED"`, so the comparison never matched, `filled_qty`
+came back 0.0, and the position sat with **no protective stop** until
+caught and fixed by hand within the same session (same enum-stringification
+bug `scripts/quant_cli.py`'s `_enum_tail` already had a fix for, just not
+applied inside `quant/execution.py`). Full fix, consolidated `enum_tail`
+utility, and a realistic-enum test fake (the old bare-string fake is
+exactly what let this ship) — see `memory/RISK-LOG.md` and the
+2026-08-24 commits.
+
+**Open question for the user:** this position has no strategic thesis —
+keep it as a live paper position, or close it? Flagging rather than
+deciding unilaterally.

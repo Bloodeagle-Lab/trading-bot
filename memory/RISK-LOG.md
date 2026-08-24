@@ -236,3 +236,51 @@ is trusted for real sizing. If it's genuinely stuck, every NO-TRADE
 decision citing "regime confidence below minimum" since 2026-08-20 was
 correct by coincidence (frozen inputs happen to sit under the 0.40 bar),
 not because the gate evaluated real data.
+
+**Resolved 2026-08-24:** root cause was `breadth_pct_above_50dma` never
+being supplied (always `null`), which alone kept STRONG_TREND's score
+capped at 0.6 instead of 0.85 — not a frozen/cached SPY feed. Fixed via
+`quant.regime.compute_breadth()` (real, computed % of a proxy universe
+above its own 50-day SMA) and auto-wired into `scripts/quant_cli.py`'s
+`regime`/`scan`/`evaluate`. Confirmed live same-day: confidence went
+0.392 -> 0.605 on identical trend/vol inputs, once breadth was supplied.
+
+## 2026-08-24 — Three real bugs found while pushing toward an actual trade
+
+Chasing the user's request to get a real trade placed today surfaced three
+distinct, previously-invisible bugs — each only visible by actually trying
+to execute, not by reading the code:
+
+1. **Regime confidence blocker** (see above) — fixed.
+2. **Duplicated, mode-unaware spread check.** `quant/no_trade.py`'s
+   `evaluate_no_trade` independently re-derived `universe.max_spread_pct`
+   (always the real 0.5%, ignoring the new paper-mode accommodation) and
+   OR'd it against `candidate.liquidity_ok`, silently overriding a
+   correctly-computed `liquidity_ok=True`. A THIRD independent copy of the
+   same threshold was also found in `quant/execution.py`'s
+   `check_quote_quality`. Consolidated into `Config.effective_max_spread_pct`
+   as the single source of truth for both.
+3. **Fill-status enum bug (the serious one).** Placed a real manual test
+   trade (BAC, see `memory/TRADE-LOG.md`'s 2026-08-24 entry) to verify the
+   order-placement mechanism. The buy filled instantly per Alpaca directly,
+   but `quant/execution.py`'s `_poll_for_fill` compared `str(order.status)`
+   against `"filled"` — alpaca-py's real status stringifies as
+   `"OrderStatus.FILLED"`, so the comparison never matched. Result: the
+   position sat with **no protective stop** until caught and fixed by hand
+   in the same session. Root cause: the exact enum-stringification quirk
+   `scripts/quant_cli.py`'s `_enum_tail` already handled, just never
+   applied inside `quant/execution.py`. Fixed by consolidating `enum_tail`
+   as a shared, public function in `quant/execution.py`, used everywhere
+   an order's `.status`/`.side` is read (including
+   `quant/reconciliation.py`). Also fixed the test fake that let this ship
+   — it used a bare string (`status="filled"`) instead of something that
+   mimics alpaca-py's real stringification, which is exactly why the bug
+   wasn't caught by existing tests.
+
+All three: found, fixed, tested, committed, pushed same day. Also found:
+the strategy's sleeve-disagreement rule may be structurally too strict
+during a strongly-trending regime (every momentum-scoring candidate today —
+AYI, GE, UNH, BAC-the-stock, V, JPM, ABBV — showed the same
+momentum-vs-mean-reversion disagreement pattern). Not fixed today —
+flagged for the next `weekly-review` to examine with real walk-forward
+evidence before touching it.
