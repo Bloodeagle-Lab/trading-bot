@@ -79,3 +79,14 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
 - Note: fourth consecutive near-miss of the 0.40 confidence minimum
   (2026-08-20 x2, 2026-08-21, now 2026-08-22), always on the same
   HIGH_VOL-vs-STRONG_TREND margin.
+
+## 2026-08-24
+
+- State: STRONG_TREND
+- Confidence: 0.392 (with `--vix 15.13`) / 0.317 (scan's own call, VIX
+  unsupplied) — both below the 0.40 NO-TRADE minimum
+- Scores: {STRONG_TREND: 0.60, CHOPPY: 0.00, HIGH_VOL: 0.55, RISK_OFF: 0.00, TRANSITION: 0.00}
+- Trend (SPY/QQQ): 0.589 / 0.585 | Volatility (20d): 0.1809 | VIX: 15.13 (Friday's close, no fresher print) | Breadth (%>50dma): null (not obtainable from research sources)
+- Note: fifth consecutive near-miss of the 0.40 confidence minimum
+  (2026-08-20 x2, 2026-08-21, 2026-08-22, now 2026-08-24), always on the
+  same HIGH_VOL-vs-STRONG_TREND margin.
