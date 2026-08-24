@@ -156,6 +156,9 @@ utility, and a realistic-enum test fake (the old bare-string fake is
 exactly what let this ship) — see `memory/RISK-LOG.md` and the
 2026-08-24 commits.
 
-**Open question for the user:** this position has no strategic thesis —
-keep it as a live paper position, or close it? Flagging rather than
-deciding unilaterally.
+**Resolved (user, 2026-08-24):** leave it open. No manual close — it
+follows the normal sell-side rules from here (`memory/TRADING-STRATEGY.md`:
+-7% hard cut, tighten to 7%/5% trailing at +15%/+20%, thesis-break check)
+via `midday`/`stops-check` like any other position, even though it has no
+catalyst-driven thesis to break. `daily-summary`/`weekly-review` should
+treat it as a normal open position, not exclude it as a "test."
