@@ -9,7 +9,22 @@ universe:
   min_avg_dollar_volume: 5000000     # 20-day avg $ volume floor
   exclude_halted: true
   exclude_abnormal_spreads: true
-  max_spread_pct: 0.5                # reject quotes wider than this %
+  max_spread_pct: 0.5                # reject quotes wider than this % — the
+                                      # REAL threshold, used whenever
+                                      # TRADING_MODE=live. Never loosen this
+                                      # one for convenience.
+  # Found 2026-08-24: this account's Alpaca data plan returns IEX-only quotes
+  # (ax/bx both "V" in the raw quote), which run far wider than true
+  # consolidated-market spreads — AYI, a liquid NYSE mid-cap, showed 5.3%
+  # against a real threshold of a few cents. max_spread_pct alone would block
+  # nearly every candidate regardless of setup quality, indefinitely, purely
+  # on a data-plan artifact. This paper-mode-only override is read INSTEAD OF
+  # max_spread_pct by scripts/quant_cli.py's cmd_evaluate whenever
+  # cfg.is_live is False — it has NO effect once TRADING_MODE=live, by
+  # construction (see quant/config.py's is_live), so it cannot silently carry
+  # into real-money trading. The real fix is a paid Alpaca data subscription
+  # (full SIP feed); revisit this value once that's in place.
+  max_spread_pct_paper_only: 6.0
 
 portfolio:
   max_positions: 6
