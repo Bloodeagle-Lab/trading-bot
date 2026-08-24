@@ -515,3 +515,95 @@ None. Ran `evaluate` on the top three by ensemble score:
 setup into a binary FDA catalyst; the other three candidates are either
 negative-ensemble or blocked by a recurring quote-path error. Correct,
 expected outcome.
+
+## 2026-08-24 — Pre-market Research (run inline from market-open — no earlier pre-market entry existed)
+
+### Account
+- Equity: $100,000 | Cash: $100,000 (100%) | Buying power: $400,000 |
+  Daytrade count: 0/4 (endpoint doesn't return the field; no trades executed
+  yet this account, assumed 0)
+- Positions: none | Open orders: none
+
+### Market Context
+- Regime: STRONG_TREND (confidence 0.392 with VIX / 0.317 scan's own call) — see `memory/REGIME-LOG.md`
+- WTI / Brent: ~$85.4-85.6 / ~$92.9-93.1, both down ~1.5-2% on the day on
+  reports of tougher new US sanctions on Iran
+- S&P 500 futures / VIX: ES ~7,679-7,689 (-0.1 to -0.3%); VIX ~15.9-16.0,
+  roughly flat — low-vol, mixed-to-mildly-risk-off tape
+- Today's catalysts: Nvidia earnings (this week's AI-trade bellwether, not
+  confirmed before today's open), Jackson Hole Fed symposium, Chicago Fed
+  National Activity Index + weekly jobless claims at 12:30pm ET; Australia
+  CPI / BoJ rate-hike expectations for Asia/FX
+- Earnings before open: DRI (Darden), SNX (TD Synnex), AYI (Acuity
+  Brands), CMC (Commercial Metals), WGO (Winnebago), NNOX (Nano-X); PDD,
+  XPEV also flagged pre-market on a second calendar
+- Economic calendar: no CPI/PPI/FOMC today; Chicago Fed National Activity
+  Index + weekly jobless claims at 12:30pm ET; next PPI Sept 10
+- Sector momentum: Energy still YTD leader (+44.3%), Technology +27.6%,
+  Materials +19.0%, Industrials +16.8%; Communication Services worst
+  (-4.8%), Consumer Discretionary also negative (-0.8%); breadth broad
+  (9/11 sectors positive YTD)
+- Held-ticker news: n/a — no open positions
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| AYI | 0.598 | — (no champion) | 79.9 tech / 65 sector / 100 cat / 10 liq | Earnings today; only candidate above 0.55 min |
+| WGO | 0.204 | — | 60.2 tech / 30 sector / 100 cat / 10 liq | Earnings today; weak sector (Discretionary) |
+| SNX | 0.184 | — | 59.2 tech / 80 sector / 100 cat / 10 liq | Earnings today; strong sector, weak technicals |
+| DRI | 0.164 | — | not evaluated | Earnings today; below scan threshold, not run |
+| CMC | -0.327 | — | not evaluated | Earnings today; negative ensemble, not run |
+
+### Trade Ideas
+None. Ran `evaluate` on the top three by ensemble score:
+
+- **AYI** — entry $383.94 / stop $360.20 / target $431.42 (R:R 2.0), NO-TRADE.
+- **SNX** — entry $278.38 / stop $262.44 / target $310.26 (R:R 2.0), NO-TRADE.
+- **WGO** — entry $36.77 / stop $34.46 / target $41.39 (R:R 2.0), NO-TRADE.
+
+### NO-TRADE Candidates
+- **AYI** — reasons, verbatim: sleeve disagreement (mean_reversion -0.672
+  against momentum +0.835, trend +0.401, breakout +0.401, relative_strength
+  +0.795); regime confidence 0.39 below minimum 0.40; spread/liquidity
+  failed (spread 22.37% > 0.5%).
+- **SNX** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.18 below the validated
+  minimum 0.55; regime confidence 0.39 below minimum 0.40; spread/liquidity
+  failed (spread 16.81% > 0.5%).
+- **WGO** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.20 below the validated
+  minimum 0.55; sleeve disagreement (momentum +0.274, trend +0.024,
+  breakout +0.436, mean_reversion -0.487, relative_strength +0.054); regime
+  confidence 0.39 below minimum 0.40; spread/liquidity failed (spread
+  28.94% > 0.5%).
+- DRI, CMC — not evaluated past the scan; DRI's 0.164 ensemble and CMC's
+  negative -0.327 ensemble made both clearly weaker than the top three,
+  no need to spend an evaluate call confirming a NO-TRADE on a worse setup.
+
+### Risk Factors
+- **Regime confidence 0.392 is now a fifth consecutive near-miss** of the
+  0.40 minimum (2026-08-20 x2, 2026-08-21, 2026-08-22, now 2026-08-24 —
+  no research/routine ran 2026-08-23, a Sunday), always on the same
+  HIGH_VOL (0.55) vs. STRONG_TREND (0.60) margin. Structural pattern,
+  flagged again for weekly review.
+- **All three evaluated candidates failed on spread/liquidity (16.8-28.9%
+  spreads)** — this is a genuinely pre-market run (quotes pulled before
+  the open), so wide spreads here are expected market microstructure, not
+  the ask=0.0 quote-path bug seen on BJ/CAPR/JNJ in prior logs. Worth
+  re-checking AYI (the only ensemble-PASS candidate) once the market
+  opens and real liquidity is present, though STEP 2 of `market-open`
+  already re-validates with fresh data before any order would fire.
+- **AYI's setup is the closest to tradeable** (ensemble 0.598, only
+  candidate above the 0.55 minimum) but real earnings-day gap risk (20d
+  return already +18%, RSI 69.2, z-score +1.63 — extended into the print)
+  plus the regime-confidence and spread gates both failing independently
+  means this is correctly NO-TRADE, not a borderline call to argue with.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate fails the ML-evidence gate regardless of setup. Expected,
+  fail-safe, unchanged from prior runs.
+
+### Decision
+**HOLD** — no order placed, none staged. AYI is the only candidate above
+the ensemble minimum but fails on regime confidence and spread/liquidity;
+SNX and WGO fail ensemble score outright; DRI and CMC weaker still.
+Correct, expected outcome.
