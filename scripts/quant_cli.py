@@ -53,6 +53,7 @@ import pandas as pd
 from quant.config import Config, load_config
 from quant.ensemble import SetupQuality, compute_ensemble, technical_score_from_ensemble
 from quant.execution import ExecutionGate, OrderRequest
+from quant.execution import enum_tail as _enum_tail
 from quant.features import compute_features
 from quant.model import predict_with_champion
 from quant.no_trade import Candidate, evaluate_no_trade
@@ -242,9 +243,11 @@ def _latest_quote(data_client, symbol: str) -> dict:
     return {"bid_price": bid, "ask_price": ask}
 
 
-def _enum_tail(value) -> str:
-    """alpaca-py enums stringify as 'OrderSide.SELL' — this extracts 'sell'."""
-    return str(value).lower().split(".")[-1]
+# _enum_tail (imported above as an alias for quant.execution.enum_tail) used
+# to be a local copy here — consolidated 2026-08-24 after the SAME
+# missing-extraction bug (comparing a raw str(enum) like "OrderStatus.FILLED"
+# against "filled") shipped inside quant/execution.py's _poll_for_fill
+# because it didn't reuse this.
 
 
 # ---------------------------------------------------------------------------

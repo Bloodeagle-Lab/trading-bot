@@ -23,6 +23,16 @@ from typing import Any
 
 from quant.config import Config, ROOT
 
+
+def enum_tail(value: Any) -> str:
+    """alpaca-py enums stringify as 'OrderStatus.FILLED', 'OrderSide.SELL'
+    etc. — this extracts the lowercase tail ('filled', 'sell'). Public (no
+    leading underscore) because both this module's own fill-status checks
+    and scripts/quant_cli.py's order-filtering need the exact same
+    extraction; a second inline copy of `str(x).lower().split(".")[-1]` is
+    how a real bug shipped (see _poll_for_fill's docstring, 2026-08-24)."""
+    return str(value).lower().split(".")[-1]
+
 STATE_DIR = ROOT / "state"
 ORDERS_FILE = STATE_DIR / "orders.json"
 POSITIONS_FILE = STATE_DIR / "positions.json"
@@ -194,8 +204,8 @@ class ExecutionGate:
             client_order_id=order.client_order_id,
         )
         result = self.client.submit_order(req)
-        self._persist_order(order, status=result.status, order_id=str(result.id))
-        return ExecutionResult(accepted=True, gates=gates, order_id=str(result.id), status=str(result.status))
+        self._persist_order(order, status=enum_tail(result.status), order_id=str(result.id))
+        return ExecutionResult(accepted=True, gates=gates, order_id=str(result.id), status=enum_tail(result.status))
 
     def submit_entry_with_trailing_stop(
         self,
@@ -252,7 +262,7 @@ class ExecutionGate:
         )
         buy_result = self.client.submit_order(buy_req)
         buy_order_id = str(buy_result.id)
-        self._persist_order(order, status=str(buy_result.status), order_id=buy_order_id)
+        self._persist_order(order, status=enum_tail(buy_result.status), order_id=buy_order_id)
 
         filled_qty, fill_price, buy_status = self._poll_for_fill(
             buy_order_id, fill_poll_attempts, fill_poll_interval_s,
@@ -275,10 +285,24 @@ class ExecutionGate:
         )
 
     def _poll_for_fill(self, order_id: str, attempts: int, interval_s: float) -> tuple[float, float, str]:
+        """
+        BUG (found 2026-08-24, real live order): this used to compare
+        str(o.status) directly against "filled"/"partially_filled"/etc.
+        alpaca-py's status is an enum that stringifies as "OrderStatus.FILLED",
+        not "filled" — the comparison never matched, so this ALWAYS fell
+        through to "not filled yet" and skipped placing the protective stop,
+        even on an order that filled instantly. A real BAC buy filled
+        (confirmed via the broker directly: filled_qty="169",
+        filled_avg_price="62.3") while this method still reported
+        filled_qty=0.0 and left the position with no stop until a human
+        caught it manually. Now uses enum_tail() to extract the real value,
+        the same fix already applied to every enum comparison in
+        scripts/quant_cli.py.
+        """
         status = "unknown"
         for _ in range(attempts):
             o = self.client.get_order_by_id(order_id)
-            status = str(o.status)
+            status = enum_tail(o.status)
             if status in ("filled", "partially_filled"):
                 return float(o.filled_qty or 0), float(o.filled_avg_price or 0), status
             if status in ("canceled", "rejected", "expired"):

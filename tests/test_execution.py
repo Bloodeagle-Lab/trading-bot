@@ -6,8 +6,33 @@ from types import SimpleNamespace
 import pytest
 
 import quant.execution as execution_mod
-from quant.execution import ExecutionGate, OrderRequest
+from quant.execution import ExecutionGate, OrderRequest, enum_tail
 from tests.conftest import make_config
+
+
+def test_enum_tail_extracts_value_from_realistic_enum_stringification():
+    assert enum_tail(_FakeOrderStatus("filled")) == "filled"
+    assert enum_tail(_FakeOrderStatus("partially_filled")) == "partially_filled"
+
+
+def test_enum_tail_passes_through_plain_strings_unchanged():
+    assert enum_tail("filled") == "filled"
+
+
+class _FakeOrderStatus:
+    """Mimics alpaca-py's real enum stringification (str(x) ==
+    "OrderStatus.FILLED", NOT "filled") — a plain string here would mask
+    exactly the bug found 2026-08-24: _poll_for_fill comparing str(o.status)
+    directly against "filled" always failed against the real API and left a
+    genuinely filled order looking unfilled, so no protective stop was
+    placed. Every fake order status in this file must use this, not a bare
+    string, or this whole test file stops proving anything about that bug."""
+
+    def __init__(self, value: str):
+        self.value = value
+
+    def __str__(self):
+        return f"OrderStatus.{self.value.upper()}"
 
 
 @pytest.fixture(autouse=True)
@@ -165,22 +190,25 @@ class _FakeBrokerClient:
         self.submitted.append(req)
         cls_name = type(req).__name__
         if cls_name == "MarketOrderRequest":
-            return SimpleNamespace(id="buy-1", status="new")
+            return SimpleNamespace(id="buy-1", status=_FakeOrderStatus("new"))
         if cls_name == "TrailingStopOrderRequest":
             if self.trailing_stop_raises:
                 raise RuntimeError("trailing stop rejected (simulated PDT restriction)")
-            return SimpleNamespace(id="stop-trailing-1", status="accepted")
+            return SimpleNamespace(id="stop-trailing-1", status=_FakeOrderStatus("accepted"))
         if cls_name == "StopOrderRequest":
             if self.fixed_stop_raises:
                 raise RuntimeError("fixed stop rejected too (simulated)")
-            return SimpleNamespace(id="stop-fixed-1", status="accepted")
+            return SimpleNamespace(id="stop-fixed-1", status=_FakeOrderStatus("accepted"))
         raise AssertionError(f"unexpected order type submitted: {cls_name}")
 
     def get_order_by_id(self, order_id):
         self.poll_count += 1
         if self.poll_count >= self.fill_after:
-            return SimpleNamespace(id=order_id, status="filled", filled_qty=self.fill_qty, filled_avg_price=self.fill_price)
-        return SimpleNamespace(id=order_id, status="new", filled_qty=0, filled_avg_price=None)
+            return SimpleNamespace(
+                id=order_id, status=_FakeOrderStatus("filled"),
+                filled_qty=self.fill_qty, filled_avg_price=self.fill_price,
+            )
+        return SimpleNamespace(id=order_id, status=_FakeOrderStatus("new"), filled_qty=0, filled_avg_price=None)
 
 
 def test_submit_entry_with_trailing_stop_rejects_on_failed_gate():

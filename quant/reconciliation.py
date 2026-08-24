@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from quant.config import ROOT
+from quant.execution import enum_tail
 
 STATE_DIR = ROOT / "state"
 POSITIONS_FILE = STATE_DIR / "positions.json"
@@ -62,7 +63,7 @@ def reconcile(trading_client) -> ReconciliationReport:
     live_orders_raw = trading_client.get_orders()
     live_open_orders = [
         {"order_id": str(o.id), "client_order_id": o.client_order_id, "ticker": o.symbol,
-         "side": str(o.side), "status": str(o.status)}
+         "side": enum_tail(o.side), "status": enum_tail(o.status)}
         for o in live_orders_raw
     ]
 
