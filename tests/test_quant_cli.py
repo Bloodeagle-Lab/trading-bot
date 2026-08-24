@@ -8,41 +8,14 @@ import pandas as pd
 import pytest
 
 from scripts.quant_cli import (
-    _latest_quote, _resolve_max_spread_pct, build_parser, compute_stops_check_actions, print_result, to_jsonable,
-    validate_tighten_stop,
+    _latest_quote, build_parser, compute_stops_check_actions, print_result, to_jsonable, validate_tighten_stop,
 )
 from tests.conftest import make_config
 
-
-# ---- _resolve_max_spread_pct ----------------------------------------------
-
-def test_resolve_max_spread_pct_uses_real_threshold_in_live_mode():
-    cfg = dataclasses.replace(
-        make_config({"universe": {"max_spread_pct": 0.5, "max_spread_pct_paper_only": 6.0}}),
-        mode="live",
-    )
-    assert _resolve_max_spread_pct(cfg) == 0.5
-
-
-def test_resolve_max_spread_pct_uses_paper_override_in_paper_mode():
-    cfg = make_config({"universe": {"max_spread_pct": 0.5, "max_spread_pct_paper_only": 6.0}})
-    assert cfg.mode == "paper"
-    assert _resolve_max_spread_pct(cfg) == 6.0
-
-
-def test_resolve_max_spread_pct_falls_back_to_real_threshold_if_paper_override_unset():
-    cfg = make_config({"universe": {"max_spread_pct": 0.5}})
-    assert _resolve_max_spread_pct(cfg) == 0.5
-
-
-def test_resolve_max_spread_pct_live_mode_ignores_paper_override_even_if_looser():
-    # the critical safety property: switching to live must NEVER silently
-    # inherit the loosened paper-mode spread allowance
-    cfg = dataclasses.replace(
-        make_config({"universe": {"max_spread_pct": 0.5, "max_spread_pct_paper_only": 50.0}}),
-        mode="live",
-    )
-    assert _resolve_max_spread_pct(cfg) == 0.5
+# Note: the mode-gated spread threshold (formerly a local _resolve_max_spread_pct
+# helper here) now lives as Config.effective_max_spread_pct in quant/config.py —
+# see tests/test_config.py — so quant/execution.py and this module share one
+# implementation instead of two independently-drifting copies.
 
 
 class _FakeDataClient:

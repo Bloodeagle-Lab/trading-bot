@@ -201,20 +201,6 @@ def _fetch_daily_bars(data_client, symbol: str, lookback_days: int = 300) -> pd.
     return bars[["open", "high", "low", "close", "volume"]].sort_index()
 
 
-def _resolve_max_spread_pct(cfg: Config) -> float:
-    """
-    Live mode: always the real universe.max_spread_pct — never overridden.
-    Paper mode: universe.max_spread_pct_paper_only if set (a deliberate,
-    documented accommodation for this account's IEX-only data plan — see
-    config/strategy.yaml), else falls back to the same real threshold.
-    Split out as its own function specifically so this mode-gating is
-    directly unit-testable without mocking a live data client.
-    """
-    if cfg.is_live:
-        return cfg.get("universe.max_spread_pct", 0.5)
-    return cfg.get("universe.max_spread_pct_paper_only", cfg.get("universe.max_spread_pct", 0.5))
-
-
 def _resolve_breadth(data_client, override: float | None) -> float | None:
     """
     An explicit --breadth always wins (lets a caller override with a real
@@ -326,7 +312,7 @@ def cmd_evaluate(cfg: Config, args: argparse.Namespace) -> dict:
 
     quote = _latest_quote(data_client, args.ticker)
     spread_pct = (quote["ask_price"] - quote["bid_price"]) / quote["ask_price"] * 100 if quote["ask_price"] else 100.0
-    max_spread_pct = _resolve_max_spread_pct(cfg)
+    max_spread_pct = cfg.effective_max_spread_pct
     liquidity_ok = quote["ask_price"] > 0 and quote["bid_price"] > 0 and spread_pct <= max_spread_pct
 
     entry_price = args.entry_price if args.entry_price is not None else quote["ask_price"]

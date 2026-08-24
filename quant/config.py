@@ -71,6 +71,24 @@ class Config:
     def is_live(self) -> bool:
         return self.mode == "live"
 
+    @property
+    def effective_max_spread_pct(self) -> float:
+        """
+        THE single source of truth for the spread/liquidity threshold — live
+        mode always uses universe.max_spread_pct (the real one); paper mode
+        uses universe.max_spread_pct_paper_only if set, else falls back to
+        the same real threshold. Both quant/execution.py's check_quote_quality
+        and scripts/quant_cli.py's cmd_evaluate must call THIS, not re-derive
+        their own copy — two independent inline copies of this exact
+        condition (both effectively hardcoding the live threshold, blind to
+        mode) is exactly how the 2026-08-24 bug happened: a correctly
+        computed paper-mode liquidity_ok=True got silently overridden by a
+        second check elsewhere that never knew the paper override existed.
+        """
+        if self.is_live:
+            return self.get("universe.max_spread_pct", 0.5)
+        return self.get("universe.max_spread_pct_paper_only", self.get("universe.max_spread_pct", 0.5))
+
 
 def load_config(env_file: str | Path | None = None) -> Config:
     load_dotenv(dotenv_path=env_file or (ROOT / ".env"), override=False)

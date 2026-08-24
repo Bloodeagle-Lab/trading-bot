@@ -106,7 +106,7 @@ class ExecutionGate:
         if bid <= 0 or ask <= 0:
             return GateResult(False, "quote_quality", "stale/zero quote")
         spread_pct = (ask - bid) / ask * 100
-        max_spread = self.cfg.get("universe.max_spread_pct", 0.5)
+        max_spread = self.cfg.effective_max_spread_pct
         if spread_pct > max_spread:
             return GateResult(False, "quote_quality", f"spread {spread_pct:.2f}% > {max_spread}%")
         return GateResult(True, "quote_quality", f"spread {spread_pct:.2f}%")
