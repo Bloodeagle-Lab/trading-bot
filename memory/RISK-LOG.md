@@ -158,3 +158,18 @@ assigned the branch `claude/sharp-rubin-ng4nj9` and instructed not to push
 anywhere else, so this run's memory commit lands there. It must be merged to
 `main` for the next routine's fresh clone to see it. Related to, but
 distinct from, the GitHub App write-403 finding above.
+
+## 2026-08-21 — Persistence: same session-branch issue recurs on daily-summary
+
+This `daily-summary` run was assigned branch `claude/brave-rubin-g81u3p`
+with the same no-push-elsewhere-without-permission constraint as
+2026-08-20's `pre-market` run. Today's EOD snapshot commit lands there,
+not on `main` — this is now a recurring pattern across at least two
+different routines and two different assigned branches, not a one-off.
+Until this is fixed at the scheduling/harness level, every cloud routine
+needs its branch merged to `main` by a human before the next routine's
+fresh clone can see prior memory (e.g. tomorrow's day P&L depends on
+today's snapshot reaching `main`). **Action needed:** either grant the
+scheduled-routine identity push access to `main` directly (matching what
+`CLAUDE.md` assumes), or add an automatic merge/PR step after each
+routine's push to its assigned branch.
