@@ -284,3 +284,20 @@ AYI, GE, UNH, BAC-the-stock, V, JPM, ABBV — showed the same
 momentum-vs-mean-reversion disagreement pattern). Not fixed today —
 flagged for the next `weekly-review` to examine with real walk-forward
 evidence before touching it.
+
+## 2026-08-24 — Persistence: daily-summary session-branch issue recurs again
+
+Same pattern as the 2026-08-20/08-21/08-22 entries above. This
+`daily-summary` session was assigned `claude/tender-hopper-vajkn0` with an
+explicit no-push-elsewhere-without-permission constraint, which conflicts
+with `CLAUDE.md`/`routines/daily-summary.md`'s literal `git push origin
+main`. Followed the standing session-level branch policy (push to the
+assigned branch, never main) rather than the routine's literal instruction.
+Today's EOD snapshot commit (`5fe88c9`, includes the 2026-08-24 EOD
+snapshot and today's BAC position) is pushed to
+`claude/tender-hopper-vajkn0`, not `main` — a fresh clone from `main` for
+tomorrow's routine will NOT see it until a human merges this branch.
+**Action needed:** merge `claude/tender-hopper-vajkn0` into `main` before
+tomorrow's `daily-summary` run, or day-over-day P&L will silently fall
+back to comparing against the last snapshot actually on `main` (2026-08-22,
+per this same recurring gap) instead of today's real numbers.
