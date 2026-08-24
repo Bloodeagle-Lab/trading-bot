@@ -3,7 +3,8 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from quant.regime import CHOPPY, HIGH_VOL, RISK_OFF, STRONG_TREND, TRANSITION, classify_regime
+from quant.regime import CHOPPY, HIGH_VOL, RISK_OFF, STRONG_TREND, TRANSITION, classify_regime, compute_breadth
+from tests.conftest import make_ohlcv
 
 
 def _row(**kwargs) -> pd.Series:
@@ -55,3 +56,56 @@ def test_regime_confidence_never_negative_or_above_one_across_grid():
                 row = _row(sma20_slope_5d=slope)
                 result = classify_regime(row, vix_level=vix, breadth_pct_above_50dma=breadth)
                 assert 0.0 <= result.confidence <= 1.0
+
+
+def test_breadth_good_is_the_only_way_to_reach_strong_trend_top_score():
+    # Documents the exact bug found in production (2026-08-20 -> 2026-08-24):
+    # STRONG_TREND can only ever score 0.85 (vs the 0.6 ceiling without
+    # breadth data) when breadth_pct_above_50dma says most of the market
+    # agrees -- confirms compute_breadth's value is actually load-bearing,
+    # not cosmetic.
+    row = _row(sma20_slope_5d=0.02)
+    without_breadth = classify_regime(row, vix_level=15.0, breadth_pct_above_50dma=None)
+    with_good_breadth = classify_regime(row, vix_level=15.0, breadth_pct_above_50dma=0.75)
+    assert without_breadth.scores[STRONG_TREND] == 0.6
+    assert with_good_breadth.scores[STRONG_TREND] == 0.85
+    assert with_good_breadth.confidence > without_breadth.confidence
+
+
+# ---- compute_breadth --------------------------------------------------
+
+def test_compute_breadth_all_above_returns_one():
+    price_data = {f"T{i}": make_ohlcv(n=80, seed=i, drift=0.01) for i in range(12)}
+    breadth = compute_breadth(price_data)
+    assert breadth == pytest.approx(1.0)
+
+
+def test_compute_breadth_all_below_returns_zero():
+    price_data = {f"T{i}": make_ohlcv(n=80, seed=i, drift=-0.01) for i in range(12)}
+    breadth = compute_breadth(price_data)
+    assert breadth == pytest.approx(0.0)
+
+
+def test_compute_breadth_mixed_is_between_zero_and_one():
+    price_data = {}
+    for i in range(6):
+        price_data[f"UP{i}"] = make_ohlcv(n=80, seed=i, drift=0.01)
+    for i in range(6):
+        price_data[f"DOWN{i}"] = make_ohlcv(n=80, seed=100 + i, drift=-0.01)
+    breadth = compute_breadth(price_data)
+    assert breadth is not None
+    assert 0.0 < breadth < 1.0
+
+
+def test_compute_breadth_returns_none_below_min_tickers():
+    price_data = {f"T{i}": make_ohlcv(n=80, seed=i, drift=0.01) for i in range(3)}
+    assert compute_breadth(price_data, min_tickers=10) is None
+
+
+def test_compute_breadth_skips_tickers_with_too_little_history():
+    price_data = {
+        "GOOD": make_ohlcv(n=80, seed=1, drift=0.01),
+        "TOO_SHORT": make_ohlcv(n=20, seed=2, drift=0.01),
+    }
+    # only 1 usable ticker, below default min_tickers -> None, not a crash
+    assert compute_breadth(price_data, min_tickers=2) is None

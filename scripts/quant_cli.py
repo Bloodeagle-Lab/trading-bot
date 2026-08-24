@@ -57,7 +57,7 @@ from quant.features import compute_features
 from quant.model import predict_with_champion
 from quant.no_trade import Candidate, evaluate_no_trade
 from quant.reconciliation import reconcile as reconcile_positions
-from quant.regime import classify_regime
+from quant.regime import BREADTH_PROXY_UNIVERSE, classify_regime, compute_breadth
 from quant.risk import classify_setup_state, risk_budget_pct, size_position
 
 
@@ -201,6 +201,29 @@ def _fetch_daily_bars(data_client, symbol: str, lookback_days: int = 300) -> pd.
     return bars[["open", "high", "low", "close", "volume"]].sort_index()
 
 
+def _resolve_breadth(data_client, override: float | None) -> float | None:
+    """
+    An explicit --breadth always wins (lets a caller override with a real
+    published statistic, or force None for testing). Otherwise, computes a
+    real breadth read from BREADTH_PROXY_UNIVERSE — found in production
+    that this was NEVER being supplied at all (regime.py's compute_breadth
+    docstring has the full story), which silently capped regime confidence
+    well below the 0.40 minimum for five straight sessions regardless of
+    how strong the actual trend was. A failed fetch degrades to None (no
+    breadth data) rather than crashing the whole command — breadth is an
+    enhancement to regime confidence, not a hard dependency of it.
+    """
+    if override is not None:
+        return override
+    price_data: dict[str, pd.DataFrame] = {}
+    for ticker in BREADTH_PROXY_UNIVERSE:
+        try:
+            price_data[ticker] = _fetch_daily_bars(data_client, ticker, lookback_days=60)
+        except Exception:
+            continue  # one bad ticker shouldn't sink the whole breadth read
+    return compute_breadth(price_data)
+
+
 def _latest_quote(data_client, symbol: str) -> dict:
     from alpaca.data.requests import StockLatestQuoteRequest
 
@@ -235,7 +258,8 @@ def cmd_regime(cfg: Config, args: argparse.Namespace) -> dict:
     qqq_row = None
     if args.qqq:
         qqq_row = compute_features(_fetch_daily_bars(data_client, "QQQ")).iloc[-1]
-    result = classify_regime(spy_row, qqq_row, vix_level=args.vix, breadth_pct_above_50dma=args.breadth)
+    breadth = _resolve_breadth(data_client, args.breadth)
+    result = classify_regime(spy_row, qqq_row, vix_level=args.vix, breadth_pct_above_50dma=breadth)
     return dataclasses.asdict(result)
 
 
@@ -243,7 +267,8 @@ def cmd_scan(cfg: Config, args: argparse.Namespace) -> dict:
     _, data_client = _build_clients(cfg)
     spy_bars = _fetch_daily_bars(data_client, "SPY")
     spy_row = compute_features(spy_bars).iloc[-1]
-    regime = classify_regime(spy_row, vix_level=args.vix, breadth_pct_above_50dma=args.breadth)
+    breadth = _resolve_breadth(data_client, args.breadth)
+    regime = classify_regime(spy_row, vix_level=args.vix, breadth_pct_above_50dma=breadth)
 
     regime_weights = cfg.get("strategy.regime_weights", {})
     sleeve_enabled = cfg.get("strategy.sleeves", {})
@@ -272,7 +297,8 @@ def cmd_evaluate(cfg: Config, args: argparse.Namespace) -> dict:
     trading_client, data_client = _build_clients(cfg)
     spy_bars = _fetch_daily_bars(data_client, "SPY")
     spy_row = compute_features(spy_bars).iloc[-1]
-    regime = classify_regime(spy_row, vix_level=args.vix, breadth_pct_above_50dma=args.breadth)
+    breadth = _resolve_breadth(data_client, args.breadth)
+    regime = classify_regime(spy_row, vix_level=args.vix, breadth_pct_above_50dma=breadth)
 
     bars = _fetch_daily_bars(data_client, args.ticker)
     row = compute_features(bars, benchmark_close=spy_bars["close"]).iloc[-1]
@@ -533,7 +559,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("regime", help="classify today's market regime")
     p.add_argument("--qqq", action="store_true")
     p.add_argument("--vix", type=float, default=None)
-    p.add_argument("--breadth", type=float, default=None, help="fraction 0-1 of universe above 50dma")
+    p.add_argument("--breadth", type=float, default=None,
+                    help="fraction 0-1 of universe above 50dma; auto-computed from a live proxy "
+                         "universe if omitted (see quant/regime.py's BREADTH_PROXY_UNIVERSE) — "
+                         "pass this only to override with a real published statistic")
 
     p = sub.add_parser("scan", help="ensemble-score candidate tickers")
     p.add_argument("tickers", nargs="+")

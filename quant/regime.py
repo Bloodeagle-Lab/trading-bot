@@ -20,6 +20,20 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+# A liquid, diversified proxy universe for breadth — NOT the full S&P 500
+# (that would mean fetching ~500 tickers' history on every routine run).
+# breadth_pct_above_50dma computed from this list is an approximation of
+# true market breadth, not the literal statistic; document it as such
+# anywhere it's surfaced (REGIME-LOG.md, notifications).
+BREADTH_PROXY_UNIVERSE = [
+    "AAPL", "MSFT", "GOOGL", "NVDA", "META", "AVGO", "CRM", "ORCL",
+    "JNJ", "UNH", "PFE", "MRK", "ABBV",
+    "JPM", "BAC", "GS", "V", "MA",
+    "XOM", "CVX", "COP",
+    "WMT", "PG", "KO", "MCD", "HD", "NKE",
+    "CAT", "GE",
+]
+
 STRONG_TREND = "STRONG_TREND"
 CHOPPY = "CHOPPY"
 HIGH_VOL = "HIGH_VOL"
@@ -133,3 +147,41 @@ def classify_regime(
             "breadth_pct_above_50dma": breadth_pct_above_50dma,
         },
     )
+
+
+def compute_breadth(price_data: dict[str, pd.DataFrame], min_tickers: int = 10) -> float | None:
+    """
+    Fraction (0..1) of price_data's tickers currently trading above their
+    own 50-day SMA — a real, computed breadth read from actual price data,
+    not a placeholder. Found via production logs (2026-08-20 through
+    2026-08-24): breadth_pct_above_50dma was NEVER being supplied to
+    classify_regime, permanently capping data_completeness at 0.5 and — far
+    more importantly — capping STRONG_TREND's score at 0.6 instead of 0.85
+    (breadth_good, which needs breadth data, is the only way to reach 0.85),
+    which kept confidence stuck at ~0.39 against a 0.40 minimum for five
+    consecutive sessions regardless of how strong the actual trend was.
+
+    Uses BREADTH_PROXY_UNIVERSE (see its docstring) as an approximation of
+    true market breadth, not the literal full-index statistic. Returns None
+    (not 0.0 or 0.5) if fewer than min_tickers have enough history for a
+    real SMA-50 read — an unreliable breadth number must not silently
+    masquerade as a real one; classify_regime already treats None as
+    "no breadth data" correctly.
+    """
+    from quant.features import compute_features
+
+    above = 0
+    total = 0
+    for df in price_data.values():
+        if len(df) < 50:
+            continue
+        feats = compute_features(df)
+        val = feats["price_above_sma50"].iloc[-1]
+        if pd.isna(val):
+            continue
+        total += 1
+        above += int(val)
+
+    if total < min_tickers:
+        return None
+    return above / total
