@@ -97,9 +97,19 @@ def evaluate_no_trade(candidate: Candidate, cfg: Config) -> NoTradeResult:
     if candidate.setup_quality < min_quality:
         reasons.append(f"setup quality {candidate.setup_quality:.0f} below minimum {min_quality}")
 
-    max_spread = cfg.get("universe.max_spread_pct", 0.5)
-    if candidate.spread_pct > max_spread or not candidate.liquidity_ok:
-        reasons.append(f"spread/liquidity failed (spread {candidate.spread_pct:.2f}% > {max_spread}% or illiquid)")
+    # Trust candidate.liquidity_ok as the single source of truth for the
+    # spread/illiquidity check — it exists on Candidate specifically so the
+    # caller (which knows the live-vs-paper spread threshold; see
+    # scripts/quant_cli.py's _resolve_max_spread_pct) decides this once.
+    # This function used to ALSO re-derive its own threshold via
+    # cfg.get("universe.max_spread_pct", 0.5) and OR it in — always the
+    # real 0.5% regardless of mode, so it silently overrode the caller's
+    # correct paper-mode decision and kept rejecting candidates that had
+    # already legitimately passed. Found 2026-08-24 testing AYI: liquidity_ok
+    # was True (5.94% under the paper-mode 6.0% allowance) but this function
+    # still failed it citing "> 0.5%".
+    if not candidate.liquidity_ok:
+        reasons.append(f"spread/liquidity failed (spread {candidate.spread_pct:.2f}%, illiquid or too wide)")
 
     if not candidate.portfolio_concentration_ok:
         reasons.append("portfolio concentration too high for this ticker/sector/correlation cluster")

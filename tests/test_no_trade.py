@@ -56,9 +56,23 @@ def test_low_setup_quality_triggers_no_trade():
 
 
 def test_wide_spread_triggers_no_trade():
-    result = evaluate_no_trade(_good_candidate(spread_pct=0.9), make_config())
+    # liquidity_ok is the single source of truth (the caller derives it from
+    # spread_pct against whichever threshold applies — see
+    # scripts/quant_cli.py's _resolve_max_spread_pct); a realistic caller
+    # sets both together, not spread_pct alone.
+    result = evaluate_no_trade(_good_candidate(spread_pct=0.9, liquidity_ok=False), make_config())
     assert result.decision == "NO-TRADE"
     assert any("spread" in r for r in result.reasons)
+
+
+def test_wide_spread_pct_alone_does_not_trigger_no_trade_if_caller_says_liquidity_ok():
+    # Documents the corrected contract directly: evaluate_no_trade must NOT
+    # re-derive its own threshold from spread_pct — only liquidity_ok
+    # matters. Regression test for the 2026-08-24 bug where this function's
+    # own hardcoded 0.5% re-check silently overrode a correct, mode-aware
+    # paper-mode liquidity_ok=True decision made by the caller.
+    result = evaluate_no_trade(_good_candidate(spread_pct=5.94, liquidity_ok=True), make_config())
+    assert not any("spread" in r for r in result.reasons)
 
 
 def test_illiquid_triggers_no_trade():
