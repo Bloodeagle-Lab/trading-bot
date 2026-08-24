@@ -162,3 +162,21 @@ follows the normal sell-side rules from here (`memory/TRADING-STRATEGY.md`:
 via `midday`/`stops-check` like any other position, even though it has no
 catalyst-driven thesis to break. `daily-summary`/`weekly-review` should
 treat it as a normal open position, not exclude it as a "test."
+
+### 2026-08-24 — EOD Snapshot (Day 4, Monday)
+
+**Portfolio:** $100,032.96 | **Cash:** $89,471.30 (89.5%) | **Day P&L:** $32.96 (0.03%) | **Phase P&L:** $32.96 (0.03%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.495 | +0.31% | +$32.96 | trailing 10% |
+
+**Notes:** One trade today — BAC, a manual mechanism test (not a
+strategy signal; see entry above), filled at $62.30 with a 10% trailing
+GTC stop now confirmed live (`quant_cli.py positions` `flags` empty, no
+missing-stop issue). Day P&L computed against the 2026-08-23 EOD snapshot
+($100,000.00); phase P&L against the Day 0 real baseline (also
+$100,000.00, so the two figures match today). 1/3 trades used this week.
+No new strategy-scored trades today — regime/scan/evaluate weren't run
+as part of this EOD step; see `RESEARCH-LOG.md`/`REGIME-LOG.md` for
+today's pre-market and market-open findings.
