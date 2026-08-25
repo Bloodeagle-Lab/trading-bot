@@ -767,3 +767,113 @@ PDD and XPEV are negative-ensemble. Correct, expected outcome.
 the ensemble minimum but fails on regime confidence and spread/liquidity;
 SNX and WGO fail ensemble score outright; DRI and CMC weaker still.
 Correct, expected outcome.
+
+## 2026-08-25 — Pre-market Research
+
+### Account
+- Equity: $100,032.64 | Cash: $89,471.29 (89.5%) | Buying power: $387,456.94 |
+  Daytrade count: 0/4 (endpoint doesn't return the field; assumed 0)
+- Positions: BAC 169 @ $62.30, current $62.4932 (+0.31% intraday, +$32.65
+  unrealized) — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md`
+  entry. Trailing 10% GTC stop confirmed live (hwm $62.55, stop $56.295,
+  status "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: STRONG_TREND (confidence 0.872 with `--vix 15.8`) — see
+  `memory/REGIME-LOG.md`
+- WTI / Brent: ~$85.2-85.4 / ~$92.3-92.5, both up modestly intraday after
+  yesterday's ~2% drop on Iran-sanctions/diplomacy headlines
+- S&P 500 futures / VIX: ES ~7,662-7,689, mixed-to-mildly-negative
+  (-0.1% to -0.4% depending on feed); VIX ~15.8, up modestly off Friday's
+  15.13 close — still a low-vol tape
+- Today's catalysts: light on major macro; Nvidia earnings tomorrow
+  (8/26) is the market's next real directional catalyst, along with
+  CrowdStrike/Salesforce/Synopsys/Okta/HP; Fed Barkin speech today
+- Earnings before open: DKS (Dick's Sporting Goods), BNS (Bank of Nova
+  Scotia), BMO (Bank of Montreal), VIPS (Vipshop), BZ (Kanzhun), EH
+  (EHang), GFI (Gold Fields), SLQT (SelectQuote), CTRN (Citi Trends) —
+  13 companies before the open total; INTU (Intuit) reports after close
+  today (not a pre-market mover)
+- Economic calendar: no CPI/PPI/FOMC today (CPI Aug 12, PPI Aug 13, FOMC
+  minutes Aug 19 already out; next jobs report Sept 4); today's prints:
+  ADP Weekly Employment Change, Richmond Fed Manufacturing Index, New
+  Home Sales, Consumer Confidence, S&P/Case-Shiller Home Price Index
+- Sector momentum: Energy still YTD leader (+44.3%), Technology +27.6%,
+  Materials +19.0%, Industrials +16.8%, Health Care +13.8%, Real Estate
+  +13.4%, Consumer Staples +12.1%, Financials +5.9%, Utilities +1.5%;
+  Consumer Discretionary -0.8% and Communication Services -4.8% both
+  negative
+- Held-ticker news (BAC): trading near 52-week high (~$62.3-62.5, +1%
+  type moves); SEC subpoenaed BAC and other large banks in the
+  "Situational Awareness" trading probe (regulatory headline risk, stock
+  unaffected so far); WSJ reports BAC plans $250B AI/energy
+  infrastructure deployment; dividend raised 14% to $0.32; Jio Credit
+  stake deal (~$1.9B); lost head of investment banking (early Aug). No
+  thesis to break (mechanism-test position, no catalyst thesis to begin
+  with) and no move near -7% — nothing urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| BMO | 0.591 | — (no champion) | 79.5 tech / 5.9 sector / 100 cat / 10 liq | Earnings today; only candidate above 0.55 minimum |
+| BNS | 0.587 | — | not evaluated — quote error | Earnings today; close 2nd by ensemble, evaluate crashed on bad quote |
+| DKS | 0.374 | — | not evaluated | Earnings today; below ensemble minimum, weak sector (Consumer Discretionary) |
+| VIPS | -0.251 | — | — | Earnings today; negative ensemble, not evaluated |
+| INTU | -0.461 | — | — | Earnings after close today; negative ensemble, not evaluated |
+
+### Trade Ideas
+None. Ran `evaluate` on the top two by ensemble score:
+
+- **BMO** — entry $196.65 / stop $192.09 / target $205.77 (R:R 2.0),
+  NO-TRADE.
+- **BNS** — `evaluate` raised a hard error: "no usable quote for BNS
+  (bid=73.79, ask=0.0) — market data may be degraded or stale." No
+  entry/stop/target produced; nothing reached sizing.
+
+### NO-TRADE Candidates
+- **BMO** — reasons, verbatim: sleeve disagreement {momentum 0.607,
+  trend 0.754, breakout 0.506, mean_reversion -0.253, relative_strength
+  0.474}; spread/liquidity failed (spread 25.59%, illiquid or too wide).
+- **BNS** — quote path errored (ask=0.0) before reaching the NO-TRADE
+  gate; treated as unusable, not evaluated further. Confirmed directly
+  via `scripts/alpaca.sh quote BNS`: `{"ap":0,"as":0,"bp":73.79,"bs":100}`
+  — a real bid, dead ask, condition code "R".
+- DKS, VIPS, INTU — not run through `evaluate`; DKS's 0.374 ensemble is
+  below the 0.55 minimum and sits in a negative-momentum sector; VIPS
+  (-0.251) and INTU (-0.461) both carry negative ensemble scores driven
+  by negative momentum/trend/relative-strength — all three clearly
+  weaker than BMO/BNS, no need to spend an evaluate call confirming a
+  NO-TRADE on a worse setup.
+
+### Risk Factors
+- **Regime confidence jumped sharply today — 0.872 (with VIX) / 0.797
+  (scan's own call)** — the first session since the 2026-08-20 baseline
+  to clear the 0.40 NO-TRADE minimum by a wide margin, breaking the
+  five-consecutive-near-miss streak logged 2026-08-20 through 2026-08-24.
+  Breadth (%>50dma) also returned a real number for the first time
+  (0.724) instead of `null` — looks like the earlier "stale/missing
+  breadth data" flag from prior risk-log entries has resolved on its
+  own; worth confirming at the next weekly review rather than assuming
+  it's permanent.
+- **BNS's quote error (ask=0.0) is the same recurring one-sided-quote
+  data-quality issue** seen on BJ (2026-08-21), CAPR/JNJ (2026-08-22),
+  and now BNS today — five tickers across four separate sessions.
+  `evaluate`'s hard-fail-rather-than-silently-trade behavior is correct
+  and safe, but the underlying data-quality issue itself is still not
+  root-caused. Flagging again for the next weekly review as a pattern
+  that has now recurred enough times to warrant an actual investigation,
+  not another "worth checking" note.
+- **BMO's 25.59% spread blocked an otherwise-decent setup** (ensemble
+  0.591, technical score 79.5, real earnings catalyst, sector momentum
+  now positive at 5.9) purely on liquidity/spread — genuinely pre-market
+  timing (quotes pulled before the open), consistent with the same
+  microstructure pattern noted on prior sessions, not a bug.
+- **No champion ML model exists** — every candidate fails the
+  ML-evidence gate regardless of setup. Expected, fail-safe, unchanged.
+
+### Decision
+**HOLD** — no order placed, none staged. BMO is the only candidate above
+the ensemble minimum but fails on sleeve disagreement and spread/
+liquidity; BNS's quote path errored outright; DKS, VIPS, INTU all weaker
+or negative-ensemble. Correct, expected outcome.

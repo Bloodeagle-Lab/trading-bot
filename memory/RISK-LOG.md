@@ -301,3 +301,19 @@ tomorrow's routine will NOT see it until a human merges this branch.
 tomorrow's `daily-summary` run, or day-over-day P&L will silently fall
 back to comparing against the last snapshot actually on `main` (2026-08-22,
 per this same recurring gap) instead of today's real numbers.
+
+## 2026-08-25 — Persistence: pre-market session-branch issue recurs again
+
+Same pattern as the 2026-08-20/08-21/08-22/08-24 entries above. This
+`pre-market` session was assigned `claude/exciting-bell-wg84zp` with an
+explicit no-push-elsewhere-without-permission constraint, which conflicts
+with `CLAUDE.md`/`routines/pre-market.md`'s literal `git push origin
+main`. Followed the standing session-level branch policy (push to the
+assigned branch, never main) rather than the routine's literal
+instruction. Unlike the 2026-08-24 `daily-summary` case, this branch was
+freshly cut from `origin/main`'s current head (690e093) before this
+commit, so there's no backlog of prior unmerged work riding along — just
+today's pre-market research/regime entries. **Action needed:** merge
+`claude/exciting-bell-wg84zp` into `main` before tomorrow's `market-open`/
+`midday`/`daily-summary` runs, or they will not see today's research log
+or regime classification on a fresh clone from `main`.

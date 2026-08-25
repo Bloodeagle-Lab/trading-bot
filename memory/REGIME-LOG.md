@@ -116,3 +116,20 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   (2026-08-20 x2, 2026-08-21, 2026-08-22, now 2026-08-24), always on the
   same HIGH_VOL-vs-STRONG_TREND margin. Run inline from `market-open`
   since no earlier pre-market entry existed for today.
+
+## 2026-08-25
+
+- State: STRONG_TREND
+- Confidence: 0.872 (with `--vix 15.8`) / 0.797 (scan's own call, VIX
+  unsupplied) — both clear the 0.40 NO-TRADE minimum comfortably, ending
+  the five-session near-miss streak (2026-08-20 x2, 2026-08-21,
+  2026-08-22, 2026-08-24)
+- Scores: {STRONG_TREND: 0.85, CHOPPY: 0.00, HIGH_VOL: 0.00, RISK_OFF: 0.00, TRANSITION: 0.00}
+- Trend (SPY/QQQ): 0.598 / 0.559 | Volatility (20d): 0.1795 | VIX: 15.8 | Breadth (%>50dma): 0.724 (first real, non-null print — prior sessions all returned null)
+- Sleeve weights in effect today: {momentum 1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8}
+- Note: HIGH_VOL score dropped to 0.00 (from a steady 0.55 every prior
+  session) — that's what pushed STRONG_TREND's confidence past the 0.40
+  minimum, not a change in the STRONG_TREND score itself (0.85 today vs.
+  0.60 prior, also up). Combined with breadth going from null to a real
+  0.724, this looks like better upstream data today rather than a genuine
+  regime shift — flag for weekly review to confirm it holds.
