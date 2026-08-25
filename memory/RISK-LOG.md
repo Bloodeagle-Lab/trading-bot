@@ -317,3 +317,40 @@ today's pre-market research/regime entries. **Action needed:** merge
 `claude/exciting-bell-wg84zp` into `main` before tomorrow's `market-open`/
 `midday`/`daily-summary` runs, or they will not see today's research log
 or regime classification on a fresh clone from `main`.
+
+## 2026-08-25 — RESOLVED: session-branch persistence issue root-caused and fixed
+
+The recurring issue logged repeatedly above (2026-08-20 through 2026-08-24
+— every routine landing on its own `claude/adjective-noun-xxxxxx` branch
+instead of `main`, requiring manual recovery each time) is now understood
+and fixed at the source.
+
+**Root cause:** each of the 5 routines' own trigger configuration had a
+hardcoded, non-`main` git outcome branch baked into
+`job_config.ccr.session_context.outcomes[0].git_repository.git_info.branches`
+at creation time (`claude/exciting-bell` for pre-market,
+`claude/compassionate-lamport` for market-open, `claude/epic-archimedes`
+for midday, `claude/tender-hopper` for daily-summary,
+`claude/admiring-albattani` for weekly-review). Every firing appended a
+random suffix to that fixed prefix and pushed there — the routine prompts'
+own `git push origin main` instruction was correct, but the session-level
+branch policy silently overrode it before the prompt's own steps ever ran.
+This was unrelated to the separate GitHub App write-permission (403) issue
+fixed 2026-08-21 — that fix was necessary but not sufficient.
+
+Found by a scheduled one-time diagnostic run
+(`Trading bot — fix branch persistence issue`) that called the routines
+API directly (`list_triggers`) rather than guessing, and confirmed by
+inspecting each of the 5 routines' stored config.
+
+**Fix applied:** all 5 routines' `outcomes[0].git_repository.git_info.branches`
+updated from their fixed session-branch prefix to `["main"]`, via the same
+routines API, with every other field (prompt, cron schedule, environment,
+allowed tools) preserved unchanged and verified in the API response. No
+routine's prompt needed to change — the fix was entirely at the trigger
+configuration level.
+
+**Expected result:** starting with tomorrow's `pre-market` run
+(2026-08-26), routines should push directly to `main` with no manual
+merge needed. This should be verified against tomorrow's actual commit
+history rather than assumed — first real evidence either way.
