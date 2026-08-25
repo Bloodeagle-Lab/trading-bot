@@ -180,3 +180,24 @@ $100,000.00, so the two figures match today). 1/3 trades used this week.
 No new strategy-scored trades today — regime/scan/evaluate weren't run
 as part of this EOD step; see `RESEARCH-LOG.md`/`REGIME-LOG.md` for
 today's pre-market and market-open findings.
+
+### 2026-08-25 — EOD Snapshot (Day 5, Tuesday)
+
+**Portfolio:** $100,017.74 | **Cash:** $89,471.29 (89.5%) | **Day P&L:** -$15.22 (-0.02%) | **Phase P&L:** $17.74 (0.02%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.405 | -0.14% | +$17.75 | trailing 10% |
+
+**Notes:** No new trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, still carrying its live 10%
+trailing GTC stop (`quant_cli.py positions` `flags` empty). Day P&L
+computed against the 2026-08-24 EOD snapshot ($100,032.96); phase P&L
+against the Day 0 baseline ($100,000.00). Regime cleared the 0.40
+NO-TRADE confidence minimum today for the first time in five sessions
+(0.872, per `REGIME-LOG.md`), but the day's candidate scan still
+resolved to HOLD — BMO failed on spread/liquidity, BNS's quote path
+errored, and the rest scored weaker or negative (see `RESEARCH-LOG.md`).
+No champion ML model exists yet, so every candidate still fails the
+ML-evidence gate regardless of setup. 1/3 trades used this week (BAC,
+2026-08-24).
