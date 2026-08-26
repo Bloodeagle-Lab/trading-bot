@@ -147,3 +147,16 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
 - Note: confidence held near yesterday's level (0.68 vs 0.872 with VIX
   supplied) on the same STRONG_TREND (0.85) / HIGH_VOL (0.55) score split;
   regime read stable, not a fresh shift.
+
+- Confidence: 0.605 (scan's internal call, breadth 0.69) / 0.467 (explicit
+  `--vix 15.68 --breadth 0.6` regime call) — both clear the 0.40 NO-TRADE
+  minimum
+- Scores: {STRONG_TREND: 0.85, CHOPPY: 0.00, HIGH_VOL: 0.55, RISK_OFF: 0.00, TRANSITION: 0.00} (explicit call); scan's own call showed HIGH_VOL 0.55 too but STRONG_TREND 0.85
+- Trend (SPY/QQQ): 0.624 / 0.574 (QQQ null on scan's internal call) | Volatility (20d): 0.1819 | VIX: 15.68 | Breadth (%>50dma): 0.6-0.69 depending on call
+- Sleeve weights in effect today: {momentum 1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8}
+- Note: second consecutive session clearing the 0.40 minimum comfortably
+  (after 2026-08-25 broke the five-session near-miss streak). HIGH_VOL
+  back up to 0.55 from 0.00 yesterday but STRONG_TREND's own score (0.85)
+  stayed elevated, so confidence held above threshold either way. Run
+  inline from `market-open` (STEPS 1-6 of `pre-market.md`) since no
+  earlier `pre-market` entry existed for today.
