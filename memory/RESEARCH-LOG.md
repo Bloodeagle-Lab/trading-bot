@@ -877,3 +877,101 @@ None. Ran `evaluate` on the top two by ensemble score:
 the ensemble minimum but fails on sleeve disagreement and spread/
 liquidity; BNS's quote path errored outright; DKS, VIPS, INTU all weaker
 or negative-ensemble. Correct, expected outcome.
+
+## 2026-08-26 — Pre-market Research (run inline from market-open — no earlier pre-market entry existed)
+
+### Account
+- Equity: $100,001.68 | Cash: $89,471.29 (89.5%) | Buying power: $387,370.25 |
+  Daytrade count: 0/4 (endpoint doesn't return the field; assumed 0)
+- Positions: BAC 169 @ $62.30, current $62.34 (+0.06% intraday, +$6.76
+  unrealized) — manual mechanism-test position, see 2026-08-24
+  `TRADE-LOG.md` entry. Trailing 10% GTC stop confirmed live (hwm $62.58,
+  stop $56.322, status "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: STRONG_TREND (confidence 0.605 scan-internal / 0.467 with
+  explicit `--vix 15.68 --breadth 0.6`) — see `memory/REGIME-LOG.md`
+- S&P 500 futures / VIX: ES ~7,687-7,688 (-0.05 to -0.07%), roughly flat;
+  VIX ~15.68-15.71 (spot), VIX futures ~17.2-17.25 — low-vol tape
+- Today's catalysts: Nvidia earnings after the close (the week's biggest
+  single catalyst) plus July PCE/Core PCE inflation data, durable goods
+  orders, and Q2 GDP (second reading) all at 8:30 ET; CrowdStrike also
+  reports after the bell; Fed Jackson Hole symposium (Warsh speech) later
+  this week
+- Earnings before open: Kohl's (KSS), Abercrombie & Fitch (ANF), Dycom
+  (DY), Williams-Sonoma (WSM), Li Auto (LI), JM Smucker (SJM), Bath & Body
+  Works (BBWI)
+- Economic calendar: PCE/Core PCE, durable goods orders, Q2 GDP (2nd
+  reading), MBA mortgage applications, personal income & spending — all
+  8:30 ET; no CPI/PPI/FOMC decision today (CPI Aug 12, PPI Aug 13, FOMC
+  minutes Aug 19 already out; next jobs report Sept 4)
+- Sector momentum YTD: Energy still leader (+43.1%), Technology +25.4%,
+  Materials +19.1%, Industrials +16.0%, Real Estate +14.1%, Consumer
+  Staples +14.0%, Health Care +13.8%, Financials +7.2%, Utilities +2.6%;
+  Consumer Discretionary -0.5% and Communication Services -4.0% both
+  negative
+- Held-ticker news (BAC): no fresh catalyst-moving news — mixed-to-neutral
+  flow (dividend hike and $250B AI/infrastructure financing push already
+  known from 2026-08-25, some commentary on higher employee-benefit costs
+  and AI-linked credit risk). Price flat near $62.4, well inside normal
+  range. No thesis to break (mechanism-test position, no catalyst thesis
+  to begin with) and nowhere near -7%; nothing urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| SJM | 0.487 | — (no champion) | 74.4 tech / 14.0 sector / 100 cat / 10 liq | Earnings today; top-scoring candidate |
+| BBWI | 0.484 | — | 74.2 tech / -0.5 sector / 100 cat / 90 liq | Earnings today; close 2nd by ensemble |
+| WSM | 0.444 | — | not evaluated | Earnings today; below top two, not run |
+| KSS | 0.337 | — | not evaluated | Earnings today; below ensemble minimum, not run |
+| ANF | 0.263 | — | not evaluated | Earnings today; below ensemble minimum, not run |
+| DY | -0.148 | — | — | Earnings today; negative ensemble, not evaluated |
+| LI | -0.544 | — | — | Earnings today; weakest scan, not evaluated |
+
+### Trade Ideas
+None. Ran `evaluate` on the top two by ensemble score:
+
+- **SJM** — entry $138.59 / stop $133.79 / target $148.19 (R:R 2.0),
+  NO-TRADE.
+- **BBWI** — entry $17.68 / stop $15.96 / target $21.12 (R:R 2.0),
+  NO-TRADE.
+
+### NO-TRADE Candidates
+- **SJM** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.49 below the validated
+  minimum 0.55; spread/liquidity failed (spread 10.20%, illiquid or too
+  wide).
+- **BBWI** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.48 below the validated
+  minimum 0.55; sleeve disagreement {momentum 0.777, trend 0.343,
+  breakout 0.162, mean_reversion -0.304, relative_strength 0.694}.
+- WSM, KSS, ANF, DY, LI — not run through `evaluate`; all scored below
+  SJM/BBWI (WSM 0.444 down to LI -0.544), no need to spend an evaluate
+  call confirming a NO-TRADE on a weaker setup.
+
+### Risk Factors
+- **Regime confidence held comfortably above the 0.40 minimum for a
+  second consecutive session** (0.605/0.467 today vs. 0.872/0.797 on
+  2026-08-25), after the five-session near-miss streak 2026-08-20 through
+  2026-08-24. Worth continuing to watch at the next weekly review rather
+  than treating two clean sessions as proof the earlier pattern is fully
+  resolved.
+- **Nvidia earnings after today's close is the market's real catalyst
+  today** — none of today's pre-market earnings names (retail/consumer
+  cluster) carry that kind of market-wide weight; today's own candidates
+  are ordinary earnings-day setups, not systemically important.
+- **Both evaluated candidates fail on the validated 0.55 ensemble-score
+  minimum outright** (SJM 0.49, BBWI 0.48) — SJM additionally fails on a
+  10.20% spread (genuinely pre-market timing) and BBWI on sleeve
+  disagreement (mean_reversion -0.30 against four positive sleeves led by
+  momentum +0.78). Neither is a borderline call.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate fails the ML-evidence gate regardless of setup. Expected,
+  fail-safe, unchanged from prior runs.
+
+### Decision
+**HOLD** — no order placed, none staged. SJM and BBWI are the only
+candidates above 0 ensemble but both fail the validated 0.55 minimum plus
+an independent gate each (spread, sleeve disagreement); WSM/KSS/ANF all
+below minimum, DY/LI negative-ensemble. Correct, expected outcome.
