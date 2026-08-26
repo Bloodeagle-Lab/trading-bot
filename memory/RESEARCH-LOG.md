@@ -877,3 +877,109 @@ None. Ran `evaluate` on the top two by ensemble score:
 the ensemble minimum but fails on sleeve disagreement and spread/
 liquidity; BNS's quote path errored outright; DKS, VIPS, INTU all weaker
 or negative-ensemble. Correct, expected outcome.
+
+## 2026-08-26 — Pre-market Research
+
+### Account
+- Equity: $100,041.34 | Cash: $89,471.29 (89.4%) | Buying power: $387,481.31 |
+  Daytrade count: 0/4 (endpoint doesn't return the field; assumed 0)
+- Positions: BAC 169 @ $62.30, current $62.5447 (+0.39% intraday, +$41.35
+  unrealized) — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md`
+  entry. Trailing 10% GTC stop confirmed live (hwm $62.575, stop $56.3175,
+  status "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: STRONG_TREND (confidence 0.68 with `--vix 15.7 --breadth 0.724`)
+  — see `memory/REGIME-LOG.md`
+- WTI / Brent: ~$80.3-82.4 / ~$86.3-89.5, both down ~2-3% intraday as US
+  sanctions/diplomacy rollout on Iran (Strait of Hormuz) deflated the
+  supply-risk premium, plus a bearish US inventory build
+- S&P 500 futures / VIX: ES ~7,670-7,700 (mixed, roughly flat to +0.2-0.4%
+  depending on feed/contract); VIX ~15.5-15.9, still a low-vol tape
+- Today's catalysts: **Nvidia earnings after the close** — the market's
+  single biggest catalyst this month (AI capex/demand read-through,
+  ~7.3% S&P weight); also reporting after close: Salesforce, CrowdStrike,
+  Synopsys, Okta, HP; July Core PCE / GDP second estimate / durable goods
+  at 8:30am ET (Fed-cut-expectations relevant, no CPI/PPI/FOMC/jobs today)
+- Earnings before open: KSS (Kohl's), WSM (Williams-Sonoma), ANF
+  (Abercrombie), DY (Dycom Industries), SJM (Smucker), BBWI (Bath & Body
+  Works), LI (Li Auto), plus several smaller/foreign names — 27 companies
+  total before the open
+- Economic calendar: no CPI/PPI/FOMC/jobs today (CPI Aug 12, PPI Aug 13,
+  FOMC minutes Aug 19, next jobs report Sept 4); today's prints: Core PCE
+  Price Index, Q2 GDP second estimate, Personal Income & Spending,
+  Durable Goods, Capital Goods Orders, MBA Mortgage Applications
+- Sector momentum (YTD): Energy +43.1% (leader), Technology +25.4%,
+  Materials +19.1%, Industrials +16.0%, Real Estate +14.1%, Consumer
+  Staples +14.0%, Health Care +13.8%, Financials +7.2%, Utilities +2.6%;
+  Consumer Discretionary -0.5% and Communication Services -4.0% both
+  negative
+- Held-ticker news (BAC): trading flat-to-slightly-up (~$62.4-62.5, +0.1-
+  0.3% type moves); SEC subpoena/Situational Awareness probe story is
+  now several days old and hasn't moved the stock; WSJ's $250B AI/energy
+  infrastructure deployment and Jio Credit stake stories both already
+  known. No thesis to break (mechanism-test position, no catalyst thesis
+  to begin with) and no move near -7% — nothing urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| SJM | 0.487 | — (no champion) | 74.4 tech / 14.0 sector / 100 cat / 10 liq | Earnings today; top-scoring but below 0.55 minimum |
+| WSM | 0.444 | — | 72.2 tech / 0.0 sector / 100 cat / 10 liq | Earnings today; 2nd by ensemble, negative-momentum sector |
+| KSS | 0.337 | — | not evaluated | Earnings today (reported ~7am); below ensemble minimum |
+| ANF | 0.263 | — | not evaluated | Earnings today; below ensemble minimum, negative-momentum sector |
+| DY | -0.148 | — | not evaluated | Earnings today; negative ensemble, not evaluated |
+
+### Trade Ideas
+None. Ran `evaluate` on the top two by ensemble score:
+
+- **SJM** — entry $133.46 / stop $128.66 / target $143.06 (R:R 2.0),
+  NO-TRADE.
+- **WSM** — entry $272.05 / stop $260.87 / target $294.41 (R:R 2.0),
+  NO-TRADE.
+
+### NO-TRADE Candidates
+- **SJM** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.49 below the validated
+  minimum 0.55; spread/liquidity failed (spread 21.11%, illiquid or too
+  wide).
+- **WSM** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.44 below the validated
+  minimum 0.55; spread/liquidity failed (spread 37.14%, illiquid or too
+  wide).
+- KSS, ANF, DY — not run through `evaluate`; KSS (0.337) and ANF (0.263)
+  are both below the 0.55 ensemble minimum and sit in the
+  negative-momentum Consumer Discretionary sector; DY (-0.148) carries a
+  negative ensemble score driven by negative momentum/relative-strength —
+  all three clearly weaker than SJM/WSM, no need to spend an evaluate
+  call confirming a NO-TRADE on a worse setup.
+
+### Risk Factors
+- **Nvidia reports after today's close** — the month's single biggest
+  market catalyst (~7.3% S&P weight, AI capex/demand read-through); no
+  position here is exposed to that print directly (BAC is unrelated), but
+  a large post-close move could move tomorrow's regime/sector-momentum
+  reads materially. Nothing actionable pre-market today.
+- **Both evaluated candidates failed on spread/liquidity** (21.1% SJM,
+  37.1% WSM) on top of failing the ensemble-score minimum — genuinely
+  pre-market timing (quotes pulled before the open), consistent with the
+  same microstructure pattern noted on prior sessions, not a bug.
+- **Today's earnings slate skews toward the negative-momentum Consumer
+  Discretionary sector** (KSS, WSM, ANF, BBWI all report there) — sector
+  momentum correctly penalized WSM's setup quality (sector score 0) even
+  though its technicals (72.2) were solid; this is the filter working as
+  designed, not a missed opportunity.
+- **Breadth (0.724) was carried forward from yesterday's real print**,
+  not independently re-sourced today (not part of today's Perplexity
+  research queries) — flag for weekly review if this becomes a recurring
+  shortcut rather than a one-off.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate fails the ML-evidence gate regardless of setup. Expected,
+  fail-safe, unchanged from prior runs.
+
+### Decision
+**HOLD** — no order placed, none staged. SJM and WSM are the only
+candidates above zero and closest to tradeable but both fail the
+ensemble-score minimum and spread/liquidity gates; KSS, ANF, DY all
+weaker or negative-ensemble. Correct, expected outcome.
