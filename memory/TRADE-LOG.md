@@ -201,3 +201,23 @@ errored, and the rest scored weaker or negative (see `RESEARCH-LOG.md`).
 No champion ML model exists yet, so every candidate still fails the
 ML-evidence gate regardless of setup. 1/3 trades used this week (BAC,
 2026-08-24).
+
+### 2026-08-26 — EOD Snapshot (Day 6, Wednesday)
+
+**Portfolio:** $100,018.58 | **Cash:** $89,471.29 (89.5%) | **Day P&L:** $0.84 (0.00%) | **Phase P&L:** $18.58 (0.02%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.41 | +0.18% | +$18.59 | trailing 10% |
+
+**Notes:** No new trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, still carrying its live 10%
+trailing GTC stop (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). Day P&L computed against the 2026-08-25 EOD snapshot
+($100,017.74); phase P&L against the Day 0 baseline ($100,000.00).
+Pre-market scan (SJM, BBWI) both failed the validated 0.55 ensemble-score
+minimum outright, plus independent gates each (SJM: 10.20% spread; BBWI:
+sleeve disagreement) — correctly resolved HOLD, no order placed or
+staged. No champion ML model exists yet, so every candidate still fails
+the ML-evidence gate regardless of setup. 1/3 trades used this week
+(BAC, 2026-08-24), well under the cap of 3.
