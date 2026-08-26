@@ -133,3 +133,17 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   0.60 prior, also up). Combined with breadth going from null to a real
   0.724, this looks like better upstream data today rather than a genuine
   regime shift — flag for weekly review to confirm it holds.
+
+## 2026-08-26
+
+- State: STRONG_TREND
+- Confidence: 0.68 (with `--vix 15.7 --breadth 0.724`) / 0.605 (scan's own
+  call, VIX unsupplied) — both comfortably clear the 0.40 NO-TRADE
+  minimum, second session running after the five-session near-miss streak
+  broke 2026-08-25
+- Scores: {STRONG_TREND: 0.85, CHOPPY: 0.00, HIGH_VOL: 0.55, RISK_OFF: 0.00, TRANSITION: 0.00}
+- Trend (SPY/QQQ): 0.624 / n/a (QQQ trend not computed in this call) | Volatility (20d): 0.1819 | VIX: 15.7 | Breadth (%>50dma): 0.724 (carried forward from 2026-08-25's print, not independently re-sourced today — flag for weekly review)
+- Sleeve weights in effect today: {momentum 1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8}
+- Note: confidence held near yesterday's level (0.68 vs 0.872 with VIX
+  supplied) on the same STRONG_TREND (0.85) / HIGH_VOL (0.55) score split;
+  regime read stable, not a fresh shift.
