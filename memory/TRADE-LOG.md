@@ -201,3 +201,23 @@ errored, and the rest scored weaker or negative (see `RESEARCH-LOG.md`).
 No champion ML model exists yet, so every candidate still fails the
 ML-evidence gate regardless of setup. 1/3 trades used this week (BAC,
 2026-08-24).
+
+### 2026-08-27 — EOD Snapshot (Day 7, Thursday)
+
+**Portfolio:** $99,846.20 | **Cash:** $89,471.29 (89.6%) | **Day P&L:** -$171.54 (-0.17%) | **Phase P&L:** -$153.80 (-0.15%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $61.39 | -1.63% | -$153.79 | trailing 10% |
+
+**Notes:** No new trades today or on 2026-08-26; BAC (manual
+mechanism-test position, 2026-08-24) remains the only open position,
+stop live and confirmed (`quant_cli.py positions` `flags` empty). **Gap
+flag:** no EOD snapshot exists in this file for 2026-08-26 — pre-market
+and market-open both ran that day and correctly resolved to HOLD (see
+`RESEARCH-LOG.md`/`REGIME-LOG.md`), but no `daily-summary` commit landed
+on `main`, so "Day P&L" above actually spans two trading sessions
+(2026-08-25 close → 2026-08-27 close), not one. Worth a weekly-review
+check on whether that day's `daily-summary` ran at all. Phase P&L
+computed against the Day 0 baseline ($100,000.00). 1/3 trades used this
+week (BAC, 2026-08-24) — cap not at risk.
