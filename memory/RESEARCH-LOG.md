@@ -1064,3 +1064,113 @@ weaker or negative-ensemble. Correct, expected outcome.
 candidates above 0 ensemble but both fail the validated 0.55 minimum plus
 an independent gate each (spread, sleeve disagreement); WSM/KSS/ANF all
 below minimum, DY/LI negative-ensemble. Correct, expected outcome.
+
+## 2026-08-27 — Pre-market Research (run inline from market-open — no earlier pre-market entry existed)
+
+### Account
+- Equity: $99,935.77 | Cash: $89,471.29 (89.5%) | Buying power: $387,185.70
+  | Daytrade count: 0/4 (endpoint doesn't return the field; assumed 0)
+- Positions: BAC 169 @ $62.30, current $61.92 (-0.61% intraday, -$64.22
+  unrealized) — manual mechanism-test position, see 2026-08-24
+  `TRADE-LOG.md` entry. Trailing 10% GTC stop confirmed live (hwm $62.58,
+  stop $56.322, status "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+- Trades this week (Mon 08/24-today): 1/3 (BAC, mechanism test, not a
+  strategy signal)
+
+### Market Context
+- Regime: CHOPPY (confidence 0.745 with explicit `--vix 15.2`) / scan's
+  own internal call showed STRONG_TREND (confidence 0.797, VIX
+  unsupplied) — see `memory/REGIME-LOG.md` for the full score split
+- WTI / Brent: ~$81.7-82.6 / ~$87.4-88.5, both modestly lower on the day
+- S&P 500 futures / VIX: ES ~7,726 (+0.47-0.5%), Nasdaq futures +1.0-1.1%
+  — Nvidia's post-close beat (shares +4%) is driving the premarket rally;
+  VIX ~15.1-15.5, low-vol tape
+- Today's catalysts: Nvidia follow-through (reported after yesterday's
+  close, +4% premarket) is the dominant theme; Jackson Hole Symposium
+  underway through 08/29 (Fed policy signals in focus); weekly initial
+  jobless claims at 8:30am ET
+- Earnings before open: Dollar General (DG), Darden Restaurants (DRI), TD
+  SYNNEX (SNX), Acuity Brands (AYI), Commercial Metals (CMC), Winnebago
+  (WGO), Best Buy (BBY), Dollar Tree (DLTR), Hormel (HRL), Build-A-Bear
+  (BBW), Burlington (BURL), HealthEquity (HQY), Malibu Boats (MBUU),
+  several Canadian banks (CM, RY, TD) and smaller/foreign names
+- Economic calendar: weekly initial jobless claims 8:30am ET; no
+  CPI/PPI/FOMC decision today (next CPI Sept 11, next PPI Sept 10)
+- Sector momentum YTD: Energy +43.1% (leader), Technology +25.4%,
+  Materials +19.1%, Industrials +16.0%, Real Estate +14.1%, Consumer
+  Staples +14.0%, Health Care +13.8%, Financials +7.2%, Utilities +2.6%;
+  Consumer Discretionary -0.5% and Communication Services -4.0% both
+  negative
+- Held-ticker news (BAC): no fresh catalyst-moving news — dividend hike
+  (+14% to $0.32/sh) and Jio Credit JV both already known; regulatory
+  headlines (Situational Awareness trade subpoenas, an insider-trading
+  case involving a former banker) are noise, not new and not
+  thesis-relevant (mechanism-test position, no catalyst thesis to begin
+  with). Price -0.61% intraday, nowhere near -7%; nothing urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| DLTR | 0.476 | — (no champion) | not evaluated | Earnings today; top by ensemble, but quote unusable (bid $122.61 / ask $0.00 — degraded data) |
+| BBY | 0.474 | — | 73.7 tech / -0.5 sector / 100 cat / 10 liq | Earnings today; 2nd by ensemble |
+| HRL | 0.291 | — | not evaluated | Earnings today; below ensemble minimum, not run |
+| DG | 0.236 | — | not evaluated | Earnings today; below ensemble minimum, not run |
+| BURL | -0.05 | — | not evaluated | Earnings today; negative ensemble, not evaluated |
+
+### Trade Ideas
+None. Ran `evaluate` on the top two by ensemble score:
+
+- **DLTR** — could not evaluate: `_latest_quote` raised "no usable quote
+  for DLTR (bid=122.61, ask=0.0) — market data may be degraded or
+  stale," same pre-market microstructure pattern noted on prior sessions
+  (see Risk Factors). No sizing possible; treated as NO-TRADE by
+  necessity, not a scored rejection.
+- **BBY** — entry $78.72 / stop $72.50 / target $91.16 (R:R 2.0),
+  NO-TRADE.
+
+### NO-TRADE Candidates
+- **DLTR** — quote data unusable (bid $122.61 / ask $0.00); could not be
+  scored. Ensemble (0.476) was itself already below the 0.55 validated
+  minimum, so this would very likely have been NO-TRADE on ensemble
+  score alone even with a clean quote.
+- **BBY** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.47 below the validated
+  minimum 0.55; sleeve disagreement {momentum 0.639, trend 0.273,
+  breakout 0.517, mean_reversion -0.551, relative_strength 0.465};
+  spread/liquidity failed (spread 10.93%, illiquid or too wide).
+- HRL, DG, BURL — not run through `evaluate`; HRL's own quote (bid $22.02
+  / ask $25.38, ~14% spread) shows the same stale/degraded pre-market
+  pattern as DLTR/BBY. All three score below BBY (HRL 0.291 down to BURL
+  -0.05), no need to spend an evaluate call confirming a NO-TRADE on a
+  weaker setup.
+
+### Risk Factors
+- **Quote data quality degraded across today's whole candidate set** —
+  DLTR (bid/ask $122.61/$0.00), BBY (spread 10.93%), HRL (spread ~14%)
+  all show stale or broken quotes, same pre-market-timing microstructure
+  pattern flagged in prior sessions' logs. This blocked DLTR from being
+  scored at all today, not just failed on spread — worth flagging at
+  weekly review if this keeps recurring on the exact top candidate.
+- **Nvidia's post-close beat is today's real market catalyst** (shares
+  +4%, futures broadly higher) — no position here is exposed to it
+  directly (BAC unrelated), and none of today's pre-market earnings names
+  carry that kind of market-wide weight.
+- **Today's earnings slate again skews toward the negative-momentum
+  Consumer Discretionary sector** (BBY, DG, BURL, DLTR all report there;
+  HRL is the lone Consumer Staples name) — consistent with the same
+  sector pattern noted on 2026-08-25/08-26.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate fails the ML-evidence gate regardless of setup. Expected,
+  fail-safe, unchanged from prior runs.
+- **Regime call disagreement**: explicit `--vix 15.2` call returned CHOPPY
+  (0.745 confidence, HIGH_VOL/CHOPPY split), while `scan`'s own internal
+  call (no VIX supplied) returned STRONG_TREND (0.797). Both clear the
+  0.40 NO-TRADE minimum so this didn't change any decision today, but the
+  state label itself flipped between calls — flag for weekly review.
+
+### Decision
+**HOLD** — no order placed, none staged. DLTR (top by ensemble) couldn't
+be scored on unusable quote data; BBY (2nd) fails the validated 0.55
+ensemble minimum plus sleeve disagreement plus a 10.93% spread; HRL/DG/
+BURL all weaker or negative-ensemble. Correct, expected outcome.

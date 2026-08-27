@@ -148,6 +148,23 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   supplied) on the same STRONG_TREND (0.85) / HIGH_VOL (0.55) score split;
   regime read stable, not a fresh shift.
 
+## 2026-08-27
+
+- State: CHOPPY (explicit `--vix 15.2` call) / STRONG_TREND (scan's own
+  internal call, VIX unsupplied) — the two calls disagree on state label
+- Confidence: 0.745 (explicit `--vix 15.2`) / 0.797 (scan's own call) —
+  both comfortably clear the 0.40 NO-TRADE minimum regardless of label
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); scan's own call showed {STRONG_TREND: 0.85, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0}
+- Trend (SPY/QQQ): 0.659 / -0.2 (explicit call) | 0.659 / null (scan's
+  call) | Volatility (20d): 0.1563 | VIX: 15.2 | Breadth (%>50dma): 0.655
+- Sleeve weights in effect today: {momentum 1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8}
+- Note: first session where the two regime calls disagree on state label
+  (CHOPPY vs STRONG_TREND), not just confidence magnitude — driven by
+  QQQ trend flipping negative (-0.2) in the explicit call vs null in
+  scan's internal call. Confidence cleared 0.40 either way so no decision
+  changed today, but flag for weekly review since this is a new pattern,
+  not the near-miss-confidence issue from 2026-08-20 through 08-24.
+
 - Confidence: 0.605 (scan's internal call, breadth 0.69) / 0.467 (explicit
   `--vix 15.68 --breadth 0.6` regime call) — both clear the 0.40 NO-TRADE
   minimum
