@@ -354,3 +354,39 @@ configuration level.
 (2026-08-26), routines should push directly to `main` with no manual
 merge needed. This should be verified against tomorrow's actual commit
 history rather than assumed — first real evidence either way.
+
+## 2026-08-27 — REOPENED: session-branch persistence issue recurs in a new form, and 2026-08-26's daily-summary is missing entirely
+
+Checked the 2026-08-25 "RESOLVED" fix against actual outcomes and it did
+not fully hold:
+
+- **This `daily-summary` session was assigned branch `main-g63v2n`**, not
+  `main` — a different naming pattern than the `claude/adjective-noun-xxxxxx`
+  branches seen 2026-08-20 through 2026-08-25 (suggesting whatever
+  reconfigured the outcome branch after the 08-25 fix didn't set it to the
+  literal string `main`), but the effect is identical: today's EOD
+  snapshot commit (`4f3b25f`, "EOD snapshot 2026-08-27") landed on
+  `main-g63v2n`, not `main`, and needs a human to merge it before
+  tomorrow's `daily-summary` fresh-clone can compute day P&L against it.
+- **`memory/TRADE-LOG.md` has no EOD snapshot for 2026-08-26 at all** —
+  not on `main`, and no orphaned commit found on any branch in this
+  session's local git history either (`git log --oneline --all` shows
+  only two 2026-08-26 commits, both "pre-market research", already merged
+  into `main`). `pre-market`/`market-open` research for 2026-08-26 exists
+  and correctly resolved HOLD, but the day's `daily-summary` step appears
+  to have either not fired or not committed. This EOD snapshot's "Day
+  P&L" figure therefore spans 2026-08-25 close → 2026-08-27 close, not a
+  single session — see today's `TRADE-LOG.md` entry.
+- Recent history at merge time also shows `main` already carries two merge
+  commits from other session branches (`main-a5zz3r`, `main-mayo40`),
+  consistent with this same per-run branch pattern recurring across
+  multiple routines since the 08-25 fix, not just this one.
+
+**Action needed:** re-check all 5 routines' trigger config
+(`outcomes[0].git_repository.git_info.branches`) again — the 08-25 fix
+either didn't stick or was superseded by a scheduling/environment change
+that reintroduced a per-run branch. Also confirm whether 2026-08-26's
+`daily-summary` trigger fired at all; if it didn't, check its cron
+schedule/enabled state, not just the branch config. Until fixed, every
+routine's memory needs manual merge-to-`main` verification, same as the
+08-20 through 08-25 pattern.
