@@ -160,3 +160,32 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   stayed elevated, so confidence held above threshold either way. Run
   inline from `market-open` (STEPS 1-6 of `pre-market.md`) since no
   earlier `pre-market` entry existed for today.
+
+## 2026-08-27
+
+- State: **CHOPPY** (explicit `regime --qqq --vix 15.4` call) — first
+  non-STRONG_TREND read since 2026-08-25 broke the near-miss streak.
+  `scan`'s own internal call the same session returned **STRONG_TREND**
+  instead (confidence 0.797); see Note below.
+- Confidence: 0.745 (explicit call, CHOPPY) / 0.797 (scan's internal call,
+  STRONG_TREND) — both clear the 0.40 NO-TRADE minimum regardless of which
+  state is used
+- Scores: {STRONG_TREND: 0.00, CHOPPY: 0.70, HIGH_VOL: 0.00, RISK_OFF: 0.00, TRANSITION: 0.00} (explicit call); scan's internal call: {STRONG_TREND: 0.85, CHOPPY: 0.00, HIGH_VOL: 0.00, RISK_OFF: 0.00, TRANSITION: 0.00}
+- Trend (SPY/QQQ): 0.659 / -0.2 (explicit call, real negative QQQ trend) vs 0.659 / null (scan's internal call, QQQ trend not computed) | Volatility (20d): 0.1563 | VIX: 15.4 (explicit, real print) | Breadth (%>50dma): 0.655 both calls
+- Sleeve weights actually applied in today's `scan`/`evaluate` calls:
+  {momentum 1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8}
+  — the STRONG_TREND weight set, because `scan`/`evaluate` use their own
+  internal regime call, not the explicit step-4 call that classified today
+  CHOPPY.
+- Note: **state-level disagreement, not just a confidence gap** — the
+  explicit call and scan's internal call disagree on the regime itself
+  (CHOPPY vs STRONG_TREND), tracing to whether QQQ trend comes back null
+  (scan) or a real -0.2 (explicit, with `--qqq` passed). Same shape as
+  prior sessions' breadth-null-vs-real inconsistency, but here it flips
+  the actual state, not just the confidence number, and it means today's
+  sleeve weighting silently used STRONG_TREND weights on a session the
+  routine's own step-4 classification called CHOPPY. Confidence cleared
+  0.40 either way so no trade was blocked by it today, but flag for
+  weekly review — root-cause why `--qqq` produces a real trend value on
+  the explicit call but null internally in `scan`, before it matters on a
+  day where the two states would gate differently.
