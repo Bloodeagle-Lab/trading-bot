@@ -1113,6 +1113,7 @@ below minimum, DY/LI negative-ensemble. Correct, expected outcome.
   (mechanism-test position, no catalyst thesis to begin with) and nowhere
   near -7%; nothing urgent.
 
+
 ## 2026-08-27 — Pre-market Research (run inline from market-open — no earlier pre-market entry existed)
 
 ### Account
@@ -1292,3 +1293,114 @@ None. Ran `evaluate` on the top two by ensemble score:
 be scored on unusable quote data; BBY (2nd) fails the validated 0.55
 ensemble minimum plus sleeve disagreement plus a 10.93% spread; HRL/DG/
 BURL all weaker or negative-ensemble. Correct, expected outcome.
+
+## 2026-08-28 — Pre-market Research
+
+### Account
+- Equity: $99,840.94 | Cash: $89,471.29 (89.6%) | Buying power: $386,920.19 |
+  Daytrade count: 0/4 (endpoint doesn't return the field; assumed 0)
+- Positions: BAC 169 @ $62.30, current $61.3589 (-1.51% unrealized, -$159.05)
+  — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $62.58, stop $56.322, status
+  "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **CHOPPY** (confidence 0.745 with `--vix 14.51`) — see
+  `memory/REGIME-LOG.md`; first CHOPPY read after two STRONG_TREND
+  sessions (08-25, 08-26)
+- WTI / Brent: ~$83.1-83.9 / ~$88.3-90.1, roughly flat, third straight down
+  session per one source citing an Iran/Oman Strait-of-Hormuz corridor plan
+- S&P 500 futures / VIX: ES ~7,740 (+0.5 to +0.66% premarket); VIX ~14.5,
+  down from 15.21 prior close — a low-vol tape
+- Today's catalysts: AI/semiconductor strength spillover from Nvidia's
+  report lifting Nasdaq/tech sentiment; Chicago PMI and final University
+  of Michigan consumer sentiment; Tokyo CPI/Japan unemployment (BOJ-
+  relevant); Fed Chair Warsh's first Jackson Hole keynote; Alibaba (BABA)
+  earnings plus its new AI model launch
+- Earnings before open: no large-cap US names — Frontline (FRO), MINISO
+  (MNSO), Jiayin Group (JFIN), Hafnia (HAFN), BW LPG (BWLP), Chagee (CHA),
+  Nano Labs (NA), plus assorted smaller/foreign names
+- Economic calendar: no CPI/PPI/FOMC/jobs report today (PPI Sep 10, CPI
+  Sep 11, next jobs report Sep 4); today's prints: BLS Current Employment
+  Statistics preliminary benchmark (10am ET), Chicago PMI, final UMich
+  sentiment, NFP annual revision (prelim), Fed Chair Warsh's Jackson Hole
+  speech
+- Sector momentum YTD: Energy +39.71% (leader), Technology +32.24%,
+  Capital Goods +26.68%, Basic Materials +26.10%, Transportation +21.65%;
+  Consumer Discretionary weakest
+- Held-ticker news (BAC): **new headline today** — SEC reportedly
+  subpoenaed Bank of America and three other major banks in an early-stage
+  "Situational Awareness" trades probe after a large portfolio wipeout;
+  also a federal judge granting final approval to BAC's $72.5M Epstein-
+  accusers settlement (already known), Jio Credit stake plan and $250B
+  infrastructure financing push (both already known). Price -1.51%
+  intraday, well inside normal range. No thesis to break (mechanism-test
+  position, no catalyst thesis to begin with) and nowhere near -7%; not
+  urgent, but the SEC subpoena is a new development worth watching.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| FRO | 0.287 | — (no champion) | 64.3 tech / 65.0 sector / 100 cat / 10.0 liq | Earnings today; top-scoring but below 0.55 minimum |
+| CHA | 0.067 | — | not evaluated (quote error) | Earnings today; pre-market quote degraded (ask=0.0) |
+| NVDA | 0.051 | — | 52.5 tech / 85.0 sector / 0.0 cat / 90.0 liq | No new catalyst today — post-earnings spillover only |
+| BABA | -0.355 | — | not evaluated | Earnings today; negative ensemble |
+| MNSO | -0.465 | — | not evaluated | Earnings today; negative ensemble |
+
+### Trade Ideas
+None. Ran `evaluate` on the top three by ensemble score:
+
+- **FRO** — entry $49.62 / stop $46.98 / target $54.90 (R:R 2.0), NO-TRADE.
+- **NVDA** — entry $240.41 / stop $229.72 / target $261.79 (R:R 2.0),
+  NO-TRADE.
+- **CHA** — `evaluate` raised `ValueError: no usable quote for CHA
+  (bid=8.84, ask=0.0)` before it could score the pipeline — pre-market
+  market data degraded/stale for this illiquid name; treated as NO-TRADE
+  on data-quality grounds, not a strategy call.
+
+### NO-TRADE Candidates
+- **FRO** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.29 below the validated
+  minimum 0.55; spread/liquidity failed (spread 24.45%, illiquid or too
+  wide).
+- **NVDA** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.05 below the validated
+  minimum 0.55; catalyst could not be verified against a specific,
+  current, verifiable source (no earnings or new news today — its report
+  already happened, this would only be trend spillover).
+- **CHA** — not scored; `evaluate`'s quote lookup errored (bid=8.84,
+  ask=0.0), consistent with the pre-market spread/liquidity issues noted
+  on prior sessions for thinly-traded names.
+- BABA, MNSO — not run through `evaluate`; both carry a negative ensemble
+  score (-0.355, -0.465) driven by negative momentum/trend/relative-
+  strength, clearly weaker than FRO/NVDA — no need to spend an evaluate
+  call confirming a NO-TRADE on a worse setup.
+
+### Risk Factors
+- **Regime shifted from STRONG_TREND to CHOPPY today** (confidence 0.745)
+  — driven by a real QQQ trend reversal (-0.198, first negative QQQ trend
+  print in this log) against SPY still trending up (+0.683), not by a VIX
+  or breadth shift (VIX actually fell to 14.51 from 15.21). `scan`'s own
+  internal regime call (no `--vix`/`--qqq` passed) still returned
+  STRONG_TREND/0.797 — the explicit and internal calls disagreed on
+  **state**, not just confidence, for the first time; flag for weekly
+  review.
+- **No pre-market or regime-log entry exists for 2026-08-27** — a gap in
+  the daily record; flag for review (scheduled run may not have fired or
+  its commit may not have landed on `main`).
+- **BAC's SEC subpoena headline is new since the last research log
+  entry** — no thesis to break (mechanism-test position), but worth
+  tracking if the "Situational Awareness" probe develops further.
+- **Today's pre-market earnings slate has no large, liquid, US-domiciled
+  names** — the two evaluated candidates (FRO, NVDA) both failed the
+  pipeline outright, and CHA's pre-market quote was degraded, consistent
+  with the same microstructure pattern noted on prior sessions.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+
+### Decision
+**HOLD** — no order placed, none staged. FRO and NVDA are the only
+candidates evaluated in full, both failing on ensemble score plus an
+independent gate each (spread, unverified catalyst); CHA's data was too
+degraded to score; BABA/MNSO negative-ensemble. Correct, expected outcome.

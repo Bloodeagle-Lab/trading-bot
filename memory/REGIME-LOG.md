@@ -206,3 +206,28 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   weekly review — root-cause why `--qqq` produces a real trend value on
   the explicit call but null internally in `scan`, before it matters on a
   day where the two states would gate differently.
+
+## 2026-08-28
+
+- State: CHOPPY
+- Confidence: 0.745 (explicit `--qqq --vix 14.51` call, breadth
+  auto-computed 0.690) — clears the 0.40 NO-TRADE minimum comfortably, but
+  the **state** itself flipped from STRONG_TREND (held 08-25, 08-26) to
+  CHOPPY
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--qqq`) returned STRONG_TREND instead — {STRONG_TREND: 0.85, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0}, confidence 0.797
+- Trend (SPY/QQQ): 0.683 / -0.198 (explicit call, real QQQ read) — SPY
+  still trending up, QQQ now trending down; this divergence is what
+  classified the day as CHOPPY | Volatility (20d): 0.1568 | VIX: 14.51 |
+  Breadth (%>50dma): 0.690 (auto-computed from the live proxy universe,
+  not independently re-sourced via Perplexity today)
+- Sleeve weights: not applicable to the regime call itself; the candidate
+  `scan` run used STRONG_TREND's weights {momentum 1.0, trend 1.0,
+  breakout 1.0, mean_reversion 0.0, relative_strength 0.8} since its
+  internal (no-VIX/QQQ) regime call still read STRONG_TREND
+- Note: first CHOPPY classification in this log's history. Driven by a
+  genuine QQQ trend reversal (-0.198, first negative QQQ trend print
+  logged) rather than a VIX/breadth deterioration — VIX actually fell to
+  14.51 from 15.21 the prior close. The explicit and scan-internal calls
+  disagreed on **state**, not just confidence magnitude, for the first
+  time (prior sessions only diverged on the confidence number) — flag for
+  weekly review.
