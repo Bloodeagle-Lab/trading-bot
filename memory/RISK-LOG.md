@@ -380,3 +380,14 @@ directly (outside this session's tool access) for 2026-08-26 daily-summary
 and all of 2026-08-27 to find why. Until confirmed fixed, today's EOD
 figures were computed against the 2026-08-25 snapshot (three days stale)
 rather than the prior day's — see today's `TRADE-LOG.md` entry.
+
+**Also today:** this `daily-summary` session was itself assigned a fixed
+branch, `main-2mxr6t`, with explicit instructions never to push elsewhere
+without permission — the same session-branch pattern as the 2026-08-24/
+08-25 entries above, just with a differently-named branch this time
+(`main-2mxr6t` rather than a `claude/adjective-noun` one). Followed the
+standing session-level branch policy over the routine's literal `git push
+origin main`, per established precedent. **Action needed:** merge
+`main-2mxr6t` into `main`, or tomorrow's routines (reading from a fresh
+`main` clone) will not see today's EOD snapshot or this note, and day P&L
+will fall back to the 2026-08-25 figure again.
