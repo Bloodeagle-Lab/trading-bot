@@ -469,3 +469,77 @@ their own branch assignment came from that config or from something
 layered on top of it. **Per this session's own task-level branch
 instructions, this session's work is pushed to `main-kgb03t`, not
 `main` — it will need the same manual merge as the five branches above.**
+
+## 2026-08-28 — SCHEDULING: no routine activity landed on `main` for 2026-08-27; `daily-summary` missing for both 2026-08-26 and 2026-08-27
+
+The direct-push-to-`main` fix logged above did work as intended — 2026-08-26
+`pre-market`/`market-open` commits (`fc1ad2f`, `e95821a`) are on `main` with
+no stranded branch or manual merge needed, unlike the earlier session-branch
+failures. But two separate gaps remain, found while running today's
+`daily-summary`:
+
+1. **`daily-summary` didn't run/commit on 2026-08-26** — pre-market and
+   market-open both ran that day, but no EOD snapshot exists for
+   2026-08-26 in `memory/TRADE-LOG.md`, and no `daily-summary`-shaped
+   commit appears in `git log` for that date.
+2. **No routine fired at all on 2026-08-27** — zero commits, and no
+   `RESEARCH-LOG.md`/`REGIME-LOG.md`/`TRADE-LOG.md` entries dated
+   2026-08-27, across pre-market, market-open, midday, or daily-summary.
+
+No stranded `claude/*` branches exist on the remote (checked
+`git branch -a`), so this isn't the earlier session-branch problem
+recurring — it looks like the scheduled triggers themselves didn't fire,
+or fired and produced no output, on those two occasions. **Action
+needed:** check the routines' cron/trigger status and recent run history
+directly (outside this session's tool access) for 2026-08-26 daily-summary
+and all of 2026-08-27 to find why. Until confirmed fixed, today's EOD
+figures were computed against the 2026-08-25 snapshot (three days stale)
+rather than the prior day's — see today's `TRADE-LOG.md` entry.
+
+**Also today:** this `daily-summary` session was itself assigned a fixed
+branch, `main-2mxr6t`, with explicit instructions never to push elsewhere
+without permission — the same session-branch pattern as the 2026-08-24/
+08-25 entries above, just with a differently-named branch this time
+(`main-2mxr6t` rather than a `claude/adjective-noun` one). Followed the
+standing session-level branch policy over the routine's literal `git push
+origin main`, per established precedent. **Action needed:** merge
+`main-2mxr6t` into `main`, or tomorrow's routines (reading from a fresh
+`main` clone) will not see today's EOD snapshot or this note, and day P&L
+will fall back to the 2026-08-25 figure again.
+
+## 2026-08-28 — Persistence: RESOLVED for this week via manual branch consolidation (weekly-review)
+
+Reconciling the two entries directly above: the 2026-08-28 `market-open`
+session's read is the correct one, not the same day's `daily-summary`
+read. Nothing failed to fire on 2026-08-26 or 2026-08-27 — every routine
+ran and committed on schedule, but each commit landed on its own
+never-merged branch, invisible to any later session's fresh clone of
+`main`. `daily-summary`'s "no routine fired at all on 2026-08-27" and
+"no stranded `claude/*` branches exist" conclusions were both wrong: the
+stray branches use a `main-xxxxxx` naming pattern, not `claude/*`, and a
+plain `git branch -a` from a session that itself lands on one such branch
+does not enumerate the others via `origin/main`'s own history — `git
+fetch --prune` against the full remote is required to see them.
+
+**This session (`weekly-review`) fetched and merged all outstanding stray
+branches** — `main-kgb03t` (already containing the recovered
+`main-x7uq6d`/`main-uvj7u8`/`main-uhy3i7`/`main-g63v2n`/`main-gkfsno` chain)
+and `main-2mxr6t` (2026-08-28 `daily-summary`, EOD snapshot + this file's
+"SCHEDULING" entry above) — into `main` in this commit. `memory/TRADE-LOG.md`
+carries a reconciliation note on the 2026-08-28 EOD entry with the corrected
+Day P&L. As of this commit, `main` reflects the complete week: 2026-08-24
+through 2026-08-28, no gaps.
+
+**Root cause still open, now with a full week of evidence across three
+"fix"/"reopen" cycles (08-25, 08-27, 08-28) and at least 12 distinct stray
+branches this week alone** (`main-mayo40`, `main-a5zz3r`, `main-x7uq6d`,
+`main-uvj7u8`, `main-uhy3i7`, `main-g63v2n`, `main-gkfsno`, `main-kgb03t`,
+`main-2mxr6t`, plus several `claude/adjective-noun-*` branches from the
+prior week still unmerged on the remote). Every session diagnosing this
+from inside a sandboxed clone reaches the same wall: it cannot see whether
+its own branch assignment comes from the routines' trigger config or from
+a session-level policy layered on top, and cannot fix it from inside the
+sandbox either way. **Escalating past a log note this week:** this needs a
+human to check the routines API/UI directly, per the 2026-08-28 08:54
+entry above — logging it again next week without that check happening
+will not change the outcome.
