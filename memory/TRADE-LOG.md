@@ -221,3 +221,34 @@ sleeve disagreement) — correctly resolved HOLD, no order placed or
 staged. No champion ML model exists yet, so every candidate still fails
 the ML-evidence gate regardless of setup. 1/3 trades used this week
 (BAC, 2026-08-24), well under the cap of 3.
+
+### 2026-08-27 — EOD Snapshot (Day 7, Thursday)
+
+**Portfolio:** $99,846.20 | **Cash:** $89,471.29 (89.6%) | **Day P&L:** -$171.54 (-0.17%) | **Phase P&L:** -$153.80 (-0.15%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $61.39 | -1.63% | -$153.79 | trailing 10% |
+
+**Notes:** No new trades today or on 2026-08-26; BAC (manual
+mechanism-test position, 2026-08-24) remains the only open position,
+stop live and confirmed (`quant_cli.py positions` `flags` empty). **Gap
+flag:** no EOD snapshot exists in this file for 2026-08-26 — pre-market
+and market-open both ran that day and correctly resolved to HOLD (see
+`RESEARCH-LOG.md`/`REGIME-LOG.md`), but no `daily-summary` commit landed
+on `main`, so "Day P&L" above actually spans two trading sessions
+(2026-08-25 close → 2026-08-27 close), not one. Worth a weekly-review
+check on whether that day's `daily-summary` ran at all. Phase P&L
+computed against the Day 0 baseline ($100,000.00). 1/3 trades used this
+week (BAC, 2026-08-24) — cap not at risk.
+
+**Reconciliation (2026-08-28, market-open):** the 2026-08-26 EOD snapshot
+above ("Gap flag") was not actually missing — it landed on stray branch
+`main-x7uq6d` and is now recovered into this file (see the 2026-08-26
+entry above). It did run and did commit; only the merge to `main` never
+happened, same root cause as this file's other stray-branch recoveries.
+Recomputed against the recovered 2026-08-26 close ($100,018.58), this
+entry's real one-session Day P&L is -$172.38, not the -$171.54 stated
+above (which was computed against 2026-08-25's close because 08-26 wasn't
+visible yet) — a $0.84 difference, immaterial, left uncorrected above to
+preserve the routine's actual output as run.
