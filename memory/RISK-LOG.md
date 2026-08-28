@@ -354,3 +354,32 @@ configuration level.
 (2026-08-26), routines should push directly to `main` with no manual
 merge needed. This should be verified against tomorrow's actual commit
 history rather than assumed — first real evidence either way.
+
+## 2026-08-27 — Persistence: session-branch fix did not hold; still recurring under a new naming pattern
+
+Checked the 2026-08-25 fix's own "verify against tomorrow's actual commit
+history" instruction: `git log --oneline` on `main` shows 2026-08-26's
+`pre-market` commits (`fc1ad2f`, `e95821a`) landed on branches
+`main-mayo40` and `main-a5zz3r`, not `main` directly, then were pulled in
+later via merge commits (`84215f6`, `0fc511f`) — same failure mode as
+2026-08-20 through 08-25, just with a different branch-name prefix
+(`main-xxxxxx` instead of `claude/adjective-noun-xxxxxx`). The 2026-08-25
+trigger-config fix (`outcomes[0].git_repository.git_info.branches` ->
+`["main"]`) either didn't take, was reverted, or is being overridden by a
+newer session-level branch assignment layered on top of it — this session
+(`market-open`, 2026-08-27) was itself assigned branch `main-uhy3i7` with
+the same explicit no-push-elsewhere-without-permission constraint noted in
+every prior entry above.
+
+**Action this session took:** followed the standing session-level branch
+policy — pushed to `main-uhy3i7`, not `main` — same resolution as every
+prior occurrence. Branch was current with `origin/main` (`0fc511f`) before
+this commit, so no backlog of unmerged work riding along.
+
+**Action needed:** merge `main-uhy3i7` into `main` before tomorrow's
+`midday`/`daily-summary` runs, or they will not see today's research log,
+regime classification, or this note on a fresh clone from `main`. Given
+this has now recurred *after* a documented fix, worth escalating past a
+per-day log note at the next `weekly-review` — the fix needs
+re-verification at the trigger-config level, not another attempted patch
+assumed to have worked.
