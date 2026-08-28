@@ -354,3 +354,29 @@ configuration level.
 (2026-08-26), routines should push directly to `main` with no manual
 merge needed. This should be verified against tomorrow's actual commit
 history rather than assumed — first real evidence either way.
+
+## 2026-08-28 — SCHEDULING: no routine activity landed on `main` for 2026-08-27; `daily-summary` missing for both 2026-08-26 and 2026-08-27
+
+The direct-push-to-`main` fix logged above did work as intended — 2026-08-26
+`pre-market`/`market-open` commits (`fc1ad2f`, `e95821a`) are on `main` with
+no stranded branch or manual merge needed, unlike the earlier session-branch
+failures. But two separate gaps remain, found while running today's
+`daily-summary`:
+
+1. **`daily-summary` didn't run/commit on 2026-08-26** — pre-market and
+   market-open both ran that day, but no EOD snapshot exists for
+   2026-08-26 in `memory/TRADE-LOG.md`, and no `daily-summary`-shaped
+   commit appears in `git log` for that date.
+2. **No routine fired at all on 2026-08-27** — zero commits, and no
+   `RESEARCH-LOG.md`/`REGIME-LOG.md`/`TRADE-LOG.md` entries dated
+   2026-08-27, across pre-market, market-open, midday, or daily-summary.
+
+No stranded `claude/*` branches exist on the remote (checked
+`git branch -a`), so this isn't the earlier session-branch problem
+recurring — it looks like the scheduled triggers themselves didn't fire,
+or fired and produced no output, on those two occasions. **Action
+needed:** check the routines' cron/trigger status and recent run history
+directly (outside this session's tool access) for 2026-08-26 daily-summary
+and all of 2026-08-27 to find why. Until confirmed fixed, today's EOD
+figures were computed against the 2026-08-25 snapshot (three days stale)
+rather than the prior day's — see today's `TRADE-LOG.md` entry.
