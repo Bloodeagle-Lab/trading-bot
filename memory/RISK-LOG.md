@@ -419,3 +419,53 @@ that reintroduced a per-run branch. Also confirm whether 2026-08-26's
 schedule/enabled state, not just the branch config. Until fixed, every
 routine's memory needs manual merge-to-`main` verification, same as the
 08-20 through 08-25 pattern.
+
+## 2026-08-28 — Persistence: still recurring; recovered 5 stray branches into this session
+
+This `market-open` session was itself assigned branch `main-kgb03t`, not
+`main` — the same failure mode continues after two prior "resolved"/
+"reopened" entries above. On arrival, `origin/main` was missing five
+sessions' worth of memory, each stranded on its own never-merged branch:
+
+| Branch | Content |
+|---|---|
+| `main-x7uq6d` | EOD snapshot 2026-08-26 |
+| `main-uvj7u8` | Pre-market research 2026-08-27 |
+| `main-uhy3i7` | market-open 2026-08-27 (inline pre-market re-run — that session's fresh clone from `main` couldn't see `main-uvj7u8` either) |
+| `main-g63v2n` | EOD snapshot 2026-08-27 (+ this file's 2026-08-27 "REOPENED" note above) |
+| `main-gkfsno` | **Today's (2026-08-28) pre-market research** — without recovering this, market-open would have had no documented research to trade against |
+
+**Action taken:** fetched and merged all five into this session's
+branch, in chronological order, resolving conflicts by keeping every
+entry (duplicate same-day research entries preserved in sequence, per
+this file's and `RESEARCH-LOG.md`'s established convention — see
+2026-08-24/08-26 for precedent). Added one reconciliation note to
+`TRADE-LOG.md`'s 2026-08-27 EOD entry since its "gap flag" about a
+missing 08-26 snapshot is now resolved (08-26 did run; only the merge
+never happened). `main-pe29uz` was also present but is a stale branch
+already fully contained in `main` — no action needed.
+
+**Verified live against Alpaca post-recovery:** BAC 169 sh @ $62.30,
+current $61.43 (-1.4% unrealized), 10% trailing GTC stop still live
+(status "new", hwm $62.58, stop $56.322) — consistent with the recovered
+log history, nothing missed.
+
+**Market-open decision today:** today's (recovered) pre-market research
+found **zero PASS candidates** — FRO and NVDA both evaluated NO-TRADE
+(ensemble below the 0.55 minimum plus an independent gate each), CHA
+errored on unusable quote data, BABA/MNSO negative-ensemble and not run.
+Nothing to re-validate at the open; no trade attempted. 1/3 trades used
+this week (BAC, 2026-08-24) — cap not at risk. Correct, expected HOLD.
+
+**Action needed (repeating, now for a third distinct week):** this is no
+longer a one-off — it has now affected every routine type
+(pre-market, market-open, daily-summary) across two separate "fix"
+attempts. The 08-25 trigger-config fix should be treated as disproven,
+not re-attempted the same way. Recommend a human verify the actual
+current state of all 5 routines' `outcomes[0].git_repository.git_info`
+config directly via the routines API/UI rather than continuing to patch
+and re-verify from inside a session, since sessions cannot see whether
+their own branch assignment came from that config or from something
+layered on top of it. **Per this session's own task-level branch
+instructions, this session's work is pushed to `main-kgb03t`, not
+`main` — it will need the same manual merge as the five branches above.**
