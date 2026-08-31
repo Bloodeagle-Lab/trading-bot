@@ -1404,3 +1404,115 @@ None. Ran `evaluate` on the top three by ensemble score:
 candidates evaluated in full, both failing on ensemble score plus an
 independent gate each (spread, unverified catalyst); CHA's data was too
 degraded to score; BABA/MNSO negative-ensemble. Correct, expected outcome.
+
+## 2026-08-31 — Pre-market Research
+
+### Account
+- Equity: $99,994.92 | Cash: $89,471.29 (89.5%) | Buying power: $387,351.32 |
+  Daytrade count: 0/4 (endpoint doesn't return the field; assumed 0)
+- Positions: BAC 169 @ $62.30, current $62.27 (-0.05% unrealized, -$5.07) —
+  manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $62.58, stop $56.322, status
+  "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **STRONG_TREND** (confidence 0.872 with `--vix 15.27`) — see
+  `memory/REGIME-LOG.md`; back to STRONG_TREND after 08-28's one-day CHOPPY
+  read
+- WTI / Brent: ~$85.5 / ~$90.4, both up ~2.5-2.9% overnight — collapse of
+  US-Iran diplomatic efforts over Strait of Hormuz shipping cited as the
+  driver
+- S&P 500 futures / VIX: ES ~7,691-7,722 (roughly flat to -0.4% premarket,
+  sources disagree); VIX ~15.27 (Cboe spot), up from Friday's 14.43 close —
+  a modest vol uptick, still well inside normal range
+- Today's catalysts: AI/mega-cap earnings momentum (Nvidia spillover into
+  Nasdaq/software), Fed Chair Warsh's sticky-inflation warning from Jackson
+  Hole, G20 Finance Ministers/Central Bank Governors meeting (Aug 31-Sep 1),
+  Dallas Fed Manufacturing Index (2:30pm ET), Treasury bill auctions
+  (3:30pm ET)
+- Earnings before open: sources disagree on the full slate, but **SAIC**
+  (Science Applications International, EPS est. $2.31) is the most-cited
+  confirmed pre-market name; also flagged pre-market/today: PDD Holdings,
+  Frontline (FRO), Nordic American Tankers (NAT), NAPCO Security (NSSC,
+  confirmed pre), American Eagle Outfitters (AEO, time TBD)
+- Economic calendar: no CPI/PPI/FOMC/jobs report today — next jobs report
+  Sep 4, PPI Sep 10, CPI Sep 11, next FOMC meeting Sep 15-16
+- Sector momentum YTD: Energy +43.1% (leader), Technology +25.4%, Materials
+  +19.1%, Industrials +16.0%, Real Estate +14.1%, Consumer Staples +14.0%,
+  Health Care +13.8%, Financials +7.2%, Utilities +2.6%; Consumer
+  Discretionary -0.5% and Communication Services -4.0% both negative
+- Held-ticker news (BAC): no new headline since 2026-08-28 — same SEC
+  "Situational Awareness" subpoena probe and $72.5M Epstein-accusers
+  settlement final approval, both already logged. Price -0.05% intraday,
+  well inside normal range. No thesis to break (mechanism-test position)
+  and nowhere near -7%; not urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| NAT | 0.25 | — (no champion) | 62.5 tech / 16.0 sector / 100 cat / 10.0 liq | Earnings today; tanker, oil-catalyst tailwind; top-scoring but below 0.55 minimum |
+| SAIC | 0.189 | — | 59.5 tech / 25.4 sector / 100 cat / 10.0 liq | Earnings today (confirmed pre-market); 2nd by ensemble |
+| PDD | 0.062 | — | not evaluated (quote error) | Earnings today; pre-market quote degraded (ask=0.0) |
+| FRO | 0.058 | — | not evaluated | Earnings today; weaker than NAT on same tanker/oil catalyst |
+| NSSC | -0.021 | — | not evaluated | Earnings today; negative ensemble |
+
+### Trade Ideas
+None. Ran `evaluate` on the top three by ensemble score:
+
+- **NAT** — entry $7.73 / stop $7.29 / target $8.61 (R:R 2.0), NO-TRADE.
+- **SAIC** — entry $138.77 / stop $132.16 / target $151.99 (R:R 2.0),
+  NO-TRADE.
+- **PDD** — `evaluate` raised `ValueError: no usable quote for PDD
+  (bid=73.18, ask=0.0)` before it could score the pipeline — pre-market
+  market data degraded/stale, same recurring microstructure pattern noted
+  on prior sessions; treated as NO-TRADE by necessity, not a scored
+  rejection.
+
+### NO-TRADE Candidates
+- **NAT** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.25 below the validated
+  minimum 0.55; setup quality 60 below minimum 60; spread/liquidity failed
+  (spread 24.45%, illiquid or too wide).
+- **SAIC** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.19 below the validated
+  minimum 0.55; sleeve disagreement {momentum 0.13, trend 0.212, breakout
+  0.307, mean_reversion -0.366, relative_strength 0.086}; spread/liquidity
+  failed (spread 24.70%, illiquid or too wide).
+- **PDD** — not scored; `evaluate`'s quote lookup errored (bid=73.18,
+  ask=0.0), consistent with the pre-market spread/liquidity issues noted
+  on prior sessions. Ensemble (0.062) was itself already far below the
+  0.55 validated minimum, so this would very likely have been NO-TRADE
+  even with a clean quote.
+- FRO, NSSC — not run through `evaluate`; both score below PDD (FRO 0.058,
+  NSSC -0.021), no need to spend an evaluate call confirming a NO-TRADE on
+  a weaker setup.
+
+### Risk Factors
+- **Regime back to STRONG_TREND after one CHOPPY session (08-28)** —
+  confidence 0.872, comfortably clear of the 0.40 minimum; scan's own
+  internal call (no `--vix`/`--qqq`) read the same state at 0.797, no
+  disagreement today.
+- **Oil surged ~2.5-2.9% overnight on Hormuz-shipping-diplomacy collapse**
+  — pushed WTI/Brent to their highest levels flagged in this log's recent
+  history. NAT/FRO (both tanker names) carry this as their real catalyst
+  today; neither cleared the ensemble/spread gates regardless.
+- **Every evaluated/scored candidate today failed on the same 24%+
+  pre-market spread**, same microstructure pattern noted repeatedly in
+  prior sessions (quotes pulled before the open) — not a new bug, but a
+  persistent pattern worth a weekly-review look if it never clears.
+- **PDD's `evaluate` call hit a data-quality error** (ask=0.0), same
+  pattern as DLTR (08-26) and CHA (08-28) — recurring, not new.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+  Expected, fail-safe, unchanged from prior runs.
+- **BAC's SEC subpoena/Epstein-settlement headlines are unchanged since
+  08-28** — no new development, no thesis to break (mechanism-test
+  position).
+
+### Decision
+**HOLD** — no order placed, none staged. NAT and SAIC are the only
+candidates evaluated in full, both failing the validated 0.55 ensemble
+minimum plus an independent gate each (setup quality/spread, sleeve
+disagreement/spread); PDD's data was too degraded to score; FRO/NSSC both
+weaker or negative-ensemble. Correct, expected outcome.

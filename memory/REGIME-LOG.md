@@ -231,3 +231,24 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   disagreed on **state**, not just confidence magnitude, for the first
   time (prior sessions only diverged on the confidence number) — flag for
   weekly review.
+
+## 2026-08-31
+
+- State: **STRONG_TREND**
+- Confidence: 0.872 (explicit `--qqq --vix 15.27` call, breadth
+  auto-computed 0.690) — clears the 0.40 NO-TRADE minimum comfortably;
+  back to STRONG_TREND after 08-28's one-day CHOPPY read
+- Scores: {STRONG_TREND: 0.85, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--qqq`) also returned STRONG_TREND — {STRONG_TREND: 0.85, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0}, confidence 0.797 (no state disagreement today)
+- Trend (SPY/QQQ): 0.721 / 0.653 (explicit call) — both trending up, QQQ
+  back positive after 08-28's negative print | Volatility (20d): 0.1587 |
+  VIX: 15.27 | Breadth (%>50dma): 0.690 (auto-computed from the live proxy
+  universe, not independently re-sourced via Perplexity today)
+- Sleeve weights: STRONG_TREND weight set applied in today's `scan`/
+  `evaluate` calls — {momentum 1.0, trend 1.0, breakout 1.0,
+  mean_reversion 0.0, relative_strength 0.8}
+- Note: explicit and scan-internal calls agreed on both state and
+  confidence direction today (0.872 vs 0.797, both STRONG_TREND) — the
+  QQQ-trend-null-on-scan's-internal-call quirk flagged 08-27/08-28 is
+  still present (scan's internal `trend_qqq` reads null again today), but
+  it no longer matters for state since SPY's trend alone is enough to
+  classify STRONG_TREND either way.
