@@ -291,3 +291,30 @@ one-session Day P&L is **+$168.16 (+0.17%)**, not the -$3.38 stated above
 weren't visible yet) — left uncorrected above to preserve the routine's
 actual output as run. Phase P&L ($14.36, vs the real Day 0 baseline) is
 unaffected either way.
+
+### 2026-08-31 — EOD Snapshot (Day 11, Monday)
+
+**Portfolio:** $99,964.50 | **Cash:** $89,471.29 (89.5%) | **Day P&L:** -$49.86 (-0.05%) | **Phase P&L:** -$35.50 (-0.04%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.09 | -0.47% | -$35.49 | trailing 10% |
+
+**Notes:** No trades today — pre-market found zero PASS candidates (NAT
+and SAIC both NO-TRADE on ensemble-score/spread-liquidity failures, PDD
+errored on an unusable quote, FRO/NSSC scored weaker and weren't run);
+market-open correctly confirmed HOLD, nothing to re-validate. BAC
+(manual mechanism-test position, 2026-08-24) remains the only open
+position, live 10% trailing GTC stop confirmed (`quant_cli.py positions`
+`flags` empty, no missing-stop issue). First trading day of a new week —
+0/3 trades used, cap not at risk. Regime is STRONG_TREND, confidence
+0.872, comfortably clear of the 0.40 NO-TRADE minimum. Day P&L computed
+against the 2026-08-28 EOD snapshot ($100,014.36, last trading day —
+market closed the weekend of 08-29/08-30); phase P&L against the Day 0
+real baseline ($100,000.00). **Persistence note (recurring, fourth
+week):** both today's pre-market and market-open runs landed on stray
+branches (`main-2wn2pg`, `main-mh56w0`) instead of `main` — same
+still-unresolved routine branch-assignment issue tracked in
+`memory/RISK-LOG.md` since 2026-08-20. Recovered and merged into this
+daily-summary's branch before this snapshot; see `RISK-LOG.md`'s
+2026-08-31 entry for the full account.
