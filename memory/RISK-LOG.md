@@ -543,3 +543,42 @@ sandbox either way. **Escalating past a log note this week:** this needs a
 human to check the routines API/UI directly, per the 2026-08-28 08:54
 entry above — logging it again next week without that check happening
 will not change the outcome.
+
+## 2026-08-31 — Persistence: still recurring (new week, new branch); no trade, BAC verified live
+
+This `market-open` session was itself assigned branch `main-mh56w0`, not
+`main` — same failure mode, fourth calendar week running. On arrival,
+`origin/main` was current through the 2026-08-28 weekly-review (`cccb47f`),
+but today's pre-market research (`memory/RESEARCH-LOG.md`/`REGIME-LOG.md`,
+2026-08-31 entries) had already landed on yet another stray branch,
+`main-2wn2pg`, one commit ahead and otherwise identical to `main` — fetched
+and fast-forward-merged into this session's branch before proceeding. All
+other previously-flagged stray branches (`main-mayo40`, `main-a5zz3r`,
+`main-x7uq6d`, `main-uvj7u8`, `main-uhy3i7`, `main-g63v2n`, `main-gkfsno`,
+`main-kgb03t`, `main-2mxr6t`, `main-pe29uz`, `main-llkola`, plus every
+`claude/adjective-noun-*` branch) checked and confirmed already fully
+contained in `main` — zero commits ahead of the weekly-review base, no
+further action needed on those.
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$62.10 (-0.32% unrealized, -$33.80), 10% trailing GTC stop live (status
+"new", hwm $62.58, stop $56.322) — consistent with the recovered research
+log, nothing missed. Account equity $99,966.19, cash $89,471.29 (89.5%).
+
+**Market-open decision today:** today's pre-market research found **zero
+PASS candidates** — NAT and SAIC both evaluated NO-TRADE (ensemble below
+the 0.55 minimum plus spread/liquidity failing both), PDD errored on an
+unusable quote, FRO/NSSC scored weaker and not run. Nothing to re-validate
+at the open, no trade attempted. 0/3 trades used this new week (BAC's only
+BUY was 08-24, prior week) — cap not at risk. Correct, expected HOLD.
+
+**Action needed (repeating, now a fourth distinct week):** still
+unresolved at the infrastructure level — this session's own branch
+assignment (`main-mh56w0`) confirms the 08-28 weekly-review's diagnosis
+holds. Per established precedent, this session follows the standing
+session-level branch policy (push to `main-mh56w0`) over the routine's
+literal `git push origin main`; that branch will need the same manual
+merge as every prior week's stray branches. Reiterating the standing ask:
+a human needs to check the routines API/UI's `outcomes[0].git_repository.git_info`
+config directly — no session-side fix has held across four weeks of
+attempts.
