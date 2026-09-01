@@ -1516,3 +1516,131 @@ candidates evaluated in full, both failing the validated 0.55 ensemble
 minimum plus an independent gate each (setup quality/spread, sleeve
 disagreement/spread); PDD's data was too degraded to score; FRO/NSSC both
 weaker or negative-ensemble. Correct, expected outcome.
+
+## 2026-09-01 — Pre-market Research
+
+### Account
+- Equity: $99,903.46 | Cash: $89,471.29 (89.6%) | Buying power: $387,095.23 |
+  Daytrade count: 0/4 (endpoint doesn't return the field; assumed 0)
+- Positions: BAC 169 @ $62.30, current $61.7288 (-0.92% unrealized, -$96.53)
+  — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $62.58, stop $56.322, status
+  "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **STRONG_TREND** (confidence 0.872 with `--vix 15.16`) — see
+  `memory/REGIME-LOG.md`; second consecutive STRONG_TREND session after
+  08-31, and today's explicit/scan-internal calls agree on state (no
+  CHOPPY/STRONG_TREND split like 08-27/08-28)
+- WTI / Brent: ~$86-88 / ~$90-92, holding near last week's highs after the
+  Hormuz-shipping-diplomacy-collapse spike; sources disagree by a few
+  dollars depending on timestamp/delay, same pattern as prior sessions
+- S&P 500 futures / VIX: ES ~7,688-7,702, roughly flat to slightly down
+  premarket (-0.02% to -0.45% depending on source/timing); VIX ~15.16, up
+  ~5% from Friday's ~14.43-14.92 close — mild risk-off tick, still a
+  low-vol tape overall
+- Today's catalysts: AI/semiconductor earnings-momentum spillover (Micron,
+  Qualcomm), Apple CEO transition (Cook -> Ternus, effective today) ahead
+  of the Sept 9 iPhone event, Fed rate-cut expectations supporting
+  equities, JOLTS (July) at 10am ET, oil/Gulf-strikes geopolitical risk
+  still live
+- Earnings before open: Medtronic (MDT), Dell (DELL), NIO, MongoDB (MDB,
+  one calendar only, lower confidence), MiniMed (MMED), Rezolve AI (RZLV),
+  Yext (YEXT), Heidmar Maritime (HMR), Regis (RGS), Sasol (SSL); Academy
+  Sports (ASO) also listed today per some calendars
+- Economic calendar: no CPI/PPI/FOMC/jobs report today (next jobs report
+  Sep 4, PPI Sep 10, CPI Sep 11, FOMC Sep 16); today's prints: JOLTS (July)
+  10:00am ET, ISM Manufacturing PMI
+- Sector momentum YTD: Energy +42-45% (leader), Technology +30%,
+  Materials/Industrials next; Communication Services and Consumer
+  Discretionary weakest
+- Held-ticker news (BAC): no new headline since 08-28 — SEC "Situational
+  Awareness" subpoena probe and the $72.5M Epstein-settlement approval
+  both already known/priced in; price -0.92% intraday, well inside normal
+  range, no thesis to break (mechanism-test position)
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| DELL | 0.553 | — (no champion) | Earnings today; **first candidate in this log to clear the 0.55 validated minimum** |
+| MDB | 0.140 | — | Earnings today (lower-confidence source); below minimum |
+| MDT | 0.086 | — | Earnings today; below minimum, sleeve disagreement |
+| NIO | -0.406 | — | Earnings today; negative ensemble |
+| ASO | -0.402 | — | Earnings today; negative ensemble |
+
+### Trade Ideas
+None. Ran `evaluate` on the top three by ensemble score:
+
+- **DELL** — ensemble 0.553, the first candidate ever logged here to clear
+  the validated 0.55 minimum — but `evaluate` raised `ValueError: no
+  usable quote for DELL (bid=434.15, ask=0.0)` before it could finish
+  scoring; confirmed independently via `alpaca.sh quote DELL` (same stale
+  ask=0, timestamped 2026-08-31 20:00 UTC — yesterday's close, not a live
+  pre-market print). NO-TRADE on data-quality grounds, not a strategy
+  call — same recurring pre-market microstructure pattern as
+  DLTR/CHA/PDD. **Worth a market-open re-check**: this is the closest the
+  ensemble score has come to clearing the bar with a real earnings
+  catalyst; if the quote is live by the open, it deserves a fresh
+  `evaluate`.
+- **MDB** — entry $469.71 / stop $438.86 / target $531.41 (R:R 2.0),
+  NO-TRADE.
+- **MDT** — entry $96.08 / stop $92.89 / target $102.46 (R:R 2.0),
+  NO-TRADE.
+
+### NO-TRADE Candidates
+- **DELL** — not fully scored; `evaluate`'s quote lookup errored (bid=
+  434.15, ask=0.0), consistent with the pre-market spread/liquidity data
+  issues noted on prior sessions (DLTR 08-26, CHA 08-28, PDD 08-31). Its
+  ensemble score (0.553) already clears the 0.55 minimum, so this is a
+  data-quality NO-TRADE, not a strategy rejection — flagged above for a
+  market-open re-check.
+- **MDB** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.14 below the validated
+  minimum 0.55; spread/liquidity failed (spread 8.48%, illiquid or too
+  wide).
+- **MDT** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.09 below the validated
+  minimum 0.55; sleeve disagreement {momentum 0.04, trend 0.009, breakout
+  0.422, mean_reversion -0.594, relative_strength -0.182}; spread/
+  liquidity failed (spread 10.27%, illiquid or too wide).
+- NIO, ASO — not run through `evaluate`; both carry a negative ensemble
+  score (-0.406, -0.402) driven by negative momentum/trend/relative-
+  strength, clearly weaker than DELL/MDB/MDT — no need to spend an
+  evaluate call confirming a NO-TRADE on a weaker setup.
+
+### Risk Factors
+- **DELL's ensemble score (0.553) is the first in this log's history to
+  clear the validated 0.55 minimum**, but couldn't be evaluated on a
+  stale/degraded pre-market quote — the same microstructure pattern that
+  has blocked or complicated every top-scoring pre-market candidate for
+  weeks (DLTR 08-26, CHA 08-28, PDD 08-31, now DELL). Worth flagging for
+  weekly review if the pattern keeps intercepting exactly the candidates
+  that would otherwise pass.
+- **Persistence bug recurred a fifth consecutive week**: this session was
+  itself assigned branch `main-djn59c`, not `main`. On arrival, `origin/
+  main` was current only through 2026-08-28 (weekly-review) — three more
+  days of routine work (pre-market/market-open/EOD for 2026-08-31) had
+  landed on stray branches (`main-2wn2pg`, `main-mh56w0`, `main-vr4m04`)
+  again, same still-unresolved failure mode documented in `RISK-LOG.md`
+  since 2026-08-20. Fetched and fast-forward-merged that chain into `main`
+  directly before starting today's work (zero conflicts, pure recovery, no
+  data lost) — see `RISK-LOG.md`'s 2026-09-01 entry for the full account.
+  Following the 2026-08-31 session's established precedent, today's own
+  new work is pushed to this session's assigned branch (`main-djn59c`),
+  not `main` directly — it will need the same recovery merge next time a
+  session checks.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **BAC unchanged since 08-28** — no new headline, no thesis to break,
+  -0.92% unrealized, nowhere near -7%.
+- **Oil/Gulf-strikes geopolitical risk remains live** — no held position
+  or today's candidate set has direct exposure beyond NAT/FRO-style tanker
+  names, neither of which appeared in today's catalyst set.
+
+### Decision
+**HOLD** — no order placed, none staged. DELL is the only candidate whose
+ensemble score clears the validated minimum, but its pre-market quote was
+too degraded to evaluate; MDB and MDT both fail the ensemble/spread gates
+independently; NIO/ASO negative-ensemble. Correct, expected outcome — flag
+DELL for a market-open re-check if the quote clears.

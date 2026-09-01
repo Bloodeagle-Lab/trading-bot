@@ -582,3 +582,45 @@ merge as every prior week's stray branches. Reiterating the standing ask:
 a human needs to check the routines API/UI's `outcomes[0].git_repository.git_info`
 config directly — no session-side fix has held across four weeks of
 attempts.
+
+## 2026-09-01 — Persistence: still recurring (fifth week); Aug-31 chain recovered; no trade, BAC verified live
+
+This `pre-market` session was itself assigned branch `main-djn59c`, not
+`main` — same failure mode, fifth calendar week running. On arrival,
+`origin/main` was current only through the 2026-08-28 weekly-review
+(`cccb47f`) — three full days of routine work for 2026-08-31 (pre-market,
+market-open, EOD/daily-summary) had landed on stray branches instead:
+`main-2wn2pg` (pre-market), `main-mh56w0` (market-open, itself already
+containing `main-2wn2pg`), `main-vr4m04` (EOD snapshot, itself already
+containing the other two — a clean linear chain, no divergence). Fetched
+all three, confirmed `main-vr4m04` was a pure fast-forward of `origin/
+main` with zero conflicts, and pushed it directly to `main`
+(`cccb47f..6fcb6f6`) before starting today's own research — full recovery,
+no data lost. All other previously-flagged stray branches checked and
+confirmed already fully contained in `main`.
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$61.7288 (-0.92% unrealized, -$96.53), 10% trailing GTC stop live (status
+"new", hwm $62.58, stop $56.322) — consistent with the recovered
+2026-08-31 EOD snapshot, nothing missed. Account equity $99,903.46, cash
+$89,471.29 (89.6%).
+
+**Pre-market decision today:** regime STRONG_TREND (0.872), comfortably
+clear of the 0.40 minimum. DELL was the first candidate in this log's
+history to clear the validated 0.55 ensemble minimum (0.553) but its
+pre-market quote was degraded (ask=0.0, stale) — NO-TRADE on data quality,
+not strategy; flagged in `RESEARCH-LOG.md` for a market-open re-check.
+MDB/MDT both failed ensemble+spread gates; NIO/ASO negative-ensemble.
+Correct, expected HOLD. 0/3 trades used this week — cap not at risk.
+
+**Action needed (repeating, now a fifth distinct week):** still
+unresolved at the infrastructure level. Per the 2026-08-31 session's
+established precedent, this session's own new work (today's
+`RESEARCH-LOG.md`/`REGIME-LOG.md`/this entry) is pushed to this session's
+assigned branch (`main-djn59c`) rather than forcing `git push origin
+main` — consistent with the standing session-level branch policy, and
+leaving the fix to whoever next runs the recovery merge. Reiterating the
+standing ask: a human needs to check the routines API/UI's
+`outcomes[0].git_repository.git_info` config directly (per the 2026-08-28
+08:54 entry) — no session-side fix has held across five weeks of
+attempts, and each week costs one more manual recovery merge.

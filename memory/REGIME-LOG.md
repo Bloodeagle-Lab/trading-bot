@@ -252,3 +252,27 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   still present (scan's internal `trend_qqq` reads null again today), but
   it no longer matters for state since SPY's trend alone is enough to
   classify STRONG_TREND either way.
+
+## 2026-09-01
+
+- State: STRONG_TREND
+- Confidence: 0.872 (explicit `--qqq --vix 15.16` call, breadth
+  auto-computed 0.690) / 0.797 (scan's internal call, no `--vix`/`--qqq`) —
+  both clear the 0.40 NO-TRADE minimum comfortably; state agrees across
+  both calls today, only the confidence number differs — back to the
+  pre-08-27 pattern after two sessions (08-27, 08-28) where the explicit
+  and internal calls disagreed on state itself
+- Scores: {STRONG_TREND: 0.85, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (both calls)
+- Trend (SPY/QQQ): 0.774 / 0.741 (explicit call, real QQQ read) vs 0.774 /
+  null (scan's internal call, QQQ trend not computed) | Volatility (20d):
+  0.146 | VIX: 15.16 (explicit, Perplexity) | Breadth (%>50dma): 0.690
+  (auto-computed, both calls)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8}
+  — the STRONG_TREND weight set, consistent with both calls' state read
+- Note: second consecutive STRONG_TREND session (08-31 also STRONG_TREND
+  at 0.872) after the single 08-28 CHOPPY read. Confidence gap between the
+  explicit and internal calls (0.872 vs 0.797) persists as in most prior
+  sessions — traced to `--qqq` producing a real trend value on the
+  explicit call vs null internally in `scan` — but doesn't matter today
+  since both states agree and both confidences clear 0.40.
