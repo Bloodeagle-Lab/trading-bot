@@ -318,3 +318,34 @@ still-unresolved routine branch-assignment issue tracked in
 `memory/RISK-LOG.md` since 2026-08-20. Recovered and merged into this
 daily-summary's branch before this snapshot; see `RISK-LOG.md`'s
 2026-08-31 entry for the full account.
+
+### 2026-09-01 — EOD Snapshot (Day 12, Tuesday)
+
+**Portfolio:** $99,939.15 | **Cash:** $89,471.29 (89.5%) | **Day P&L:** -$25.35 (-0.03%) | **Phase P&L:** -$60.85 (-0.06%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $61.94 | -0.24% | -$60.84 | trailing 10% |
+
+**Notes:** No trades today — two independent pre-market research runs
+both landed on the same HOLD decision (see below). BAC (manual
+mechanism-test position, 2026-08-24) remains the only open position, live
+10% trailing GTC stop confirmed (`quant_cli.py positions` `flags` empty).
+0/3 trades used this week (started 2026-08-31 Monday) — cap not at risk.
+Regime is STRONG_TREND, confidence 0.872, comfortably clear of the 0.40
+NO-TRADE minimum. Day P&L computed against the 2026-08-31 EOD snapshot
+($99,964.50); phase P&L against the Day 0 real baseline ($100,000.00).
+**Persistence note (recurring, fifth week):** this session's own branch
+started stale — `origin/main` was current only through 2026-08-31's EOD —
+because today's scheduled pre-market (11:37 UTC) and market-open's inline
+re-run of pre-market (13:51 UTC, market-open couldn't see the 11:37 run
+either, same stale-`main` cause) both landed on separate stray branches
+(`main-djn59c`, `main-71b2aw`) instead of `main`. Recovered and merged
+both into this daily-summary's branch before this snapshot — one real
+conflict (both sessions appended a `## 2026-09-01` section to the same
+spot in `REGIME-LOG.md`/`RESEARCH-LOG.md`), resolved by keeping both
+entries under distinguishing timestamped headers rather than discarding
+either. Both independently scored DELL/MDB/MDT and MRVL/PLTR/CVX/XOM/HAL
+respectively and reached the same HOLD; see `RESEARCH-LOG.md` and
+`RISK-LOG.md` for the full account. Still unresolved at the
+infrastructure level — same standing ask as prior weeks.
