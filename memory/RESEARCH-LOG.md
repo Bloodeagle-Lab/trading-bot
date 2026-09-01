@@ -1517,7 +1517,7 @@ minimum plus an independent gate each (setup quality/spread, sleeve
 disagreement/spread); PDD's data was too degraded to score; FRO/NSSC both
 weaker or negative-ensemble. Correct, expected outcome.
 
-## 2026-09-01 — Pre-market Research
+## 2026-09-01 — Pre-market Research (scheduled, 11:37 UTC)
 
 ### Account
 - Equity: $99,903.46 | Cash: $89,471.29 (89.6%) | Buying power: $387,095.23 |
@@ -1644,3 +1644,105 @@ ensemble score clears the validated minimum, but its pre-market quote was
 too degraded to evaluate; MDB and MDT both fail the ensemble/spread gates
 independently; NIO/ASO negative-ensemble. Correct, expected outcome — flag
 DELL for a market-open re-check if the quote clears.
+
+## 2026-09-01 — Pre-market Research (market-open inline re-run, 13:51 UTC)
+
+*Run inline from `market-open` per `CLAUDE.md`'s Read-Me-First rule —
+persistence bug meant `main` was still stale when market-open started, so
+the 11:37 UTC entry above wasn't visible; both sessions independently
+concluded HOLD.*
+
+### Account
+- Equity: $99,972.54 | Cash: $89,471.29 (89.5%) | Buying power: $387,288.67
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.115 (-0.30% unrealized,
+  -$31.27) — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md`
+  entry. Trailing 10% GTC stop confirmed live (hwm $62.615, stop
+  $56.3535, status "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **STRONG_TREND** (confidence 0.872 with `--vix 15.08`) — see
+  `memory/REGIME-LOG.md`
+- WTI / Brent: ~$85.76 / ~$90.49, both up ~2.7-2.8% Monday on resumed
+  Iran-US Gulf strikes/skirmishes — energy names (CVX, XOM, HAL) rallied
+  intraday Monday on the news
+- S&P 500 futures / VIX: ES ~7,650-7,690 premarket, down ~0.4-0.7% (sources
+  vary); VIX ~15.08-15.9 depending on source, modest uptick, still low
+- Today's catalysts: Middle East/Gulf escalation and oil spike (Monday's
+  main driver, still the dominant macro story); Apple CEO transition (Tim
+  Cook -> exec chair, John Ternus -> CEO) effective today, not a trading
+  catalyst; AI/semis earnings momentum cited but sourced from stale
+  (June/July) articles, not treated as a real today-catalyst
+- Earnings before open: none specifically confirmed for today in the
+  research pulled
+- Economic calendar: ISM Manufacturing PMI (Aug, consensus 55.0) and JOLTS
+  job openings (Jul, consensus 7.4M) both due today
+- Sector momentum YTD: Energy leader (~+42-45%), Technology next
+  (~+28-30%), Financials lagging/mixed (roughly flat to slightly negative
+  depending on source)
+- Held-ticker news (BAC): no thesis-breaking news. Ex-dividend date
+  9/4 ($0.32/share, +14% QoQ); next earnings ~10/14; same
+  subpoena/Epstein-settlement headlines as prior sessions, unchanged.
+  Price -0.30% intraday, well inside normal range, nowhere near -7%.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| MRVL | 0.0 | — (no champion) | 50.0 tech / 75.0 sector / 0 cat / 90.0 liq | Top-scoring; no verifiable today-catalyst |
+| PLTR | -0.207 | — | 39.6 tech / 75.0 sector / 0 cat / 90.0 liq | No verifiable today-catalyst |
+| CVX | -0.246 | — | not evaluated | Oil-spike beneficiary but 20d/60d momentum still negative — rally too recent to show in scan window |
+| XOM | -0.269 | — | not evaluated | Same pattern as CVX |
+| HAL | -0.389 | — | not evaluated | Same pattern as CVX, weakest of the three |
+
+### Trade Ideas
+None. Ran `evaluate` on the top two by ensemble score (sector-momentum
+75, tech):
+
+- **MRVL** — entry $202.07 / stop $165.89 / target $274.43 (R:R 2.0),
+  NO-TRADE.
+- **PLTR** — entry $184.29 / stop $173.92 / target $205.03 (R:R 2.0),
+  NO-TRADE.
+
+Energy names (CVX/XOM/HAL) were scanned given today's real oil-spike
+catalyst but scored worse than MRVL/PLTR on ensemble (all negative) — not
+worth spending an `evaluate` call to confirm an already-clear NO-TRADE.
+
+### NO-TRADE Candidates
+- **MRVL** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.00 below the validated
+  minimum 0.55; setup quality 50 below minimum 60; portfolio concentration
+  too high for this ticker/sector/correlation cluster; catalyst could not
+  be verified against a specific, current, verifiable source.
+- **PLTR** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score -0.21 below the validated
+  minimum 0.55; setup quality 51 below minimum 60; portfolio concentration
+  too high for this ticker/sector/correlation cluster; catalyst could not
+  be verified against a specific, current, verifiable source.
+- CVX, XOM, HAL — not run through `evaluate`; all three ensemble scores
+  (-0.246, -0.269, -0.389) are below MRVL/PLTR and far below the 0.55
+  minimum. Today's oil-spike catalyst is genuine but hasn't shown up in
+  the 20d/60d technical window these sleeves score on yet.
+
+### Risk Factors
+- **Middle East/Gulf escalation continuing** — oil spiked ~2.7-2.8%
+  Monday, S&P futures down premarket. Regime classification (STRONG_TREND,
+  0.872) is unaffected so far — VIX still low (~15), breadth still >0.69 —
+  but this is the kind of headline that can flip RISK_OFF quickly; worth
+  re-checking at midday.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+  Expected, fail-safe, unchanged from prior runs.
+- **BAC's SEC subpoena/Epstein-settlement headlines are unchanged since
+  08-28/08-31** — no new development, no thesis to break (mechanism-test
+  position). Ex-dividend 9/4 does not affect the stop/thesis.
+- 0/3 trades used this week (new week starting 08-31 Monday; Monday itself
+  was also a NO-TRADE HOLD day per its own EOD note) — cap not at risk.
+
+### Decision
+**HOLD** — no order placed, none staged. MRVL and PLTR are the only
+candidates evaluated in full, both failing the validated 0.55 ensemble
+minimum plus setup-quality/concentration/catalyst gates. Energy names
+carry today's real catalyst (oil spike) but score worse on ensemble than
+MRVL/PLTR and weren't worth a full `evaluate` call. Correct, expected
+outcome.

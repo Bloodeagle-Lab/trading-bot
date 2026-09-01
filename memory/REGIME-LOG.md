@@ -253,7 +253,7 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   it no longer matters for state since SPY's trend alone is enough to
   classify STRONG_TREND either way.
 
-## 2026-09-01
+## 2026-09-01 (scheduled pre-market, 11:37 UTC)
 
 - State: STRONG_TREND
 - Confidence: 0.872 (explicit `--qqq --vix 15.16` call, breadth
@@ -276,3 +276,25 @@ the close — logged separately rather than overwriting the 12:12 ET entry.
   sessions — traced to `--qqq` producing a real trend value on the
   explicit call vs null internally in `scan` — but doesn't matter today
   since both states agree and both confidences clear 0.40.
+
+## 2026-09-01 (market-open inline re-run, 13:51 UTC — persistence bug,
+main was stale so market-open didn't see the 11:37 entry above and re-ran
+pre-market inline per CLAUDE.md's Read-Me-First rule; both sessions agree
+on STRONG_TREND)
+
+- State: **STRONG_TREND**
+- Confidence: 0.872 (explicit `--qqq --vix 15.08` call, breadth
+  auto-computed 0.690) — clears the 0.40 NO-TRADE minimum comfortably
+- Scores: {STRONG_TREND: 0.85, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--qqq`) also returned STRONG_TREND — same scores, confidence 0.797 (no state disagreement today)
+- Trend (SPY/QQQ): 0.774 / null (explicit call — `trend_qqq` still reads
+  null on the internal path, same known quirk as 08-27/08-28/08-31) |
+  Volatility (20d): 0.146 | VIX: 15.08 | Breadth (%>50dma): 0.690
+  (auto-computed from the live proxy universe, not independently
+  re-sourced via Perplexity today)
+- Sleeve weights: STRONG_TREND weight set applied in today's `scan`/
+  `evaluate` calls — {momentum 1.0, trend 1.0, breakout 1.0,
+  mean_reversion 0.0, relative_strength 0.8}
+- Note: Middle East/Gulf escalation and an overnight oil spike (WTI
+  ~$85.76, +2.8%) didn't move the classification off STRONG_TREND — VIX
+  stayed low (15.08) and breadth held at 0.690. Worth a midday recheck if
+  the geopolitical situation deteriorates further.
