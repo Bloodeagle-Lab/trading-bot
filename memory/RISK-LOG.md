@@ -582,3 +582,28 @@ merge as every prior week's stray branches. Reiterating the standing ask:
 a human needs to check the routines API/UI's `outcomes[0].git_repository.git_info`
 config directly — no session-side fix has held across four weeks of
 attempts.
+
+## 2026-09-02 — Persistence: still recurring (fifth occurrence); also flags a real scheduling gap for 09-01
+
+This `daily-summary` session was itself assigned branch `main-plyxqp`, not
+`main` — same failure mode as every prior week. Per established
+precedent, pushed the EOD snapshot commit to `main-plyxqp` (session
+branch policy overrides the routine's literal `git push origin main`);
+that branch still needs a human merge into `main`, same as every prior
+occurrence. `origin/main` on arrival was current only through
+2026-08-31's `daily-summary` (`6fcb6f6`) — no stray branch was found for
+2026-09-01 (`git branch -r` returned none beyond `main`/`main-plyxqp`),
+and `REGIME-LOG.md`/`RESEARCH-LOG.md` both still end at 2026-08-31, so
+unlike the branch-assignment issue this looks like the `pre-market`/
+`market-open` routines genuinely did not fire on 09-01 (Tuesday) rather
+than firing and landing somewhere unmerged. Two distinct issues to
+resolve: (1) the recurring branch-assignment problem (now five
+occurrences across five distinct sessions/weeks — still needs the
+routines API/UI `outcomes[0].git_repository.git_info` config checked
+directly), and (2) whatever caused 09-01's scheduled runs to not execute
+at all (cron config, not a git issue) — worth a weekly-review look.
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$62.43 (+0.21% unrealized, +$21.97), 10% trailing GTC stop live
+(`quant_cli.py positions` `flags` empty). Account equity $100,021.12,
+cash $89,471.29 (89.5%). No trades today; 0/3 trades used this week.
