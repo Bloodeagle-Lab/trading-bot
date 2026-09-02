@@ -624,3 +624,34 @@ standing ask: a human needs to check the routines API/UI's
 `outcomes[0].git_repository.git_info` config directly (per the 2026-08-28
 08:54 entry) — no session-side fix has held across five weeks of
 attempts, and each week costs one more manual recovery merge.
+
+## 2026-09-02 — market-open: no PASS candidates, regime itself below NO-TRADE minimum; BAC verified live
+
+This `market-open` session arrived on `origin/main` current only through
+the 2026-08-31 EOD snapshot — today's pre-market research
+(`RESEARCH-LOG.md`/`REGIME-LOG.md`, 2026-09-01 x2 and 2026-09-02 entries)
+had landed on stray branches again (`main-djn59c`, `main-71b2aw`,
+`main-tv9j16`, `main-xgyzgz`). Fetched and fast-forward-merged
+`main-xgyzgz` (a clean linear chain already containing the other three,
+zero conflicts) into `main` before proceeding — full recovery, no data
+lost. Sixth consecutive week this has recurred; same unresolved
+infrastructure issue, same standing ask above.
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$62.13 (-0.27% unrealized, -$28.83), 10% trailing GTC stop live (status
+"new", hwm $62.825, stop $56.5425) — consistent with today's research log,
+nothing missed. Account equity $99,971.16, cash $89,471.29 (89.5%).
+
+**Market-open decision today:** today's pre-market research found **zero
+PASS candidates** — GIII and BF.A both evaluated NO-TRADE (ensemble score
+0.11/-0.19, both far below the 0.55 minimum, plus spread/liquidity or
+sleeve-disagreement failing independently); DRI's quote errored
+(ask=0.0); CMC/OLLI scored weaker and were not run. Nothing to
+re-validate at the open, no trade attempted. Independently reinforced by
+today's explicit regime classification itself — TRANSITION, confidence
+0.30, the **first sub-0.40 regime-confidence reading in this log's
+history** — which would have been a hard NO-TRADE on its own even had a
+candidate cleared the ensemble bar (see `RESEARCH-LOG.md`'s Risk Factors
+for the `scan`/`evaluate` internal-regime-call blind spot this exposed).
+0/3 trades used this week (started 2026-08-31 Monday) — cap not at risk.
+Correct, expected HOLD.
