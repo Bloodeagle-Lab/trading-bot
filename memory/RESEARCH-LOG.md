@@ -1746,3 +1746,139 @@ minimum plus setup-quality/concentration/catalyst gates. Energy names
 carry today's real catalyst (oil spike) but score worse on ensemble than
 MRVL/PLTR and weren't worth a full `evaluate` call. Correct, expected
 outcome.
+
+## 2026-09-02 — Pre-market Research
+
+### Account
+- Equity: $99,966.19 | Cash: $89,471.29 (89.5%) | Buying power: $387,270.88
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.10 (-0.32% unrealized, -$33.80)
+  — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $62.825, stop $56.5425, status
+  "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **TRANSITION, confidence 0.30** (explicit `--qqq --vix 15.5`
+  call) — **below the 0.40 NO-TRADE minimum, first time in this log's
+  history.** See `memory/REGIME-LOG.md`. `scan`/`evaluate`'s internal
+  regime call (no `--qqq` support) still read STRONG_TREND 0.797-0.872 —
+  see Risk Factors below, this matters today.
+- WTI / Brent: ~$90.5-91.7 / ~$95.2-95.8, both sharply higher (some
+  sources show +6-7% over 24h) after renewed US strikes on Iran
+- S&P 500 futures / VIX: ES ~7,635-7,650, down ~0.4-0.7% premarket
+  (sources vary); VIX ~15.4-16.4 depending on source (Cboe spot 16.43,
+  Yahoo/CNBC 15.4-15.5) — modest premarket tick, but **yesterday's cash
+  session closed Dow -419 / Nasdaq -271** on the same Iran-strike/oil
+  story, bond yields to multi-year highs
+- Today's catalysts: US military strikes on Iran (dominant driver, oil
+  above $90, yields up), Broadcom (AVGO) and Snowflake (SNOW) earnings
+  after today's close, ADP National Employment Report (est. +45k) this
+  morning, ISM Manufacturing PMI
+- Earnings before open: sources disagree on the exact slate but the most
+  consistently cited names are GIII (G-III Apparel), DAKT (Daktronics),
+  OLLI (Ollie's Bargain Outlet), BF.B/BF.A (Brown-Forman), FCEL (FuelCell
+  Energy), CXM (Sprinklr), DRI (Darden Restaurants), SNX (TD SYNNEX), AYI
+  (Acuity Brands), CMC (Commercial Metals), WGO (Winnebago)
+- Economic calendar: no CPI/PPI/FOMC/jobs report today — next jobs report
+  Sep 4, PPI Sep 10, CPI Sep 11, FOMC Sep 15-16; today's prints are ADP
+  employment and ISM Manufacturing
+- Sector momentum YTD: Energy +42-47% (leader, unchanged as top sector for
+  weeks), Technology +28-30%, Materials/Industrials mid-teens, Financials
+  low-to-mid single digits, Consumer Discretionary/Communication Services
+  weakest (both cited negative by at least one source)
+- Held-ticker news (BAC): no new thesis-breaking headline. New since last
+  session: BAC joined a 21-bank consortium (incl. Citi, Goldman) exploring
+  a global stablecoin — a business-development item, not a thesis
+  concern. Same SEC "Situational Awareness" subpoena probe as prior
+  sessions, unchanged. One unrelated headline (a BAC VP identified as a
+  victim in an unrelated NYC stabbing) — tragic, not material to the
+  stock. Price -0.32% intraday, well inside normal range, nowhere near
+  -7%, no thesis to break (mechanism-test position).
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| GIII | 0.108 | — (no champion) | Earnings today (BMO); top-scoring but below 0.55 minimum |
+| DRI | -0.111 | — | Earnings today (BMO) |
+| BF.A | -0.189 | — | Earnings today (BMO, class A) |
+| CMC | -0.419 | — | Earnings today (BMO) |
+| OLLI | -0.557 | — | Earnings today (BMO) |
+| BFB | error | — | `scan` returned "no bar data returned for BFB" — wrong symbol format; re-tried as BF.A/BF.B, see above |
+
+### Trade Ideas
+None. Ran `evaluate` on the top three by ensemble score:
+
+- **GIII** — entry $38.96 / stop $37.30 / target $42.28 (R:R 2.0),
+  NO-TRADE.
+- **DRI** — `evaluate` raised `ValueError: no usable quote for DRI
+  (bid=191.33, ask=0.0)` before it could finish scoring — same recurring
+  pre-market data-quality pattern as DLTR (08-26), CHA (08-28), PDD
+  (08-31), DELL (09-01).
+- **BF.A** — entry $29.72 / stop $28.36 / target $32.44 (R:R 2.0),
+  NO-TRADE.
+
+### NO-TRADE Candidates
+- **GIII** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.11 below the validated
+  minimum 0.55; sleeve disagreement {momentum -0.034, trend 0.158,
+  breakout 0.31, mean_reversion -0.272, relative_strength -0.03}; setup
+  quality 59 below minimum 60; spread/liquidity failed (spread 30.83%,
+  illiquid or too wide).
+- **DRI** — not scored; `evaluate`'s quote lookup errored (bid=191.33,
+  ask=0.0). Its ensemble score (-0.111) was already negative and far
+  below the 0.55 minimum, so this would very likely have been NO-TRADE
+  even with a clean quote.
+- **BF.A** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score -0.19 below the
+  validated minimum 0.55; sleeve disagreement {momentum -0.348, trend
+  -0.249, breakout 0.185, mean_reversion 0.131, relative_strength
+  -0.382}; spread/liquidity failed (spread 14.33%, illiquid or too wide).
+- CMC, OLLI — not run through `evaluate`; both carry a negative ensemble
+  score (-0.419, -0.557) weaker than GIII/DRI/BF.A — no need to spend an
+  evaluate call confirming a NO-TRADE on a weaker setup.
+
+### Risk Factors
+- **Regime confidence fell below the 0.40 NO-TRADE minimum today for the
+  first time in this log's history** (TRANSITION, 0.30, explicit `--qqq`
+  call) — driven by QQQ trend flipping negative (-0.042, first since
+  08-28) against SPY still positive (0.797), plus breadth softening
+  (0.655 vs ~0.690 recent sessions). This is the real market state: US
+  struck Iran again, oil spiked above $90, yesterday's cash session
+  closed Dow -419 / Nasdaq -271.
+- **Neither `scan` nor `evaluate` can see this** — both subcommands'
+  internal regime call has no `--qqq` flag and reads `trend_qqq` as null,
+  which resolves to STRONG_TREND at 0.797-0.872 regardless. Every
+  `scan`/`evaluate` call run today (GIII/DRI/BF.A/CMC/OLLI) therefore used
+  STRONG_TREND sleeve weights on a session whose real, explicit
+  classification is a regime-confidence NO-TRADE. Didn't change today's
+  outcome — no candidate's ensemble score came close to 0.55 regardless —
+  but this is the most consequential instance yet of the state-disagreement
+  quirk flagged repeatedly since 08-27/08-28 (previously cosmetic;
+  today it means the pipeline is silently trading on the wrong regime
+  gate). **Escalating for weekly review: `scan`/`evaluate` need a
+  `--qqq` (or equivalent real-trend) input wired through to their internal
+  `regime` call**, not just `evaluate`'s existing `--vix`/`--breadth`
+  flags — this can't be fixed from a pre-market research session, it's a
+  `quant_cli.py` code change.
+- **DRI's `evaluate` call hit the same data-quality error** (ask=0.0) as
+  DLTR/CHA/PDD/DELL in prior sessions — recurring, not new.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **BAC unchanged since 08-28 on thesis** (new stablecoin-consortium news
+  is not thesis-relevant) — -0.32% unrealized, nowhere near -7%.
+- **Geopolitical risk is now the dominant market driver** — US-Iran
+  military escalation, oil >$90, yields at multi-year highs. No held
+  position or scanned candidate has direct commodity/defense exposure
+  today.
+
+### Decision
+**HOLD** — no order placed, none staged. GIII and BF.A are the only
+candidates evaluated in full, both failing the validated 0.55 ensemble
+minimum plus an independent gate each (setup quality/spread, spread);
+DRI's data was too degraded to score; CMC/OLLI both weaker-negative
+ensemble. Independently reinforced by today's regime confidence itself
+falling below the 0.40 NO-TRADE minimum (not visible to scan/evaluate,
+see Risk Factors) — this would have been a NO-TRADE day on the regime
+gate alone even had a candidate cleared the ensemble bar. Correct outcome,
+flag the regime-visibility gap for weekly review.

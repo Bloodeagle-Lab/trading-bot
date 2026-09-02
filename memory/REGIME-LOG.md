@@ -298,3 +298,37 @@ on STRONG_TREND)
   ~$85.76, +2.8%) didn't move the classification off STRONG_TREND — VIX
   stayed low (15.08) and breadth held at 0.690. Worth a midday recheck if
   the geopolitical situation deteriorates further.
+
+## 2026-09-02
+
+- State: **TRANSITION**
+- Confidence: **0.30** (explicit `--qqq --vix 15.5` call, breadth
+  auto-computed 0.655) — **below the 0.40 NO-TRADE minimum, the first time
+  this has happened in this log's history.** `scan`/`evaluate`'s own
+  internal regime call (neither subcommand accepts `--qqq`) still returned
+  STRONG_TREND at 0.797-0.872 — same score set as every prior session.
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call, all zero — `quant_cli.py regime`'s raw score dict for TRANSITION states); `scan`/`evaluate`'s internal call: {STRONG_TREND: 0.85, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0}
+- Trend (SPY/QQQ): 0.797 / **-0.042** (explicit call, real QQQ read — first
+  negative QQQ trend since 08-28's -0.198) vs 0.797 / null (scan/evaluate's
+  internal call, `trend_qqq` still never computed there) | Volatility
+  (20d): 0.1386 | VIX: 15.5 (Perplexity composite of same-morning quotes
+  ranging 15.38-16.43 depending on source) | Breadth (%>50dma): 0.655
+  (auto-computed, down from 0.690 the last several sessions)
+- Sleeve weights: today's `scan`/`evaluate` calls still applied the
+  STRONG_TREND weight set {momentum 1.0, trend 1.0, breakout 1.0,
+  mean_reversion 0.0, relative_strength 0.8} because neither subcommand
+  can see the real TRANSITION state — see Risk Factors in
+  `RESEARCH-LOG.md`'s 2026-09-02 entry for why this matters today
+  specifically, not just as a recurring cosmetic quirk.
+- Note: driven by a genuine SPY/QQQ divergence (SPY still trending up,
+  QQQ now trending down) plus breadth softening, consistent with
+  yesterday's real session (Dow -419, Nasdaq -271) after the US struck
+  Iran again and oil spiked above $90. This is the most severe instance
+  yet of the `--qqq`-null-on-scan/evaluate bug tracked since 08-27/08-28:
+  previously it only changed which state won or the confidence number
+  within a passing range; today the correct, explicit classification is
+  itself a NO-TRADE-by-regime-confidence day, and `scan`/`evaluate` cannot
+  see that. Didn't change today's outcome (no candidate cleared the 0.55
+  ensemble minimum regardless), but flag for urgent weekly-review action:
+  `scan`/`evaluate` need a `--qqq` flag (or equivalent) wired through to
+  `regime`, not just `evaluate`'s `--vix`/`--breadth`.
