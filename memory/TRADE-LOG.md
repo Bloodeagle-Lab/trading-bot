@@ -318,3 +318,25 @@ still-unresolved routine branch-assignment issue tracked in
 `memory/RISK-LOG.md` since 2026-08-20. Recovered and merged into this
 daily-summary's branch before this snapshot; see `RISK-LOG.md`'s
 2026-08-31 entry for the full account.
+
+### 2026-09-02 — EOD Snapshot (Day 13, Wednesday)
+
+**Portfolio:** $100,021.12 | **Cash:** $89,471.29 (89.5%) | **Day P&L:** $56.62 (0.06%) | **Phase P&L:** $21.12 (0.02%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.43 | +0.55% | +$21.97 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). Day P&L computed against the 2026-08-31 EOD snapshot
+($99,964.50, last logged close); phase P&L against the Day 0 real
+baseline ($100,000.00). **Continuity gap:** no `pre-market`,
+`market-open`, or `daily-summary` activity landed on `main` for
+2026-09-01 (Tuesday) — `REGIME-LOG.md` and `RESEARCH-LOG.md` both still
+end at 2026-08-31, and unlike prior gaps no stray unmerged branch exists
+for that date either (checked `git branch -r`), so this looks like the
+routines simply didn't fire on 09-01, not another stray-branch/merge
+failure. Worth a weekly-review look at the cron schedule. 0/3 trades
+used this week (unchanged from 08-31 — BAC predates this week).
