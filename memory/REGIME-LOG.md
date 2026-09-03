@@ -332,3 +332,24 @@ on STRONG_TREND)
   ensemble minimum regardless), but flag for urgent weekly-review action:
   `scan`/`evaluate` need a `--qqq` flag (or equivalent) wired through to
   `regime`, not just `evaluate`'s `--vix`/`--breadth`.
+
+## 2026-09-03
+
+- State: **STRONG_TREND**
+- Confidence: **0.66** (explicit `--qqq --vix 15.3 --breadth 0.6` call) —
+  clears the 0.40 NO-TRADE minimum comfortably; back to STRONG_TREND after
+  09-02's TRANSITION/0.30 read
+- Scores: {STRONG_TREND: 0.6, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--qqq`/`--vix`/`--breadth`) also returned STRONG_TREND — {STRONG_TREND: 0.6, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0}, confidence 0.585 (state agrees, confidence differs — same recurring quirk, no impact today)
+- Trend (SPY/QQQ): 0.797 / 0.749 (explicit call, real QQQ read, positive
+  again after 09-02's -0.042) vs 0.797 / null (scan's internal call,
+  `trend_qqq` still never computed there) | Volatility (20d): 0.1379 |
+  VIX: 15.3 | Breadth (%>50dma): 0.6 (explicit, sourced from Perplexity)
+  vs 0.586 (scan's internal auto-computed proxy)
+- Sleeve weights in effect today: {momentum 1.0, trend 1.0, breakout 1.0,
+  mean_reversion 0.0, relative_strength 0.8}
+- Note: QQQ trend flipped back positive (0.749) after 09-02's negative
+  print, consistent with VIX easing to 15.3 from 15.5 and the market
+  recovering from the Iran-strike selloff. Explicit and scan-internal
+  calls agree on state today, only differ on confidence magnitude (0.66
+  vs 0.585) — the standard, already-flagged `--qqq`-null-on-scan quirk,
+  not a new issue, and immaterial since both clear 0.40.

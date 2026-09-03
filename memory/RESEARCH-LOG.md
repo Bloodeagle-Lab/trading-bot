@@ -1882,3 +1882,123 @@ falling below the 0.40 NO-TRADE minimum (not visible to scan/evaluate,
 see Risk Factors) — this would have been a NO-TRADE day on the regime
 gate alone even had a candidate cleared the ensemble bar. Correct outcome,
 flag the regime-visibility gap for weekly review.
+
+## 2026-09-03 — Pre-market Research
+
+### Account
+- Equity: $100,067.59 | Cash: $89,471.29 (89.4%) | Buying power: $387,554.80
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.70 (+0.64% unrealized, +$67.60)
+  — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $63.55, stop $57.195, status
+  "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **STRONG_TREND, confidence 0.66** (explicit `--qqq --vix 15.3
+  --breadth 0.6` call) — see `memory/REGIME-LOG.md`; back to STRONG_TREND
+  after 09-02's one-day TRANSITION/0.30 sub-threshold read
+- WTI / Brent: ~$90.1-90.8 / ~$94.5-95.3, both modestly softer intraday
+  (-0.5% to -1.3% by most sources) after 09-02's Iran-strike spike,
+  still elevated vs. late-August levels
+- S&P 500 futures / VIX: ES ~7,672-7,685 (roughly flat to +0.5%
+  premarket, sources vary); VIX ~15.2-15.5, easing back from 09-02's
+  16.3-16.4 spike — vol normalizing after the Iran-driven selloff
+- Today's catalysts: Broadcom (AVGO) and Hewlett Packard Enterprise (HPE)
+  earnings (AVGO after yesterday's close spilling into today, HPE
+  reporting today), Ciena (CIEN) and Lululemon (LULU) earnings, August
+  ISM Services PMI (10am ET), Fed Beige Book, Tesla's Cybercab launch
+  event in Austin (sentiment catalyst, not earnings), new US tariffs on
+  imported drones/components effective today
+- Earnings before open: Ciena (CIEN), John Wiley & Sons (WLY), Victoria's
+  Secret (VSXY), Campbell's (CPB), Toro (TTC), BRP (DOO), Lands' End (LE),
+  Brady (BRC), Duluth Holdings (DLTH), Genesco (GCO), Polestar (PSNY),
+  plus smaller/foreign names (VBNK, VFS, MOMO, SCVL)
+- Economic calendar: no CPI/PPI/FOMC today — CPI Sep 11, PPI Sep 10, FOMC
+  Sep 15-16; today's prints are ISM Services PMI, Q2 productivity/costs
+  (revised), initial jobless claims, advance trade balance. **Jobs report
+  (nonfarm payrolls) tomorrow, Sep 4.**
+- Sector momentum YTD: Energy +42.3% (leader, unchanged for weeks),
+  Technology +27.9%, Materials +15.9%, Industrials +12.6%, Health Care
+  +10.1%, Consumer Staples +9.6%, Real Estate +9.3%
+- Held-ticker news (BAC): raised quarterly dividend 14% to $0.32/share
+  (payable 9/25, record date 9/4) — positive, not thesis-relevant
+  (mechanism-test position, no thesis to break). CEO Moynihan scheduled
+  for the Barclays Global Financial Services Conference 9/14. Same SEC
+  "Situational Awareness" subpoena probe as prior sessions, unchanged.
+  Price +0.64% intraday, well inside normal range, nowhere near -7%; not
+  urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| HPE | 0.37 | — (no champion) | Earnings today; top-scoring but below 0.55 minimum |
+| AVGO | 0.057 | — | Earnings (after yesterday's close, spillover) |
+| CIEN | -0.088 | — | Earnings today |
+| TSLA | -0.095 | — | Cybercab launch event, not earnings |
+| LULU | -0.174 | — | Earnings today |
+
+### Trade Ideas
+None. Ran `evaluate` on the top three by ensemble score:
+
+- **HPE** — entry $47.44 / stop $43.27 / target $55.78 (R:R 2.0),
+  NO-TRADE.
+- **AVGO** — entry $347.72 / stop $322.01 / target $399.14 (R:R 2.0),
+  NO-TRADE.
+- **CIEN** — entry $380.10 / stop $331.82 / target $476.66 (R:R 2.0),
+  NO-TRADE.
+
+### NO-TRADE Candidates
+- **HPE** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.37 below the validated
+  minimum 0.55; sleeve disagreement {momentum 0.375, trend 0.318, breakout
+  0.349, mean_reversion -0.454, relative_strength 0.454}.
+- **AVGO** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.06 below the validated
+  minimum 0.55.
+- **CIEN** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score -0.09 below the validated
+  minimum 0.55; spread/liquidity failed (spread 12.20%, illiquid or too
+  wide).
+- TSLA, LULU — not run through `evaluate`; both carry a negative ensemble
+  score (-0.095, -0.174) close to or weaker than CIEN, no need to spend an
+  evaluate call confirming a NO-TRADE on a weaker setup.
+
+### Risk Factors
+- **Regime back to STRONG_TREND after 09-02's one-day sub-threshold
+  TRANSITION read** — confidence 0.66, comfortably clear of the 0.40
+  minimum; QQQ trend flipped back positive (0.749) as the market
+  recovered from the Iran-strike selloff. `scan`'s own internal call
+  agreed on state (STRONG_TREND) but read a lower confidence (0.585,
+  same recurring `--qqq`-null-on-scan quirk tracked since 08-27 —
+  immaterial today since both clear 0.40).
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **Every candidate scored today carries a real, verified earnings/event
+  catalyst** (HPE/AVGO/CIEN/LULU earnings, TSLA Cybercab launch) — none
+  cleared the 0.55 ensemble minimum regardless, so catalyst verification
+  never became the binding constraint.
+- **BAC unchanged since 09-02 on thesis** (dividend raise is positive,
+  not thesis-relevant) — +0.64% unrealized, nowhere near -7%.
+- **Jobs report (nonfarm payrolls) due tomorrow, 9/4** — worth watching
+  for a regime/volatility shift into Friday.
+- **Persistence recovery this session:** on arrival, `origin/main` was
+  current only through 2026-08-31's EOD snapshot — three days of routine
+  work for 09-01/09-02 (pre-market x2, market-open, EOD snapshot,
+  risk-log) had landed on six stray branches (`main-djn59c`,
+  `main-71b2aw`, `main-tv9j16`, `main-xgyzgz`, `main-8jg08z`,
+  `main-plyxqp`). Recovered and merged all into `main` before starting
+  today's research — one real conflict (both `main-8jg08z`'s chain and
+  `main-plyxqp` independently logged 09-02 EOD/risk-log entries from
+  different starting points), resolved by keeping both entries in
+  chronological order with a reconciliation note on the redundant one; no
+  data lost. See `TRADE-LOG.md`'s and `RISK-LOG.md`'s 09-03
+  reconciliation notes for the full account. Same still-unresolved
+  branch-assignment infrastructure issue as every prior week — seventh
+  occurrence.
+
+### Decision
+**HOLD** — no order placed, none staged. HPE, AVGO, and CIEN are the only
+candidates evaluated in full, all failing the validated 0.55 ensemble
+minimum (CIEN also failing independently on spread); TSLA/LULU both
+weaker-or-comparable negative ensemble. Correct, expected outcome.
