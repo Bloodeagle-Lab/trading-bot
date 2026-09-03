@@ -349,3 +349,38 @@ either. Both independently scored DELL/MDB/MDT and MRVL/PLTR/CVX/XOM/HAL
 respectively and reached the same HOLD; see `RESEARCH-LOG.md` and
 `RISK-LOG.md` for the full account. Still unresolved at the
 infrastructure level — same standing ask as prior weeks.
+
+### 2026-09-02 — EOD Snapshot (Day 13, Wednesday)
+
+**Portfolio:** $100,021.12 | **Cash:** $89,471.29 (89.5%) | **Day P&L:** $56.62 (0.06%) | **Phase P&L:** $21.12 (0.02%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.43 | +0.55% | +$21.97 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). Day P&L computed against the 2026-08-31 EOD snapshot
+($99,964.50, last logged close); phase P&L against the Day 0 real
+baseline ($100,000.00). **Continuity gap:** no `pre-market`,
+`market-open`, or `daily-summary` activity landed on `main` for
+2026-09-01 (Tuesday) — `REGIME-LOG.md` and `RESEARCH-LOG.md` both still
+end at 2026-08-31, and unlike prior gaps no stray unmerged branch exists
+for that date either (checked `git branch -r`), so this looks like the
+routines simply didn't fire on 09-01, not another stray-branch/merge
+failure. Worth a weekly-review look at the cron schedule. 0/3 trades
+used this week (unchanged from 08-31 — BAC predates this week).
+
+**Reconciliation (2026-09-03, pre-market):** the "continuity gap" flagged
+above was wrong — 09-01 *did* run (pre-market x2, market-open), it just
+landed on stray branches (`main-djn59c`, `main-71b2aw`, `main-tv9j16`)
+this daily-summary session couldn't see from its stale `main` clone; see
+the recovered 2026-09-01 EOD entry directly above and `RISK-LOG.md`'s
+2026-09-01/09-02 entries for the full account. All branches are now
+merged into `main`. Recomputed against the recovered 2026-09-01 close
+($99,939.15), this entry's real one-session Day P&L is **+$81.97
+(+0.08%)**, not the $56.62 stated above (which was computed against the
+stale 2026-08-31 close because 09-01 wasn't visible yet) — left
+uncorrected above to preserve the routine's actual output as run. Phase
+P&L ($21.12, vs the real Day 0 baseline) is unaffected either way.
