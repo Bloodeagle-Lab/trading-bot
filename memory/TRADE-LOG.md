@@ -411,3 +411,46 @@ clean arrival in eight occurrences. Per established precedent this
 commit is pushed to `main-qtxeug` rather than literally to `main`; still
 needs a human/session merge into `main` like every prior week's session
 branch.
+
+### 2026-09-04 — EOD Snapshot (Day 15, Friday)
+
+**Portfolio:** $100,060.83 | **Cash:** $89,471.29 (89.4%) | **Day P&L:** $39.71 (+0.04%) | **Phase P&L:** $60.83 (+0.06%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.66 | +0.37%* | +$60.84 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). 0/3 trades used this week (started 2026-08-31 Monday) — cap not
+at risk. **Scheduling gap:** 2026-09-03 (Thursday) has no
+market-open/midday/daily-summary entry in this log — only `pre-market`
+ran that day (HOLD, HPE/AVGO/CIEN all below the 0.55 ensemble minimum;
+see `RESEARCH-LOG.md`), so Day P&L above is computed against the last
+snapshot on file (2026-09-02, $100,021.12) and spans two calendar days;
+*BAC's Day Chg is likewise vs. the 09-02 close, not a true single-day
+change. No trade or stop data was lost (09-03's HOLD is logged), just the
+09-03 EOD snapshot itself. Additionally, no `pre-market`/`market-open`/
+`midday` activity is logged for today (09-04) either as of this run —
+worth a weekly-review look at the cron schedule, especially since
+09-03's research log flagged today's nonfarm payrolls report as a
+regime/volatility watch item that a fresh pre-market read would normally
+have addressed. Phase P&L against the Day 0 real baseline ($100,000.00).
+**Branch note:** unlike the last seven weeks, this session's assigned
+branch (`main-oo16eh`) is currently in sync with `origin/main` — no
+stray branches found (`git branch -r` returned only `main`/
+`main-oo16eh`), so no recovery/merge was needed before this snapshot.
+That belief was also wrong — the same visibility gap: `main-qtxeug`
+(09-03's EOD, above) and `main-fzz3ks`/`main-jxv1et` (09-04's pre-market
+and market-open, in `RESEARCH-LOG.md`/`REGIME-LOG.md`) all existed on
+`origin` at the time but weren't visible from this session's stale clone.
+
+**Reconciliation (2026-09-04, weekly-review):** recovered all four
+09-03/09-04 stray branches above. Recomputed against the recovered
+2026-09-03 close ($100,120.83), this entry's real Day P&L is **-$60.00
+(-0.06%)**, not the +$39.71 (+0.04%) stated above (computed against the
+stale 2026-09-02 close because 09-03's snapshot wasn't visible yet) —
+left uncorrected above to preserve the routine's actual output as run,
+per the same precedent as the 2026-09-03 reconciliation note. Phase P&L
+($60.83, vs the real Day 0 baseline) is unaffected either way.
