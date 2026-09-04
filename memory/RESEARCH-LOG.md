@@ -2002,3 +2002,116 @@ None. Ran `evaluate` on the top three by ensemble score:
 candidates evaluated in full, all failing the validated 0.55 ensemble
 minimum (CIEN also failing independently on spread); TSLA/LULU both
 weaker-or-comparable negative ensemble. Correct, expected outcome.
+
+## 2026-09-04 — Pre-market Research
+
+### Account
+- Equity: $100,047.31 | Cash: $89,471.29 (89.4%) | Buying power: $387,498.02
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.58 (+0.45% unrealized,
+  +$47.32) — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md`
+  entry. Trailing 10% GTC stop confirmed live (hwm $63.55, stop $57.195,
+  status "new").
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **TRANSITION, confidence 0.30** (explicit `--qqq --vix 14.2
+  --breadth 0.6` call) — **below the 0.40 NO-TRADE minimum**; see
+  `memory/REGIME-LOG.md`. This alone would make today a NO-TRADE day
+  regardless of candidate scores.
+- WTI / Brent: ~$91.5 / ~$95.5, both roughly flat overnight, still
+  elevated post-Iran-strike but not spiking further
+- S&P 500 futures / VIX: ES ~7,758 (roughly flat, +0.04%); VIX ~14.2,
+  multi-week low, easing further from 09-03's ~15.2
+- Today's catalysts: **August nonfarm payrolls / Employment Situation,
+  8:30am ET — the dominant scheduled catalyst today**, plus average
+  hourly earnings and unemployment rate in the same release. No
+  CPI/PPI/FOMC today (CPI 9/11, PPI 9/10, FOMC 9/15-16). Asian
+  semiconductor strength (SK hynix, Samsung) cited as a secondary
+  sentiment driver.
+- Earnings before open: Darden Restaurants (DRI), TD SYNNEX (SNX),
+  Acuity Brands (AYI), Commercial Metals (CMC), Winnebago Industries
+  (WGO), Nano-X Imaging (NNOX), KNOT Offshore Partners (KNOP), Hurco
+  (HURC), ABM Industries — mostly small/mid-cap, no large-cap or
+  high-profile names reporting before today's open
+- Economic calendar: nonfarm payrolls (see above) is the only
+  high-impact print today
+- Sector momentum YTD: Energy +42-47% (leader, unchanged for weeks),
+  Technology +28-30%, Materials +16-17%, Industrials +12.6%; Consumer
+  Discretionary and Communication Services weakest (-2% to -3% in one
+  source)
+- Held-ticker news (BAC): $0.32 dividend ex-date is today, 9/4 (payment
+  9/25) — already logged 09-03, not new, not thesis-relevant
+  (mechanism-test position, no thesis to break). No other new BAC news.
+  Price +0.45% intraday, well inside normal range, nowhere near -7%; not
+  urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| AYI | 0.312 | — (no champion) | Earnings today; top-scoring but below 0.55 minimum |
+| WGO | 0.042 | — | Earnings today |
+| SNX | -0.109 | — | Earnings today |
+| DRI | -0.144 | — | Earnings today |
+| CMC | -0.312 | — | Earnings today |
+
+### Trade Ideas
+None. Ran `evaluate` on the top three by ensemble score:
+
+- **AYI** — entry $347.44 / stop $326.79 / target $388.74 (R:R 2.0),
+  NO-TRADE.
+- **WGO** — `evaluate` errored: no usable quote (bid=24.94, ask=0.0) —
+  same recurring bad-quote/data-quality issue seen repeatedly with other
+  tickers (DLTR/CHA/PDD/DELL/DRI in prior sessions); not run further.
+- **SNX** — entry $278.35 / stop $263.07 / target $308.91 (R:R 2.0),
+  NO-TRADE.
+
+### NO-TRADE Candidates
+- **AYI** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.31 below the validated
+  minimum 0.55; setup quality 58 below minimum 60; spread/liquidity
+  failed (spread 15.59%, illiquid or too wide).
+- **SNX** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score -0.11 below the
+  validated minimum 0.55; sleeve disagreement {momentum -0.242, trend
+  -0.074, breakout 0.074, mean_reversion 0.283, relative_strength
+  -0.216}; setup quality 53 below minimum 60; spread/liquidity failed
+  (spread 10.85%, illiquid or too wide).
+- **WGO** — could not evaluate (bad quote, ask=0.0); ensemble score 0.042
+  was weaker than AYI regardless.
+- DRI, CMC — not run through `evaluate`; both carry a negative ensemble
+  score (-0.144, -0.312) weaker than AYI/WGO/SNX, no need to spend an
+  evaluate call confirming a NO-TRADE on a weaker setup.
+
+### Risk Factors
+- **Regime confidence (0.30, TRANSITION) is below the 0.40 NO-TRADE
+  minimum on the explicit `--qqq` call** — second occurrence in three
+  sessions (previously 09-02). `scan`/`evaluate`'s internal call still
+  can't see this (returns STRONG_TREND/0.797) — same visibility gap
+  flagged since 08-27/08-28, escalated again in `REGIME-LOG.md`. Didn't
+  change today's outcome (no candidate cleared the 0.55 ensemble minimum
+  regardless), but this is now happening often enough to need the
+  weekly-review code fix, not just another flag.
+- **Nonfarm payrolls at 8:30am ET today** — the dominant scheduled
+  catalyst, real volatility risk into and after the print. Worth a
+  midday recheck if the number surprises materially.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **WGO `evaluate` hit a bad-quote data error** (ask=0.0) — recurring,
+  not new, same pattern as several tickers in prior sessions.
+- **BAC unchanged since 09-03 on thesis** (dividend ex-date today is
+  expected/positive, not thesis-relevant) — +0.45% unrealized, nowhere
+  near -7%.
+- **Today's earnings slate is thin** — no large-cap or high-profile
+  reporters before the open, consistent with none of the scanned
+  candidates clearing the ensemble bar.
+
+### Decision
+**HOLD** — no order placed, none staged. AYI and SNX are the only
+candidates evaluated in full, both failing the validated 0.55 ensemble
+minimum plus independent gates each (setup quality/spread, sleeve
+disagreement/setup quality/spread); WGO errored on a bad quote; DRI/CMC
+both weaker negative ensemble. Independently reinforced by today's
+regime confidence itself falling below the 0.40 NO-TRADE minimum — this
+would have been a NO-TRADE day on the regime gate alone even had a
+candidate cleared the ensemble bar. Correct outcome.

@@ -353,3 +353,37 @@ on STRONG_TREND)
   calls agree on state today, only differ on confidence magnitude (0.66
   vs 0.585) — the standard, already-flagged `--qqq`-null-on-scan quirk,
   not a new issue, and immaterial since both clear 0.40.
+
+## 2026-09-04
+
+- State: **TRANSITION**
+- Confidence: **0.30** (explicit `--qqq --vix 14.2 --breadth 0.6` call) —
+  **below the 0.40 NO-TRADE minimum**, second occurrence of this exact
+  reading (previously 09-02). `scan`/`evaluate`'s own internal regime call
+  (neither subcommand accepts `--qqq`) again returned STRONG_TREND at
+  0.797, same as every prior session — the two calls disagree on both
+  state and confidence.
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call, all zero — same TRANSITION-state raw dict as 09-02); `scan`/`evaluate`'s internal call: {STRONG_TREND: 0.85, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0}
+- Trend (SPY/QQQ): 0.789 / **-0.081** (explicit call, real QQQ read,
+  negative again — third negative QQQ print since 08-28, prior ones were
+  08-28 and 09-02) vs 0.789 / null (scan/evaluate's internal call,
+  `trend_qqq` still never computed there) | Volatility (20d): 0.1234 |
+  VIX: 14.2 (Cboe spot 14.17 as of 7:58am ET; other sources ranged
+  14.2-15.0) | Breadth (%>50dma): 0.6 (explicit, Perplexity-sourced
+  proxy) vs 0.621 (scan's internal auto-computed proxy)
+- Sleeve weights applied by today's `scan`/`evaluate` calls: {momentum
+  1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength
+  0.8} — STRONG_TREND weight set, because neither subcommand can see the
+  real TRANSITION state (same visibility gap flagged since 08-27/08-28,
+  most consequential on 09-02).
+- Note: nonfarm payrolls (August) due today 8:30am ET is the dominant
+  scheduled catalyst — SPY/QQQ divergence (SPY still positive, QQQ
+  negative) plus VIX easing to a multi-week low (14.2) is consistent with
+  a market pausing ahead of the print rather than a genuine trend break.
+  Didn't change today's trading outcome (no candidate cleared the 0.55
+  ensemble minimum regardless — see `RESEARCH-LOG.md`), but this is now
+  the **second** explicit TRANSITION/sub-0.40 read in three sessions
+  (09-02, 09-04) that `scan`/`evaluate` cannot see. Reinforces the
+  standing weekly-review ask: wire `--qqq`/`--vix`/`--breadth` (or
+  equivalent) through to `scan`'s and `evaluate`'s internal `regime`
+  call, not just the standalone `regime` subcommand.
