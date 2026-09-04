@@ -322,3 +322,192 @@ that was supposed to have already landed. Zero strategy-driven trades for
 a second straight week, against a rallying index, is a legitimate
 NO-TRADE outcome under the rules — but it also means the strategy's
 actual edge remains as unproven as it was last week.
+
+## Week ending 2026-09-04
+
+*Third straight week of live paper trading with zero strategy-scored
+trades — BAC (manual mechanism test, opened 2026-08-24, never scored by
+the pipeline) is again the only position, carried through the whole week
+untouched. This week's two real stories are both infrastructure, not
+strategy: (1) the session-branch persistence bug not only recurred an
+eighth-plus time but got structurally worse — for the first time, two
+same-day sessions (pre-market and market-open, both 09-04) independently
+wrote genuinely conflicting content to the same files, requiring this
+review to hand-resolve real 3-way merge conflicts rather than just
+fast-forward stray branches; and (2) the `--qqq`-null-on-scan/evaluate
+regime-visibility bug, flagged as a cosmetic confidence-magnitude quirk
+since 08-27, escalated to a full state disagreement (TRANSITION vs
+STRONG_TREND, not just a confidence gap) on two separate days this week.
+This review's first task, as the last two reviews', was reconstructing
+the complete week from four more unmerged stray branches before any
+metric below could be trusted.*
+
+### Stats
+| Metric | Value |
+|---|---|
+| Starting portfolio | $100,014.36 (2026-08-28 EOD, prior Friday) |
+| Ending portfolio | $100,060.83 (2026-09-04 EOD snapshot; live `positions` pull at review time showed $100,064.21, an intraday timing difference) |
+| Week return | +$46.47 (+0.05%) |
+| S&P 500 week | +0.19% (7,711.76 → 7,726.14, FRED/Investing.com daily closes, week ending 2026-09-04) |
+| Bot vs S&P | -0.14% (relative — flat book underperformed a roughly-flat index; correct-per-rules NO-TRADE, not a losing trade) |
+| Trades | 1 (W:0 / L:0 / open:1 — BAC carried in from 2026-08-24, manual mechanism test, not a strategy signal) |
+| Win rate | n/a — no closed trades |
+| Best trade | n/a — no closed trades (BAC open, +$64.22 / +0.61% unrealized at Friday live pull) |
+| Worst trade | n/a — no closed trades |
+| Profit factor | n/a — no closed trades |
+| NO-TRADE candidates logged | 29 unique tickers across 7 research-log entries (NAT, SAIC, PDD, FRO, NSSC ×08-31; DELL, MDB, MDT, NIO, ASO ×09-01 scheduled; MRVL, PLTR, CVX, XOM, HAL ×09-01 market-open inline; GIII, DRI, BF.A, CMC, OLLI ×09-02; HPE, AVGO, CIEN, TSLA, LULU ×09-03; AYI, WGO, SNX, DRI, CMC ×09-04 pre-market; SNOW, HPE, PLTR ×09-04 market-open). High count is expected, not a problem — but notable this week: **DELL (0.553, 09-01) and SNOW (0.589, 09-04) are the first two candidates in this log's history to clear the validated 0.55 ensemble minimum**, and both were still correctly rejected — DELL on a degraded/stale pre-market quote (data quality, not strategy), SNOW on sleeve disagreement plus spread/liquidity (8.94%, above the 6% paper-mode cap). The gate chain is holding even as candidates get closer. |
+
+### Closed Trades
+| Ticker | Entry | Exit | R | P&L | Regime | Notes |
+|---|---|---|---|---|---|---|
+| — | — | — | — | — | — | none — zero closed trades this week |
+
+### Open Positions at Week End
+| Ticker | Entry | Close | Unrealized | Stop |
+|---|---|---|---|---|
+| BAC | $62.30 | $62.66 (EOD snapshot) | +$60.84 (+0.37%*) | 10% trailing GTC, live and confirmed all 5 sessions |
+
+*EOD Day-Chg figure is vs. the stale 09-02 close (09-03's snapshot wasn't
+visible to that session before this review's recovery merge); the live
+Friday pull shows +0.61% / +$64.22 against true entry.
+
+### Regime Performance This Week
+| Regime | Trades | Expectancy R | Notes |
+|---|---|---|---|
+| STRONG_TREND | 0 (BAC's entry regime, 08-24, predates this week and bypassed the pipeline) | n/a | 4 of 7 sessions (08-31, 09-01 ×2, 09-03), confidence 0.66-0.872, comfortably clear of the 0.40 minimum. Closest-ever candidates (DELL 0.553, HPE 0.37) still surfaced under this regime — no candidate cleared every independent gate. |
+| TRANSITION (sub-0.40, NO-TRADE-by-regime) | 0 | n/a | **New and escalating**: 3 of 7 sessions (09-02, 09-04 pre-market, 09-04 market-open — 2 of 5 trading days), confidence 0.30 each time, all below the 0.40 minimum. First-ever occurrence was 09-02 (this log's history); this week alone repeated it twice more. `scan`/`evaluate`'s internal regime call couldn't see any of the three (still reads STRONG_TREND 0.797-0.85), meaning the pipeline ran on the wrong sleeve-weight set on 2 of 5 trading days this week. Didn't flip an actual decision only because no candidate cleared the 0.55 ensemble minimum on either NO-TRADE-by-regime day — a coincidence, not a safeguard. |
+
+Can't yet separate "regime engine right, sizing/sleeves wrong" from
+"regime engine wrong" — no candidate on any TRANSITION day got far enough
+into the pipeline to test sizing. What's newly testable: 09-04's
+TRANSITION read coincided with a genuinely calm tape (VIX at a multi-week
+low ~14.2-14.3, market near highs after Thursday's 627-pt Dow rally) purely
+because QQQ's trend flipped negative against a positive SPY — worth
+watching whether this SPY/QQQ-divergence pattern is a real early-warning
+signal (a rotation out of tech) or the regime engine being oversensitive
+to a single input; three negative-QQQ prints since 08-28 (08-28, 09-02,
+09-04) is now a pattern, not a one-off.
+
+### Model / Champion-Challenger
+- Champion version in use: **none trained yet** — `models/champion/` is empty, unchanged since 2026-08-21.
+- Challenger candidates evaluated this week: **none** — no `research/promotion.py` run this week; `memory/MODEL-LOG.md`'s entries remain the four 2026-08-21 RETIRED attempts.
+
+### What Worked
+- The NO-TRADE gate chain held for a third straight week under real
+  pressure: 29 logged candidates, and for the first time two of them
+  (DELL 0.553, SNOW 0.589) cleared the validated 0.55 ensemble minimum
+  outright — both were still correctly stopped by an independent gate
+  (data quality, sleeve disagreement/spread) rather than the ensemble
+  score alone waving them through. This is the system's first real test
+  of "what happens when a candidate gets close" and it held.
+- BAC's protective stop stayed live and correct through all 5 sessions
+  (`quant_cli.py positions` `flags` empty every day) for a third
+  consecutive week — the mechanism-test position keeps proving the
+  execution/stop path end-to-end.
+- Despite a materially worse persistence incident this week (see below),
+  no memory was permanently lost — all four newly-discovered stray
+  branches (`main-qtxeug` 09-03 EOD, `main-fzz3ks` 09-04 pre-market,
+  `main-jxv1et` 09-04 market-open, `main-oo16eh` 09-04 EOD) were
+  recovered and merged, including a real 3-file conflict, with nothing
+  discarded.
+- Regime confidence correctly identified two distinct real risk events
+  this week (09-02's Iran-strike oil spike, and a genuine — if more
+  ambiguous — SPY/QQQ divergence on 09-04) rather than a data artifact;
+  both readings were internally consistent with the day's actual market
+  action.
+
+### What Didn't Work
+- **The persistence bug got structurally worse, not just longer-running.**
+  Every prior week's stray-branch recoveries were pure fast-forwards —
+  no session had actually created conflicting content before. This week,
+  `main-fzz3ks` (pre-market) and `main-jxv1et` (market-open) both
+  appended different, non-identical "2026-09-04" sections to the same
+  spot in `REGIME-LOG.md` and `RESEARCH-LOG.md` from the same stale base,
+  and `main-qtxeug`/`main-oo16eh` did the same in `TRADE-LOG.md`,
+  requiring this review to hand-merge real conflicts rather than just
+  `git merge --ff`. Same still-unresolved root cause flagged since
+  2026-08-20 (routines API/UI `outcomes[0].git_repository.git_info`) —
+  now well past a "third in-session fix attempt won't hold" prediction
+  and squarely a "will cause a real, non-recoverable divergence
+  eventually" risk if a future week's conflicting entries are ever
+  substantively different (e.g. two different trade decisions) rather
+  than two research sessions reaching the same HOLD.
+- **The `--qqq`/regime-visibility bug escalated from cosmetic to
+  material, twice.** 09-02 and 09-04 both saw `scan`/`evaluate`'s
+  internal regime call disagree with the explicit call on *state*
+  (STRONG_TREND vs TRANSITION), not just confidence magnitude — meaning
+  the pipeline used the wrong sleeve-weight set on 2 of 5 trading days
+  this week. Neither day happened to have a candidate clear the ensemble
+  bar, so no bad trade resulted, but "didn't matter yet" is now true for
+  three consecutive weeks running (08-27/08-28, 09-02, 09-04) on a bug
+  that's getting more consequential each time it recurs, not less.
+- Third straight week with zero strategy-scored trades — the bot
+  underperformed the S&P 500 by 0.14pp this week. Unlike the prior two
+  quiet weeks, this week did produce two candidates that cleared the
+  ensemble minimum (DELL, SNOW), which is genuine evidence the scoring
+  engine can find something — but both were still blocked before
+  execution, so "does the engine convert a real edge into a filled trade"
+  remains untested after three weeks.
+- Two sessions this week (09-04 pre-market and market-open) each
+  independently believed they were the *first* pre-market run of the day
+  because neither could see the other's stray branch — a direct
+  consequence of the persistence bug, not a new failure mode, but worth
+  naming: it means "no earlier entry existed" claims in this log cannot
+  be trusted at face value without a fetch-prune check first.
+
+### Key Lessons
+- A recurring bug that has caused no P&L damage yet is not the same as a
+  bug with no consequence — this week is the first time both standing
+  infrastructure issues (persistence, regime-visibility) came within one
+  coincidence (no candidate clearing the ensemble bar on the affected
+  days) of actually mattering. Two "it didn't matter this time" weeks in
+  a row is exactly the setup for a week where it does.
+- The persistence bug's failure mode has changed shape: fast-forward
+  recovery (safe, mechanical) has become 3-way conflict recovery
+  (requires judgment about which content to keep). That's a meaningfully
+  higher-stakes ask of whichever session next discovers it, and argues
+  for escalating this past "flag it again" toward "a human should treat
+  this as a standing production incident," not routine noise.
+- SPY/QQQ trend divergence (three negative QQQ prints since 08-28) may be
+  a real, recurring signal rather than noise — worth tracking explicitly
+  rather than re-discovering it as a surprise each time regime confidence
+  drops.
+
+### Adjustments for Next Week
+- None to `memory/TRADING-STRATEGY.md` — nothing this week is a
+  trading-rule result; both real findings are infrastructure (git
+  persistence, regime-call state disagreement), which this file
+  deliberately doesn't govern. Non-strategy follow-ups carried forward,
+  with the first two now overdue for direct human attention rather than
+  another routine-level flag: (1) a human needs to check all 5 routines'
+  `outcomes[0].git_repository.git_info` config directly via the routines
+  API/UI — now an eighth-plus occurrence with a real conflict this week,
+  not just a missed fast-forward; (2) wire a `--qqq` (or equivalent
+  real-trend) input through to `scan`'s and `evaluate`'s internal
+  `regime` call, not just the standalone `regime` subcommand's `--vix`/
+  `--breadth` flags — this is a `quant_cli.py` code change, not
+  something fixable from within a routine, and has now caused a full
+  state disagreement (not just confidence) on 2 of the last 3 weeks;
+  (3) new this week — keep watching the SPY/QQQ divergence pattern (3
+  negative QQQ prints since 08-28) as a possible real signal rather than
+  noise.
+
+### Overall Grade: C
+
+One notch down from last week's C+, not because trading discipline
+slipped — it didn't: every one of 29 candidates was correctly filtered,
+including the two closest calls this log has ever seen (DELL, SNOW), and
+BAC's stop never lapsed across a third straight week. The downgrade is
+because both standing operational risks flagged in the last two reviews
+got worse in a way that matters, not just longer in duration: the
+persistence bug produced its first real multi-file merge conflict instead
+of a clean fast-forward, and the regime-visibility bug caused a full
+state disagreement (not just a confidence gap) on two separate days,
+either of which could plausibly have masked a bad trade decision if a
+candidate had cleared the ensemble bar on the wrong day — it simply
+didn't happen to this week. Zero strategy-driven trades for a third
+straight week is a legitimate, rules-correct NO-TRADE outcome, and two
+candidates finally clearing the ensemble minimum (a first) is real
+evidence the engine can find something — but the operational risk
+underneath the strategy is now large enough that it, not the strategy
+itself, is this review's central finding.

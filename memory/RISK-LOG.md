@@ -728,3 +728,52 @@ have masked a true regime-confidence NO-TRADE behind a passing
 `evaluate` reading — repeating the standing urgent weekly-review ask:
 wire a `--qqq` (or equivalent) flag through `scan`/`evaluate`, not just
 `regime`.
+
+## 2026-09-04 — weekly-review: persistence bug produced its first real merge conflict; four more stray branches recovered
+
+This `weekly-review` session was itself assigned branch `main-g4y6if`,
+not `main` — same failure mode as every prior week, now well past a
+dozen occurrences. On arrival, `origin/main` was current only through
+today's own pre-market commit (`1b3d6ac`); a full `git fetch --prune`
+found four more unmerged stray branches all created today/yesterday:
+`main-qtxeug` (2026-09-03 EOD snapshot), `main-fzz3ks` (2026-09-04
+pre-market), `main-jxv1et` (2026-09-04 market-open), `main-oo16eh`
+(2026-09-04 EOD snapshot). Recovered and merged all four, in
+chronological order, into this session's branch.
+
+**Unlike every prior week's recovery, two of these four produced a real
+3-way merge conflict, not a clean fast-forward:** `main-fzz3ks` and
+`main-jxv1et` each independently appended a different, non-identical
+"## 2026-09-04" section to the same spot in `REGIME-LOG.md` and
+`RESEARCH-LOG.md` (pre-market's real research vs. market-open's own
+inline pre-market re-run, each unaware the other existed); `main-qtxeug`
+and `main-oo16eh` did the same in `TRADE-LOG.md` (09-03 EOD vs. 09-04
+EOD, sequential not conflicting in substance, but touching the same
+insertion point). Resolved by keeping both entries in each file, in
+chronological order, under distinguishing headers, with a reconciliation
+note where a session's own P&L math had been computed against a stale
+close it couldn't see (09-04 EOD's Day P&L was computed against 09-02's
+close, not the real 09-03 close — corrected in `TRADE-LOG.md`'s
+reconciliation note; the routine's original stated figure was left
+uncorrected in place per established precedent). No data lost.
+
+**Escalation, not just repetition:** every prior week's recovery was a
+mechanical fast-forward merge. This is the first week two parallel
+same-day sessions wrote genuinely different content to the same
+location, requiring judgment to resolve rather than `git merge --ff`.
+The standing ask (a human checking the routines API/UI's
+`outcomes[0].git_repository.git_info` config directly) has not held
+across eight-plus weeks of session-side workarounds; this week's
+increased severity argues for treating this as a standing production
+incident rather than another routine-level flag. Per the standing
+session-level branch policy, this review's own new commits (the merged
+recovery plus `memory/WEEKLY-REVIEW.md`) are pushed to this session's
+assigned branch (`main-g4y6if`) rather than forced to `main` directly —
+still needs a human/session merge into `main`, same as every prior
+week's branch.
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$62.68 (+0.61% unrealized, +$64.22), 10% trailing GTC stop live
+(`quant_cli.py positions` `flags` empty). Account equity $100,064.21,
+cash $89,471.29. Full weekly-review numbers in `memory/WEEKLY-REVIEW.md`'s
+2026-09-04 entry.
