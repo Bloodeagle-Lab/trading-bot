@@ -387,3 +387,38 @@ on STRONG_TREND)
   standing weekly-review ask: wire `--qqq`/`--vix`/`--breadth` (or
   equivalent) through to `scan`'s and `evaluate`'s internal `regime`
   call, not just the standalone `regime` subcommand.
+
+## 2026-09-04 (market-open re-check)
+
+- State: **TRANSITION**
+- Confidence: **0.30** (explicit `--qqq --vix 14.3 --breadth 0.6` call) —
+  **below the 0.40 NO-TRADE minimum. NO-TRADE-by-regime day.**
+- Scores (explicit call): {STRONG_TREND: 0.0, CHOPPY: 0.0, HIGH_VOL: 0.0,
+  RISK_OFF: 0.0, TRANSITION: 0.0} (all-zero score vector, TRANSITION
+  wins as the fallback state at the reported confidence — same pattern
+  as 09-02)
+- Trend (SPY/QQQ): 0.789 / -0.081 (explicit call, real QQQ read — QQQ
+  trend flipped negative again after 09-03's +0.749) | Volatility (20d):
+  0.1234 | VIX: 14.3 (easing further from 09-03's 15.3, market at/near
+  highs after Thursday's 627-pt Dow rally on Fed Waller comments +
+  Snowflake earnings) | Breadth (%>50dma): 0.6 (explicit, sourced from
+  Perplexity)
+- **`--qqq`-null-on-scan/evaluate bug (tracked since 08-27, flagged
+  urgent on 09-02) was material again today, more so than 09-02:**
+  `scan`'s and `evaluate`'s own internal regime calls (no `--qqq`/`--vix`/
+  `--breadth`) read **STRONG_TREND, confidence 0.797** — comfortably
+  above 0.40 — vs. the explicit call's **TRANSITION, confidence 0.30**.
+  This is a full state-classification disagreement, not just a
+  confidence-magnitude difference like prior occurrences. Trusted the
+  explicit call (real QQQ trend -0.081, not null) as authoritative per
+  standing practice. Did not change today's actual outcome (SNOW, the
+  only candidate clearing the 0.55 ensemble minimum, failed
+  independently on sleeve disagreement + spread/liquidity), but this is
+  the second flagged instance where the bug could plausibly have masked
+  a true regime-confidence NO-TRADE day behind a passing `evaluate`
+  reading — repeating the urgent weekly-review ask from 09-02.
+- Sleeve weights in effect today: {momentum 1.0, trend 1.0, breakout 1.0,
+  mean_reversion 0.0, relative_strength 0.8}
+- Note: Nonfarm payrolls (August) released 8:30am ET today — the week's
+  single biggest macro data point, landing at/near market open. No
+  FOMC/CPI/PPI today (CPI 9/11, PPI 9/10).

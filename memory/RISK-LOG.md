@@ -689,3 +689,42 @@ session's stale `main` clone couldn't see; already recovered by the
 point (1), the recurring branch-assignment issue itself, still stands —
 now a sixth occurrence. `main-plyxqp` is merged into `main` in this
 pre-market commit.
+
+## 2026-09-04 — market-open: no PASS candidates, regime itself below NO-TRADE minimum (second occurrence); BAC verified live
+
+No `RESEARCH-LOG.md` entry existed for today on arrival, so pre-market's
+STEPS 1-6 were run inline first, per `CLAUDE.md`/`routines/market-open.md`
+("never trade without documented research") — see today's
+`RESEARCH-LOG.md`/`REGIME-LOG.md` entries for the full account.
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$62.69 (+0.62% unrealized, +$65.50), 10% trailing GTC stop live (status
+"new", hwm $63.55, stop $57.195) — consistent with today's research log,
+nothing missed. Account equity $100,065.49, cash $89,471.29 (89.4%).
+
+**Market-open decision today:** explicit regime classification
+(`--qqq --vix 14.3 --breadth 0.6`) read **TRANSITION, confidence 0.30 —
+below the 0.40 NO-TRADE minimum**, the second such sub-threshold reading
+in this log's history (first was 2026-09-02, also 0.30). This alone
+would have been a hard NO-TRADE regardless of any candidate's score.
+Independently, SNOW — the only scanned candidate (SNOW/HPE/PLTR)
+clearing the 0.55 ensemble minimum (0.589) — also failed `evaluate` on
+sleeve disagreement and spread/liquidity (spread 8.94%, above the 6%
+paper-mode cap); HPE (0.234) and PLTR (-0.045) both scored below the
+minimum and weren't run through full `evaluate`. Nothing to re-validate
+at the open beyond confirming SNOW's fresh-data read matched pre-market
+(it did — same run). No order attempted. 0/3 trades used this week
+(started 2026-08-31 Monday) — cap not at risk. Correct, expected HOLD.
+
+**Recurring bug, now material for the second time:** `scan`/`evaluate`'s
+internal (no `--qqq`/`--vix`/`--breadth`) regime call read
+**STRONG_TREND, confidence 0.797** today — a full state disagreement
+with the explicit call, not just a confidence-magnitude gap like most
+prior occurrences (tracked since 08-27, flagged urgent 09-02). Trusted
+the explicit call (real, non-null QQQ trend -0.081) as authoritative per
+standing practice; see `REGIME-LOG.md`'s 2026-09-04 entry for the full
+comparison. This is now two separate days where the bug could plausibly
+have masked a true regime-confidence NO-TRADE behind a passing
+`evaluate` reading — repeating the standing urgent weekly-review ask:
+wire a `--qqq` (or equivalent) flag through `scan`/`evaluate`, not just
+`regime`.

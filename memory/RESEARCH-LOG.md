@@ -2046,6 +2046,50 @@ weaker-or-comparable negative ensemble. Correct, expected outcome.
   Price +0.45% intraday, well inside normal range, nowhere near -7%; not
   urgent.
 
+## 2026-09-04 — Market-open (ran its own inline pre-market pass below,
+believing no earlier pre-market entry existed — that belief was wrong;
+recovery merge found the real pre-market entry above on a stray branch
+this session's stale clone couldn't see, same recurring branch-assignment
+bug. Kept as originally written; not re-run.)
+
+### Account
+- Equity: $100,065.49 | Cash: $89,471.29 (89.4%) | Buying power: $387,548.93
+- Positions: BAC 169 @ $62.30, current $62.69 (+0.62% unrealized, +$65.50)
+  — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $63.55, stop $57.195, status
+  "new"). Not urgent (nowhere near -7%, no thesis to break).
+- Open orders: 1 (the BAC protective trailing stop above)
+- `trades_this_week` (Mon 08-31 through today): **0** — cap not at risk.
+
+### Market Context (Perplexity, citations attached in tool output)
+- WTI ~$91.5/bbl, Brent ~$95.5/bbl — steady, no new spike (still elevated
+  from the prior Iran-strike move but not moving further today)
+- S&P 500 futures ~7,758-7,760 (+0.04-0.08%), roughly flat premarket
+- VIX ~14.25-14.35 — easing further from 09-03's 15.3, lowest read in
+  this log's recent history, consistent with Thursday's broad rally
+- **Yesterday (Thu 09-03): Dow +627pts, Nasdaq +1.4%** on Fed Governor
+  Waller signaling support for a September rate hold + strong Snowflake
+  (SNOW) earnings (adj. EPS $0.62 vs $0.45 est, revenue beat +4.9%)
+  lifting software/semis broadly (PLTR +7.71%, COIN, HOOD also up)
+- **Today's dominant catalyst: August Nonfarm Payrolls at 8:30am ET** —
+  the week's single biggest macro data point, landing at/right after
+  market open; consensus ~53K (prior -23K, prior revision negative).
+  No CPI/PPI/FOMC today (CPI 9/11, PPI 9/10, FOMC 9/15-16).
+- Earnings before open: limited list today (KNOP, PLCE) — no major
+  before-open earnings catalyst on this log's watchlist tickers.
+  HPE/AVGO/CIEN/LULU (09-03's candidates) already reported and were
+  evaluated yesterday.
+- Sector momentum YTD: Energy +42-47% (leader, unchanged for weeks),
+  Technology +28-30%, Materials +15-17%, Industrials +12.6%, Health Care
+  +10.1%, Consumer Staples +9.6%; Communication Services and Consumer
+  Discretionary weakest/negative per one source.
+- Held-ticker news (BAC): trading ~$63.04-63.12 (+0.7-0.8%), continued
+  coverage of the BAC-consortium USD stablecoin initiative (2027 target),
+  mixed analyst price-target revisions, same SEC "Situational Awareness"
+  subpoena probe (unchanged, not urgent), $250B critical-infrastructure
+  finance initiative and proposed Jio Credit stake — none thesis-relevant
+  (mechanism-test position, no thesis to break).
+
 ### Candidate Scan (scripts/quant_cli.py scan)
 | Ticker | Ensemble | ML Prob | Notes |
 |---|---|---|---|
@@ -2115,3 +2159,62 @@ both weaker negative ensemble. Independently reinforced by today's
 regime confidence itself falling below the 0.40 NO-TRADE minimum — this
 would have been a NO-TRADE day on the regime gate alone even had a
 candidate cleared the ensemble bar. Correct outcome.
+
+### Candidate Scan (scripts/quant_cli.py scan) — market-open re-check
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| SNOW | 0.589 | — (no champion) | Beat earnings 09-03 AH, spillover rally leader; only candidate clearing 0.55 minimum |
+| HPE | 0.234 | — | Below minimum, already NO-TRADE 09-03 |
+| PLTR | -0.045 | — | Surged 09-03 on software rally, but sleeve scores negative today (mean-reversion/RS pulling down) |
+
+### Trade Ideas
+None survive full evaluation.
+
+- **SNOW** — entry $375.98 / stop $355.88 / target $416.18 (R:R 2.0),
+  **NO-TRADE**: sleeve disagreement (momentum +0.71, trend +0.57,
+  breakout +0.32, mean_reversion -0.55, relative_strength +0.79) and
+  spread/liquidity failed (spread 8.94%, above the 6% paper-mode cap).
+  Only candidate today clearing the 0.55 ensemble minimum, still failed
+  two independent gates.
+
+### NO-TRADE Candidates
+- **SNOW** — reasons above (sleeve disagreement, spread/liquidity).
+- **HPE** — ensemble 0.234, below the 0.55 minimum; not run through full
+  `evaluate` (already evaluated and NO-TRADE 09-03 on the same
+  fundamentals, no new catalyst since).
+- **PLTR** — ensemble -0.045 (negative); not run through full `evaluate`,
+  no need to spend an evaluate call confirming a weaker-than-SNOW
+  NO-TRADE.
+
+### Risk Factors
+- **Regime is the binding constraint today, independent of any
+  candidate's score:** explicit `regime --qqq --vix 14.3 --breadth 0.6`
+  call reads **TRANSITION, confidence 0.30 — below the 0.40 NO-TRADE
+  minimum.** This is a NO-TRADE-by-regime day. See `REGIME-LOG.md`'s
+  2026-09-04 entry for the full record, including a **more severe
+  recurrence of the `--qqq`-null-on-scan/evaluate bug** flagged urgent
+  on 09-02: `scan`/`evaluate`'s internal (buggy) regime call reads
+  STRONG_TREND/0.797 — a full state disagreement with the explicit call,
+  not just a confidence-magnitude gap. Trusted the explicit call
+  (real, non-null QQQ trend) as authoritative. Didn't change today's
+  actual outcome (SNOW failed independently regardless), but this is now
+  the second day this bug could plausibly have masked a true
+  regime-confidence NO-TRADE behind a passing `evaluate` reading —
+  repeating the standing urgent weekly-review ask.
+- **Nonfarm payrolls at 8:30am ET** — lands at/near market-open; a
+  surprise print could move regime/volatility sharply intraday. Nothing
+  actionable pre-print; re-check at market-open with fresh data as the
+  workflow requires.
+- **No champion ML model exists** — every candidate still fails the
+  ML-evidence gate regardless of setup (unchanged, tracked in
+  `MODEL-LOG.md`).
+- **BAC unchanged on thesis**, +0.62-0.8% unrealized, nowhere near -7%.
+
+### Decision
+**HOLD** — no order placed, none staged. Regime confidence (0.30,
+explicit call) is itself below the 0.40 NO-TRADE minimum today, making
+this a NO-TRADE-by-regime day; SNOW, the only candidate clearing the
+ensemble minimum, also failed independently on sleeve disagreement and
+spread/liquidity. Correct, expected outcome — proceeding to market-open
+STEP 2 re-validation for completeness, but no PASS is expected given the
+regime read.
