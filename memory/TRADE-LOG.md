@@ -384,3 +384,30 @@ merged into `main`. Recomputed against the recovered 2026-09-01 close
 stale 2026-08-31 close because 09-01 wasn't visible yet) — left
 uncorrected above to preserve the routine's actual output as run. Phase
 P&L ($21.12, vs the real Day 0 baseline) is unaffected either way.
+
+### 2026-09-03 — EOD Snapshot (Day 14, Thursday)
+
+**Portfolio:** $100,120.83 | **Cash:** $89,471.29 (89.5%) | **Day P&L:** $99.71 (0.10%) | **Phase P&L:** $120.83 (0.12%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $63.015 | +1.15% | +$120.84 | trailing 10% |
+
+**Notes:** No trades today; `quant_cli.py positions` `flags` empty, no
+missing-stop issue. BAC (manual mechanism-test position from 2026-08-24)
+remains the only open position, +1.15% unrealized — well below the +15%
+trail-tighten threshold, no stop action due. Day P&L computed against the
+2026-09-02 EOD snapshot ($100,021.12); phase P&L against the Day 0 real
+baseline ($100,000.00). Regime is STRONG_TREND, confidence 0.66 (today's
+pre-market), comfortably clear of the 0.40 NO-TRADE minimum; HPE, AVGO,
+CIEN, TSLA, LULU all evaluated/scanned and failed the 0.55 ensemble
+minimum — correct HOLD, no trade attempted today. 0/3 trades used this
+week (started 2026-08-31 Monday) — cap not at risk. Nonfarm payrolls due
+tomorrow (9/4) — worth watching for a regime/volatility shift.
+**Persistence:** this session was assigned branch `main-qtxeug`;
+`origin/main` was already current through today's pre-market commit
+(`1b3d6ac`) on arrival — no stray-branch recovery needed this run, first
+clean arrival in eight occurrences. Per established precedent this
+commit is pushed to `main-qtxeug` rather than literally to `main`; still
+needs a human/session merge into `main` like every prior week's session
+branch.
