@@ -2218,3 +2218,64 @@ ensemble minimum, also failed independently on sleeve disagreement and
 spread/liquidity. Correct, expected outcome — proceeding to market-open
 STEP 2 re-validation for completeness, but no PASS is expected given the
 regime read.
+
+## 2026-09-07 — Pre-market Research
+
+**Note: today is Labor Day — US markets (NYSE/Nasdaq/bonds) closed, not a
+trading day.** Confirmed via Perplexity (multiple sources, unanimous).
+Routine fired anyway (weekday, but a market holiday — same class of
+scheduling gap as 2026-08-23's Sunday firing, see `memory/RISK-LOG.md`).
+Account/positions pulled and regime run for the record; no candidate
+scan/evaluate — no legitimate same-day catalyst exists and no order can
+reach Alpaca today regardless of any candidate's score.
+
+### Account
+- Equity: $100,064.21 | Cash: $89,471.29 (89.4%) | Buying power:
+  $387,545.34 | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.68 (+0.61% unrealized,
+  +$64.22) — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md`
+  entry. Trailing 10% GTC stop confirmed live (hwm $63.55, stop $57.195,
+  status "new"). `balance_asof` 2026-09-04 (last trading day, Friday) —
+  no new fills possible over the weekend/holiday.
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context (last trading day, Friday 9/4, stale — no live session today)
+- Regime: **TRANSITION, confidence 0.30** (explicit `--qqq --vix 14.53
+  --breadth 0.6` call) — below the 0.40 NO-TRADE minimum; QQQ trend
+  negative (-0.135). Same read as 09-04's market-open re-check, using
+  the same last-available (Friday) data — see `memory/REGIME-LOG.md`.
+  Informational only; no session today to gate.
+- WTI ~$91.4-92.3, Brent ~$96.3-97.1, both modestly firmer since Friday
+- S&P 500 futures ~7,716-7,722, roughly flat to -0.4% depending on
+  source/timestamp (Sunday-evening quotes)
+- VIX 14.53 (Friday close)
+- No earnings, no scheduled economic releases today — federal holiday
+- Sector momentum, held-ticker (BAC) news: unchanged since Friday's
+  weekly-review snapshot, nothing new to report
+
+### Candidate Scan (scripts/quant_cli.py scan)
+Not run. No legitimate catalyst exists for a market holiday, and no
+order can execute today even if one did — running `scan`/`evaluate`
+against stale weekend/holiday quotes would test nothing and risks
+reproducing known degraded-quote bugs on data that was never live.
+Deferred to Tuesday 9/8's `pre-market` run.
+
+### Trade Ideas
+None.
+
+### NO-TRADE Candidates
+None evaluated — no candidates met the catalyst bar (market closed).
+
+### Risk Factors
+- **Routine fired on a market holiday (Labor Day), a weekday.** Same
+  class of issue as 2026-08-23's Sunday firing — the cron trigger isn't
+  excluding market holidays, only (apparently) weekends. Flagged in
+  `memory/RISK-LOG.md`; needs a cron/holiday-calendar check.
+- BAC unchanged since Friday's weekly-review snapshot, +0.61% unrealized,
+  nowhere near -7%; no thesis-relevant news over the weekend.
+- No champion ML model exists (`models/champion/` empty) — unchanged,
+  tracked in `MODEL-LOG.md`; moot today regardless.
+
+### Decision
+**HOLD** — no order placed, none staged, none possible (market closed).
+Correct, expected outcome for a market holiday.

@@ -777,3 +777,47 @@ $62.68 (+0.61% unrealized, +$64.22), 10% trailing GTC stop live
 (`quant_cli.py positions` `flags` empty). Account equity $100,064.21,
 cash $89,471.29. Full weekly-review numbers in `memory/WEEKLY-REVIEW.md`'s
 2026-09-04 entry.
+
+## 2026-09-07 — SCHEDULING: `pre-market` routine fired on Labor Day (market holiday, non-trading day)
+
+Same failure class as 2026-08-23's Sunday firing, logged above, but a new
+variant: today is a **weekday** (Monday) so a naive weekday-only cron
+guard would not catch it — the trigger needs an actual US market-holiday
+calendar, not just a weekend exclusion. Confirmed via Perplexity
+(unanimous across sources) that NYSE/Nasdaq/bond markets are closed today
+for Labor Day, reopening Tuesday 9/8.
+
+Consequences this run: account/positions pulled (unchanged since
+Friday's close, as expected — no session over the weekend/holiday);
+regime run for the record using Friday's last-available data
+(TRANSITION, 0.30, below the 0.40 minimum — informational only); no
+candidate scan/evaluate (no legitimate catalyst, no possible execution
+today). See `memory/RESEARCH-LOG.md`'s 2026-09-07 entry for the full
+account.
+
+**Action needed:** same standing ask as 2026-08-23, now with a concrete
+second data point — the cron/scheduling layer needs an actual US market
+holiday calendar (Labor Day, Thanksgiving, Christmas, etc.), not just a
+Mon-Fri weekday filter. Low-cost this time (routine caught it and no-op'd
+correctly before any candidate/order logic ran) but worth fixing before a
+holiday that falls closer to an open position needing a midday check.
+
+## 2026-09-07 — Persistence: still recurring (ninth-plus occurrence); recovered full 09-03/09-04 week + weekly-review from stray branch
+
+This session was assigned branch `main-lcnsmv`, not `main`. On arrival,
+`origin/main` was current only through 2026-08-31 (per this log's prior
+entries) — `origin/main-g4y6if` held the entire missing week unmerged:
+09-03 pre-market + EOD, 09-04 pre-market + market-open + EOD, and the
+2026-09-04 weekly-review, itself already a consolidation of four earlier
+stray branches (`main-oo16eh`, `main-jxv1et`, `main-fzz3ks`,
+`main-qtxeug`). Recovered via a clean fast-forward merge (`git merge
+origin/main-g4y6if`) — no conflicts this time, unlike 09-04's weekly
+review. Verified live against Alpaca: BAC 169 sh @ $62.30, current
+$62.68 (+0.61% unrealized, +$64.22), 10% trailing GTC stop live
+(`quant_cli.py positions` `flags` empty). Account equity $100,064.21,
+cash $89,471.29 — consistent with Friday's EOD snapshot, as expected
+with the market closed today. Same still-unresolved root cause as every
+prior week (routines API/UI `outcomes[0].git_repository.git_info`) —
+per established precedent, this session's commits are pushed to
+`main-lcnsmv` rather than literally to `main`; still needs a human/session
+merge into `main`.

@@ -422,3 +422,16 @@ on STRONG_TREND)
 - Note: Nonfarm payrolls (August) released 8:30am ET today — the week's
   single biggest macro data point, landing at/near market open. No
   FOMC/CPI/PPI today (CPI 9/11, PPI 9/10).
+
+## 2026-09-07 (Labor Day — market holiday, non-trading day, routine fired anyway)
+
+- State: **TRANSITION**
+- Confidence: **0.30** (explicit `--qqq --vix 14.53 --breadth 0.6` call,
+  using Friday 9/4's last-available data) — below the 0.40 NO-TRADE
+  minimum. Same read as 09-04's market-open re-check.
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.0, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0}
+- Trend (SPY/QQQ): 0.769 / -0.135 | Volatility (20d): 0.1231 | VIX: 14.53
+  | Breadth (%>50dma): 0.6
+- Note: informational only — no market session today, nothing to gate.
+  Same class of issue as 2026-08-23's Sunday firing: cron trigger isn't
+  excluding market holidays. See `memory/RISK-LOG.md`.
