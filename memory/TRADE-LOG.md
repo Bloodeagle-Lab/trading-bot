@@ -384,3 +384,36 @@ merged into `main`. Recomputed against the recovered 2026-09-01 close
 stale 2026-08-31 close because 09-01 wasn't visible yet) — left
 uncorrected above to preserve the routine's actual output as run. Phase
 P&L ($21.12, vs the real Day 0 baseline) is unaffected either way.
+
+### 2026-09-07 — EOD Snapshot (Day 18, Monday)
+
+**Portfolio:** $100,064.21 | **Cash:** $89,471.29 (89.4%) | **Day P&L:** $43.09 (0.04%) | **Phase P&L:** $64.21 (0.06%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.68 | +0.40% | +$64.22 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). 2026-09-07 is Labor Day — US markets closed; Alpaca account
+confirms `balance_asof: 2026-09-04` and `last_equity == equity`, i.e.
+today's figures are simply Friday 2026-09-04's close carried forward, no
+trading occurred today. Day P&L computed against the last logged EOD
+snapshot, 2026-09-02 ($100,021.12); phase P&L against the Day 0 real
+baseline ($100,000.00). **Continuity gap:** `main`'s history ends at
+`pre-market research 2026-09-03` — no `market-open` or `daily-summary`
+activity landed for 2026-09-03 (Thursday, a live trading day), and no
+routine activity of any kind (`pre-market`/`market-open`/`daily-summary`)
+landed for 2026-09-04 (Friday, also a live trading day). `git branch -r`
+shows only `main`/`main-b4jkq6` (identical heads) — no stray unmerged
+branch found for either date, so unlike most prior occurrences this
+looks like the scheduled runs genuinely didn't fire on 09-03/09-04
+rather than landing unmerged. Day P&L above is therefore 3 trading-day
+stale, not 1; phase P&L is unaffected. `REGIME-LOG.md`/`RESEARCH-LOG.md`
+both still end at the 09-03 pre-market entry (STRONG_TREND, confidence
+0.66) — no fresher regime read exists; regime/scan/evaluate weren't run
+as part of this EOD step. 0/3 trades used this week (new week starts
+today, 2026-09-07 Monday). Worth an urgent weekly-review look at the
+cron schedule for 09-03/09-04 specifically — this is a real missed-run
+gap, not the usual stray-branch pattern.
