@@ -821,3 +821,26 @@ prior week (routines API/UI `outcomes[0].git_repository.git_info`) —
 per established precedent, this session's commits are pushed to
 `main-lcnsmv` rather than literally to `main`; still needs a human/session
 merge into `main`.
+
+## 2026-09-07 — market-open: confirms Labor Day closure, no re-validation possible, no action
+
+Same finding as today's `pre-market` entry above, independently
+re-checked at market-open time: Alpaca `/v2/clock` returns `is_open:
+false`, `next_open: 2026-09-08T09:30:00-04:00` — confirms the holiday
+directly against the broker rather than only via Perplexity. STEP 2's
+re-validation (fresh prices at the open) is moot — there is no open to
+re-validate against, and no candidates were staged pre-market to
+re-check regardless (regime itself was sub-threshold, 0.30 TRANSITION).
+No `evaluate`/`execute` calls made; nothing to gate. Merged this
+session's assigned branch (`main-lcnsmv`) into `main-bbejx0` — clean
+fast-forward, no conflicts — recovering the full 09-03/09-04 week +
+weekly-review chain that `pre-market` had already pulled together. No
+new persistence issue beyond what `pre-market` already logged above.
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$62.68 (+0.61% unrealized, +$64.22), 10% trailing GTC stop live, `flags`
+empty. Account equity $100,064.21, cash $89,471.29 (89.4%) — unchanged
+from `pre-market`'s snapshot 65 minutes earlier, as expected with no
+session today. 0/3 trades used this week (new week starts tomorrow,
+09-08). No action needed; next legitimate `market-open` run is
+2026-09-08.
