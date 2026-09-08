@@ -454,3 +454,50 @@ stale 2026-09-02 close because 09-03's snapshot wasn't visible yet) —
 left uncorrected above to preserve the routine's actual output as run,
 per the same precedent as the 2026-09-03 reconciliation note. Phase P&L
 ($60.83, vs the real Day 0 baseline) is unaffected either way.
+
+### 2026-09-07 — EOD Snapshot (Day 18, Monday)
+
+**Portfolio:** $100,064.21 | **Cash:** $89,471.29 (89.4%) | **Day P&L:** $43.09 (0.04%) | **Phase P&L:** $64.21 (0.06%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.68 | +0.40% | +$64.22 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). 2026-09-07 is Labor Day — US markets closed; Alpaca account
+confirms `balance_asof: 2026-09-04` and `last_equity == equity`, i.e.
+today's figures are simply Friday 2026-09-04's close carried forward, no
+trading occurred today. Day P&L computed against the last logged EOD
+snapshot visible to this session, 2026-09-02 ($100,021.12); phase P&L
+against the Day 0 real baseline ($100,000.00). **Continuity gap (belief,
+see reconciliation below):** this session's clone of `main` ended at
+`pre-market research 2026-09-03` — no `market-open`/`daily-summary`
+activity was visible for 2026-09-03 or 2026-09-04, and `git branch -r`
+showed only `main`/`main-b4jkq6` (identical heads), so this looked like
+the scheduled runs genuinely didn't fire on 09-03/09-04 rather than
+landing unmerged. 0/3 trades used this week (new week starts today,
+2026-09-07 Monday).
+
+**Reconciliation (2026-09-08, pre-market):** the "continuity gap" above
+was wrong, same recurring visibility issue as every prior week — 09-03's
+EOD, 09-04's full pre-market/market-open/EOD, and a 09-04 weekly-review
+had all already run and landed on stray branches (`main-qtxeug`,
+`main-fzz3ks`, `main-jxv1et`, `main-oo16eh`, merged into `main-g4y6if`/
+`main-lcnsmv`) *before* this 09-07 daily-summary session even started
+(this session's own `f7bb627` commit at 19:04:55 UTC postdates
+`main-lcnsmv`'s 09-07 pre-market recovery at 11:21:34 UTC and
+`main-bbejx0`'s 09-07 market-open at 12:37:56 UTC), but this session's
+stale clone of `main` never saw any of it — `main` itself was still at
+the 09-03 pre-market commit on arrival, since none of that week's
+recovery branches had actually been merged to `main`, only to each
+other's stray branches. Recomputed against the recovered 2026-09-04
+close ($100,060.83), this entry's real Day P&L is **+$3.38 (+0.00%)**,
+not the $43.09 (0.04%) stated above (computed against the stale 09-02
+close). Phase P&L ($64.21, vs the real Day 0 baseline) is unaffected.
+`main-b4jkq6` (this entry) and `main-bbejx0`/`main-lcnsmv` (the rest of
+the 09-03 through 09-07 recovery chain) are both merged into `main` in
+this pre-market commit — see `RISK-LOG.md`'s 2026-09-08 entry for the
+full account of the branch-assignment issue, now an eighth consecutive
+week.
