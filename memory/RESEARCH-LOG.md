@@ -2279,3 +2279,141 @@ None evaluated — no candidates met the catalyst bar (market closed).
 ### Decision
 **HOLD** — no order placed, none staged, none possible (market closed).
 Correct, expected outcome for a market holiday.
+
+## 2026-09-08 — Pre-market Research
+
+### Account
+- Equity: $99,991.54 | Cash: $89,471.29 (89.5%) | Buying power: $387,341.86
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.25 (-0.08% unrealized, -$8.45)
+  — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $63.55, stop $57.195, status
+  "new"). `balance_asof` 2026-09-04 in the raw account payload but
+  `last_equity` ($100,064.21) matches Friday's real close — first live
+  session since Friday 9/4 (Monday 9/7 was Labor Day).
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **CHOPPY, confidence 0.745** (explicit `--qqq --vix 15.3
+  --breadth 0.6` call) — clears the 0.40 NO-TRADE minimum; first CHOPPY
+  read in this log's history (prior states: STRONG_TREND, TRANSITION).
+  See `memory/REGIME-LOG.md`.
+- WTI ~$92.3-94.6, Brent ~$97.0-99.1, both firmer again on continued
+  Iran/Middle East tension and new Canadian tariff headlines — highest
+  levels logged yet this cycle
+- S&P 500 futures ~7,705-7,714, modestly lower (-0.17% to -0.3%)
+  premarket; VIX 15.3-15.65, up ~5-8% from Friday's 14.53 close
+- Today's catalysts: **August nonfarm payrolls beat** (+162K vs. +52K
+  consensus) released this morning, raising Fed rate-hike-odds pricing
+  ahead of next week's FOMC (9/15-16); oil/geopolitics (Iran tensions,
+  new Canadian tariffs) pressuring futures; tech/semiconductor sector
+  cited as the clearest relative-strength leadership group; first full
+  session back after the Labor Day holiday
+- Earnings before open: ABM Industries (ABM), United Natural Foods
+  (UNFI). Earnings after close today: Casey's General Stores (CASY),
+  ServiceTitan (TTAN), GameStop (GME), Braze (BRZE), Mission Produce
+  (AVO)
+- Economic calendar: no CPI/PPI/FOMC today (NFIB Small Business
+  Optimism 6am ET, Consumer Credit 3pm ET are the only scheduled prints).
+  **CPI Sep 11, PPI Sep 10, FOMC rate decision Sep 16** all inside the
+  next 8 days — a genuinely data-heavy week ahead.
+- Sector momentum YTD: Energy still the clear leader (+43-45%),
+  Technology ~+30%, Materials next; Communication Services the weakest
+  (~-4%), Consumer Discretionary and Utilities also lagging
+- Held-ticker news (BAC): 14% dividend raise (to $0.32/share, paid
+  9/25, record date 9/4) and a $2.0B senior-note redemption effective
+  9/15 — both routine, not thesis-relevant (mechanism-test position, no
+  thesis to break). Analyst consensus unchanged (Moderate Buy, $64.08
+  avg target). Price -0.08% intraday, well inside normal range, nowhere
+  near -7%; not urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| TTAN | 0.174 | — (no champion) | Earnings AMC today; top-scoring but below 0.55 minimum |
+| GME | 0.001 | — | Earnings AMC today |
+| UNFI | -0.025 | — | Earnings BMO today |
+| ABM | -0.105 | — | Earnings BMO today |
+| CASY | -0.147 | — | Earnings AMC today |
+
+### Trade Ideas
+None. Attempted `evaluate` on the top three by ensemble score
+(TTAN, GME, UNFI), plus ABM as a backup after two data errors:
+
+- **GME** — entry $20.06 / stop $19.16 / target $21.86 (R:R 2.0),
+  NO-TRADE — the only one of the four attempts that returned a clean
+  quote.
+- **TTAN**, **UNFI**, **ABM** — all three `evaluate` calls raised
+  `ValueError: no usable quote (ask=0.0)` before scoring could complete
+  — same recurring pre-market data-quality pattern as DLTR (08-26), CHA
+  (08-28), PDD (08-31), DELL (09-01), DRI (09-03). Not retried further;
+  all three carried ensemble scores at or below GME's (which itself was
+  0.001, far below 0.55), so a clean quote would very likely have
+  produced the same NO-TRADE outcome.
+
+### NO-TRADE Candidates
+- **GME** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.00 below the
+  validated minimum 0.55; sleeve disagreement {momentum -0.114, trend
+  -0.064, breakout 0.294, mean_reversion 0.038, relative_strength
+  -0.175}; setup quality 59 below minimum 60; spread/liquidity failed
+  (spread 8.13%, illiquid or too wide).
+- **TTAN** — not scored; `evaluate`'s quote lookup errored (bid=75.28,
+  ask=0.0). Ensemble score (0.174) was already well below the 0.55
+  minimum, so this would very likely have been NO-TRADE even with a
+  clean quote.
+- **UNFI** — not scored; quote errored (bid=35.94, ask=0.0). Ensemble
+  score (-0.025) negative, far below 0.55.
+- **ABM** — not scored; quote errored (bid=40.02, ask=0.0). Ensemble
+  score (-0.105) negative, far below 0.55.
+- **CASY** — not run through `evaluate`; ensemble score -0.147, weaker
+  than every ticker above, no need to spend a call confirming a weaker
+  NO-TRADE.
+
+### Risk Factors
+- **First CHOPPY regime read in this log's history** — confidence 0.745
+  (explicit call), comfortably clear of 0.40. `scan`'s own internal call
+  (no `--qqq`/`--vix`/`--breadth`) agreed on state today (CHOPPY, 0.67) —
+  first time in several weeks the two calls have agreed on both state and
+  direction, though the confidence gap persists (0.745 vs 0.67, same
+  long-flagged `--qqq`-null-on-scan quirk, immaterial today since both
+  clear 0.40). SPY trend is now negative (-0.067) alongside QQQ
+  (-0.217) — a genuine broadening of the pullback from 09-02/09-04's
+  QQQ-only negative prints.
+- **Recurring quote-data-quality bug hit 3 of 4 `evaluate` attempts
+  today** (TTAN, UNFI, ABM all `ask=0.0`) — worse than any prior single
+  session (previously one ticker per session at most: DLTR, CHA, PDD,
+  DELL, DRI). Didn't change today's outcome (no candidate came close to
+  the 0.55 ensemble minimum regardless), but the hit rate today is high
+  enough to flag for weekly-review: worth checking whether this
+  correlates with post-holiday/low-volume premarket data specifically.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **BAC unchanged on thesis** (dividend raise, note redemption both
+  routine) — -0.08% unrealized, nowhere near -7%.
+- **Heavy data week ahead**: CPI (9/11), PPI (9/10), FOMC (9/16) all
+  inside the next 8 days, plus today's stronger-than-expected jobs print
+  already moving rate-hike odds — worth watching for a regime/volatility
+  shift as the week progresses.
+- **Persistence recovery this session:** on arrival, `origin/main` was
+  current only through 2026-09-03's pre-market commit — five trading
+  days of routine work (09-03 EOD, all of 09-04, the 09-04 weekly-review,
+  and 09-07's Labor Day pre-market/market-open) had landed on eight
+  stray branches (`main-qtxeug`, `main-fzz3ks`, `main-jxv1et`,
+  `main-oo16eh`, `main-g4y6if`, `main-lcnsmv`, `main-bbejx0`, plus a
+  sibling `main-b4jkq6` with an independent 09-07 EOD snapshot). Recovered
+  and merged all into this session's branch before starting today's
+  research — one real conflict (`main-b4jkq6`'s 09-07 EOD snapshot was
+  written from a stale base unaware of the `main-bbejx0` recovery chain
+  already covering 09-03/09-04), resolved by keeping both entries in
+  chronological order with a reconciliation note; no data lost. See
+  `TRADE-LOG.md`'s 09-08 reconciliation note and `RISK-LOG.md`'s 09-08
+  entry for the full account. Same still-unresolved branch-assignment
+  infrastructure issue as every prior week — now an eighth occurrence.
+
+### Decision
+**HOLD** — no order placed, none staged. GME is the only candidate
+evaluated in full, failing the validated 0.55 ensemble minimum plus
+setup-quality and spread/liquidity independently; TTAN/UNFI/ABM all hit
+data-quality errors but carried ensemble scores at or below GME's; CASY
+weaker still. Correct, expected outcome.

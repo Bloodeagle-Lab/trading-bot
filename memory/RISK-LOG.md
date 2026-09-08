@@ -844,3 +844,47 @@ from `pre-market`'s snapshot 65 minutes earlier, as expected with no
 session today. 0/3 trades used this week (new week starts tomorrow,
 09-08). No action needed; next legitimate `market-open` run is
 2026-09-08.
+
+## 2026-09-08 — Persistence: still recurring (tenth-plus occurrence); recovered 09-03 EOD through 09-07's full week from eight stray branches, one real conflict
+
+This session was assigned branch `main-pt5m96`, not `main`. On arrival,
+`origin/main` was current only through 2026-09-03's pre-market commit
+(`1b3d6ac`) — everything since (09-03 EOD, all of 09-04's pre-market/
+market-open/EOD, the 2026-09-04 weekly-review, and 09-07's Labor Day
+pre-market/market-open) had landed on eight stray branches:
+`main-qtxeug`, `main-fzz3ks`, `main-jxv1et`, `main-oo16eh` (each a single
+09-03/09-04 step, already consolidated by prior sessions), `main-g4y6if`
+and `main-lcnsmv` (two overlapping consolidations of the same chain plus
+the 09-04 weekly-review), `main-bbejx0` (the fullest chain, adding
+09-07's Labor Day market-open on top of `main-lcnsmv`), and a sibling
+`main-b4jkq6` containing only an independent 09-07 EOD snapshot written
+from the same stale `1b3d6ac` base, unaware of the other seven.
+
+Recovery: fast-forward merged `main-bbejx0` (superset of
+qtxeug/fzz3ks/jxv1et/oo16eh/g4y6if/lcnsmv, zero conflicts), then merged
+`main-b4jkq6` on top — one real conflict in `memory/TRADE-LOG.md` (both
+branches held EOD-snapshot content immediately following the 2026-09-04
+weekly-review reconciliation note), resolved by keeping the 09-04
+weekly-review content as-is and appending `main-b4jkq6`'s 09-07 EOD
+entry after it in chronological order, with a reconciliation note
+explaining that its "continuity gap" claim (09-03/09-04 might not have
+fired) was already false by the time it ran — `main-lcnsmv`'s 09-07
+pre-market (11:21:34 UTC) and `main-bbejx0`'s 09-07 market-open
+(12:37:56 UTC) had already recovered that week hours before this
+branch's own `daily-summary` commit (19:04:55 UTC), but its clone of
+`main` never saw any of it since none of that week's work had actually
+reached `main` itself, only each other's stray branches. No data lost.
+See `TRADE-LOG.md`'s 2026-09-08 reconciliation note for the corrected
+Day P&L, and `RESEARCH-LOG.md`'s 2026-09-08 entry for the full account.
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$62.25 (-0.08% unrealized, -$8.45), 10% trailing GTC stop live (`status
+"new"`, hwm $63.55, stop $57.195). Account equity $99,991.54, cash
+$89,471.29 (89.5%). 0/3 trades used this week (new week starts today,
+2026-09-08 Tuesday). No action needed beyond today's HOLD (see
+`RESEARCH-LOG.md`) — same still-unresolved root cause as every prior
+week (routines API/UI `outcomes[0].git_repository.git_info` — per the
+2026-08-28 08:54 entry, still needs a human to check that config
+directly). Per established precedent, this session's own new work is
+pushed to its assigned branch (`main-pt5m96`) rather than forcing `git
+push origin main`, leaving the merge to whoever runs the next recovery.

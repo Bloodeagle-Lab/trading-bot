@@ -435,3 +435,30 @@ on STRONG_TREND)
 - Note: informational only — no market session today, nothing to gate.
   Same class of issue as 2026-08-23's Sunday firing: cron trigger isn't
   excluding market holidays. See `memory/RISK-LOG.md`.
+
+## 2026-09-08
+
+- State: **CHOPPY**
+- Confidence: **0.745** (explicit `--qqq --vix 15.3 --breadth 0.6` call)
+  — clears the 0.40 NO-TRADE minimum; first CHOPPY read in this log's
+  history (prior states: STRONG_TREND, TRANSITION)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) also returned CHOPPY — {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0}, confidence 0.67 — first time in several weeks both calls agree on state, not just direction
+- Trend (SPY/QQQ): -0.067 / -0.217 (explicit call, real QQQ read — both
+  now negative, a broadening from 09-02/09-04's QQQ-only negative
+  prints) vs -0.067 / null (scan's internal call, `trend_qqq` still
+  never computed there) | Volatility (20d): 0.1199 | VIX: 15.3 | Breadth
+  (%>50dma): 0.6 (explicit, Perplexity-sourced) vs 0.621 (scan's
+  internal auto-computed proxy)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  0.2, trend 0.2, breakout 0.3, mean_reversion 1.0, relative_strength
+  0.5} — the CHOPPY weight set, correctly applied since both the
+  explicit and internal calls agree on state today
+- Note: SPY trend flipping negative alongside QQQ, plus VIX up ~5-8%
+  from Friday's close, is consistent with today's stronger-than-expected
+  August nonfarm payrolls print (+162K vs. +52K consensus) raising
+  Fed rate-hike-odds pricing ahead of next week's FOMC, plus elevated
+  oil (~$92-94 WTI) on continued Iran/Middle East tension. First genuine
+  regime-state change (not just a confidence-magnitude shift) since
+  09-02's one-day TRANSITION read — worth watching whether CHOPPY
+  persists into the CPI (9/11)/PPI (9/10)/FOMC (9/16) data-heavy week
+  ahead.
