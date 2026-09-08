@@ -888,3 +888,37 @@ week (routines API/UI `outcomes[0].git_repository.git_info` — per the
 directly). Per established precedent, this session's own new work is
 pushed to its assigned branch (`main-pt5m96`) rather than forcing `git
 push origin main`, leaving the merge to whoever runs the next recovery.
+
+## 2026-09-08 — market-open: no PASS candidates, confirmed at the open; BAC verified live
+
+Session assigned branch `main-usjfqg`. On arrival, `origin/main` was
+current only through 2026-09-03's pre-market commit (`1b3d6ac`) — same
+still-unresolved branch-assignment issue as every prior week (now an
+eleventh-plus occurrence). Fast-forward merged `main-pt5m96` (the fullest
+chain, already recovering 09-03 EOD through 09-07's full week plus
+today's pre-market research) into this branch — clean, zero conflicts,
+no new recovery work needed today.
+
+**Re-validated with fresh market-open data** per `routines/market-open.md`
+STEP 2:
+- Explicit regime call (`--qqq`): **CHOPPY, confidence 0.67** — clears
+  the 0.40 minimum, consistent with pre-market's explicit read (0.745;
+  same long-flagged `--vix`/`--qqq`-null-on-internal-call gap, immaterial
+  today since both clear threshold).
+- **GME** (the only candidate pre-market evaluated on a clean quote)
+  re-run through `evaluate` fresh at the open: still **NO-TRADE**, same
+  three reasons as pre-market (ensemble score 0.00 below the 0.55
+  minimum, sleeve disagreement, spread 8.13% too wide). No change.
+- TTAN/UNFI/ABM (pre-market quote errors) and CASY (weaker ensemble,
+  not run) were not re-attempted — none were staged as trade ideas
+  pre-market, so STEP 2 has nothing to re-validate for them; a PASS was
+  never in play regardless of fresh-data drift.
+
+No candidate reached PASS. Nothing to execute (STEP 3 empty), no
+notification sent (STEP 5 conditioned on a placed trade).
+
+**Verified live against Alpaca:** BAC 169 sh @ $62.30 avg entry, current
+$62.20 (-0.16% unrealized, -$16.90), 10% trailing GTC stop live
+(`quant_cli.py positions` `flags` empty). Account equity $99,983.09,
+cash $89,471.29 (89.5%). 0/3 trades used this week (started 2026-09-08
+Tuesday — Monday was Labor Day, market closed). Correct, expected HOLD.
