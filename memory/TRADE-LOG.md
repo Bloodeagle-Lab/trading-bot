@@ -501,3 +501,31 @@ the 09-03 through 09-07 recovery chain) are both merged into `main` in
 this pre-market commit — see `RISK-LOG.md`'s 2026-09-08 entry for the
 full account of the branch-assignment issue, now an eighth consecutive
 week.
+
+### 2026-09-08 — EOD Snapshot (Day 19, Tuesday)
+
+**Portfolio:** $100,027.88 | **Cash:** $89,471.29 (89.4%) | **Day P&L:** -$36.33 (-0.04%) | **Phase P&L:** $27.88 (0.03%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.465 | -0.34% | +$27.89 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). First CHOPPY regime read in this log's history today (confidence
+0.745 explicit / 0.67 internal, both clear the 0.40 minimum) — SPY trend
+turned negative alongside QQQ, VIX up ~5-8% off Friday's close, consistent
+with a stronger-than-expected August nonfarm payrolls print raising
+rate-hike odds ahead of next week's FOMC. GME was the only candidate
+evaluated on a clean quote pre-market and at the open; NO-TRADE both
+times (ensemble score 0.00, sleeve disagreement, spread 8.13% too wide).
+TTAN/UNFI/ABM hit the recurring quote-data-quality bug (`ask=0.0`, 3 of 4
+attempts today, worse than any prior session) but all scored at or below
+GME's ensemble anyway. Correct HOLD. Day P&L computed against the
+2026-09-07 EOD snapshot ($100,064.21); phase P&L against the Day 0 real
+baseline ($100,000.00). 0/3 trades used this week (new week started
+2026-09-08 Tuesday — Monday 09-07 was Labor Day, market closed) — cap not
+at risk. **Persistence:** this session arrived with `origin/main` already
+current through `market-open 2026-09-08` (`a94f78b`) — first clean
+arrival with zero stray branches to recover in nine occurrences.
