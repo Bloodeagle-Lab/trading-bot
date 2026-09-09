@@ -922,3 +922,37 @@ $62.20 (-0.16% unrealized, -$16.90), 10% trailing GTC stop live
 (`quant_cli.py positions` `flags` empty). Account equity $99,983.09,
 cash $89,471.29 (89.5%). 0/3 trades used this week (started 2026-09-08
 Tuesday — Monday was Labor Day, market closed). Correct, expected HOLD.
+
+## 2026-09-09 — market-open: no PASS candidates, confirmed at the open; BAC verified live
+
+Session on designated branch `main-kbvk3z`, already current with
+`origin/main` (`a94f78b`) on arrival — no stray-branch recovery needed
+today (`git ls-remote` confirms 30 stray `main-*` branches on origin, none
+ahead of what this branch already had).
+
+Today's pre-market research entry was missing on arrival, so this
+routine ran `routines/pre-market.md`'s STEPS 1-6 inline first per
+`CLAUDE.md`/`routines/market-open.md` STEP 1 — see `RESEARCH-LOG.md`'s
+2026-09-09 entry and `REGIME-LOG.md`'s 2026-09-09 entry (CHOPPY,
+confidence 0.745, second consecutive CHOPPY day). That inline pre-market
+work found **zero PASS candidates** — top two by ensemble score (AAPL
+0.069, CHWY -0.037) both NO-TRADE, well below the 0.55 validated
+minimum; energy names (OXY/CVX/XOM), despite today's real oil-spike
+catalyst (Saudi energy-facility attacks, Brent toward $99-100), scored
+weaker still (-0.077 to -0.134) on mean-reversion-sleeve drag from
+already-extended short-term moves — not re-run through `evaluate`.
+
+**STEP 2 re-validation:** since the freshly-run pre-market data above was
+pulled live at what is effectively market-open time this session, and no
+candidate was staged as a trade idea (Trade Ideas: None), there was
+nothing to re-validate with a second fresh data pull — a PASS was never
+in play regardless of pre-market-to-open drift. No candidate reached
+PASS. Nothing to execute (STEP 3 empty), no notification sent (STEP 5
+conditioned on a placed trade).
+
+**Verified live against Alpaca (`quant_cli.py positions`):** BAC 169 sh
+@ $62.30 avg entry, current $62.07 (-0.37% unrealized, -$38.87), live
+10% trailing GTC stop confirmed (`flags` empty, no missing-stop issue).
+Account equity $99,961.12, cash $89,471.29 (89.5%). 0/3 trades used this
+week (Monday 09-07 Labor Day/closed, Tuesday 09-08 NO-TRADE, today
+NO-TRADE). Correct, expected HOLD.
