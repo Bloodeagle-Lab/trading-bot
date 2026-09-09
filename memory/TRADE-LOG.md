@@ -529,3 +529,35 @@ baseline ($100,000.00). 0/3 trades used this week (new week started
 at risk. **Persistence:** this session arrived with `origin/main` already
 current through `market-open 2026-09-08` (`a94f78b`) — first clean
 arrival with zero stray branches to recover in nine occurrences.
+
+### 2026-09-09 — EOD Snapshot (Day 20, Wednesday)
+
+**Portfolio:** $100,081.96 | **Cash:** $89,471.29 (89.4%) | **Day P&L:** $54.08 (0.05%) | **Phase P&L:** $81.96 (0.08%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.785 | +0.51% | +$81.97 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). Second consecutive CHOPPY regime day (confidence 0.745
+explicit / 0.67 internal, both clear the 0.40 minimum) on oil-driven
+inflation risk (Saudi energy-facility attacks pushing Brent toward
+$100/bbl) ahead of PPI (9/10) and CPI (9/11); JILL/ODD both evaluated in
+full and NO-TRADE (ensemble scores 0.22/0.12, well below the 0.55
+minimum, plus setup-quality and spread/liquidity fails for ODD); CNM hit
+the recurring pre-market quote-data-quality bug (`ask=0.0`) but its
+ensemble score was already sub-minimum. Correct HOLD. Day P&L computed
+against the 2026-09-08 EOD snapshot ($100,027.88); phase P&L against the
+Day 0 real baseline ($100,000.00). 0/3 trades used this week (started
+2026-09-08 Tuesday) — cap not at risk. **Persistence/branch note:** this
+session found three unmerged stray branches on arrival —
+`main-357crk` (09-08's own EOD snapshot, never merged), `main-lv4dwn`
+(today's pre-market research), and `main-kbvk3z` (today's market-open,
+which had independently re-run its own inline pre-market pass after
+missing `main-lv4dwn`'s) — recovered all three into `main-gjq2oq` and
+pushed straight to `main` (no branch-protection block encountered this
+time); see `RESEARCH-LOG.md`'s and `REGIME-LOG.md`'s 2026-09-09
+reconciliation notes for the duplicate pre-market entry, both of which
+independently reached the same HOLD outcome.
