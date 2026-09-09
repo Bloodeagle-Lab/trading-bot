@@ -2544,3 +2544,23 @@ full, failing the validated 0.55 ensemble minimum plus (for ODD) sleeve
 disagreement, setup quality, and spread/liquidity independently; CNM hit
 a data-quality error but carried a weaker ensemble score than either;
 CHWY/SIG weaker still. Correct, expected outcome.
+
+### Duplicate entry reconciliation (main-kbvk3z, inline pre-market)
+
+`main-kbvk3z` (this week's `market-open` session) arrived without seeing
+the entry above — its stale clone had no 2026-09-09 pre-market on
+`origin/main` yet — so it ran `routines/pre-market.md` STEPS 1-6 inline
+per `CLAUDE.md`/`routines/market-open.md` STEP 1 before its own
+market-open work, producing an independent, differently-scanned research
+pass at 12:38 UTC (vs. this entry's 11:19 UTC): equity $99,955.32
+(-$15.94 vs. this entry's snapshot 79 minutes earlier), same CHOPPY
+regime call (see `REGIME-LOG.md`'s reconciliation note). Its `scan`
+surfaced a different top-of-list (AAPL 0.069, CHWY -0.037, then
+oil-spike beneficiaries OXY/CVX/XOM all negative on mean-reversion drag)
+rather than this entry's JILL/ODD/CNM — both runs evidently hit `scan`'s
+candidate universe at slightly different times/inputs — but AAPL/CHWY
+both still failed the 0.55 ensemble minimum, so the outcome is
+unchanged: **HOLD**, no trade, in both independent reads. No discrepancy
+requiring escalation; kept this entry (11:19 UTC) as the canonical
+pre-market record since it ran first and is the one `market-open`
+should have referenced.

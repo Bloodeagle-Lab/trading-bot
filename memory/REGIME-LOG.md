@@ -487,3 +487,10 @@ on STRONG_TREND)
   underperforming on rate pressure). Second straight CHOPPY session —
   worth watching whether this persists or shifts into Thursday's PPI/
   Friday's CPI prints.
+- **Duplicate independent read (`main-kbvk3z`, run inline by market-open
+  after it found no pre-market entry on its own stale clone):** same
+  state/confidence (CHOPPY, 0.745 explicit / 0.67 internal), VIX 15.7 vs
+  this entry's 15.5 and breadth 0.5 vs 0.552 — both within the
+  source-range noise already documented above, no material disagreement.
+  Kept this entry as the canonical one; see `RESEARCH-LOG.md`'s
+  2026-09-09 reconciliation note for the full duplicate-entry account.
