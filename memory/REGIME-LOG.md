@@ -462,3 +462,11 @@ on STRONG_TREND)
   09-02's one-day TRANSITION read — worth watching whether CHOPPY
   persists into the CPI (9/11)/PPI (9/10)/FOMC (9/16) data-heavy week
   ahead.
+
+## 2026-09-09
+- State: CHOPPY
+- Confidence: 0.745
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) also returned CHOPPY — same scores, confidence 0.67 — second consecutive day both calls agree on state
+- Trend (SPY/QQQ): -0.089 / -0.271 (explicit call, real QQQ read — both negative, deeper than 09-08's -0.067/-0.217) vs -0.089 / null (scan's internal call, `trend_qqq` still never computed there) | Volatility (20d): 0.1166 | VIX: 15.7 (Perplexity-sourced, range 15.3-16.5 across sources) | Breadth (%>50dma): 0.5 (explicit, Perplexity-sourced estimate) vs 0.552 (scan's internal auto-computed proxy)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum 0.2, trend 0.2, breakout 0.3, mean_reversion 1.0, relative_strength 0.5} — the CHOPPY weight set
+- Note: second consecutive CHOPPY day, confidence up slightly from 09-08 (0.745 vs 0.745 explicit / 0.67 vs 0.67 internal — identical both days). Overnight escalation (attacks on Saudi energy facilities) pushed Brent toward/above $99-100 and WTI to ~$94-96, driving Energy sector momentum sharply higher (+44-47% YTD, clear YTD leader) while broader equity futures sit modestly lower (ES -0.2 to -0.4%) ahead of PPI (9/10) and CPI (9/11). No breadth/VIX shock — VIX roughly flat vs 09-08's ~15.3.

@@ -2417,3 +2417,52 @@ evaluated in full, failing the validated 0.55 ensemble minimum plus
 setup-quality and spread/liquidity independently; TTAN/UNFI/ABM all hit
 data-quality errors but carried ensemble scores at or below GME's; CASY
 weaker still. Correct, expected outcome.
+
+## 2026-09-09 — Pre-market Research
+
+*Run inline by the `market-open` routine — today's pre-market entry was
+missing on arrival (this session's clone is current with `origin/main` at
+`main-kbvk3z`, no stray-branch recovery needed today; `git ls-remote`
+confirms `main` at `a94f78b`, matching this branch's head).*
+
+### Account
+- Equity: $99,955.32 | Cash: $89,471.29 (89.5%) | Buying power: $387,240.45 | Daytrade count: n/a (not surfaced by `alpaca.sh account`)
+- Open position: BAC 169 sh @ $62.30, current $62.0357, unrealized -$44.67 (-0.42%), live 10% trailing GTC stop at $57.195 (hwm $63.55)
+
+### Market Context
+- Regime: CHOPPY (confidence 0.745) — see memory/REGIME-LOG.md for the full record
+- WTI / Brent: WTI ~$94-96/bbl, Brent ~$98-99.35/bbl, both up sharply on attacks on energy facilities in southern Saudi Arabia (fires, temporary shutdowns) pushing oil toward $100
+- S&P 500 futures / VIX: ES modestly lower, roughly -0.2 to -0.4% across sources (~7,650-7,690); VIX ~15.3-16.5 (using 15.7), essentially flat vs 09-08
+- Today's catalysts: Apple iPhone launch event; PPI Thursday (9/10) and CPI Friday (9/11) ahead of the Sept 16 FOMC decision; 10-year Treasury auction; oil-driven inflation fears / US-Iran-adjacent Middle East tension boosting energy, pressuring financials via higher yields
+- Earnings before open: CHWY, SAIL, ASO, SIG, CNM, KFY, JILL, DXLG, CAL, NNOX, CGNT (~20 total names)
+- Economic calendar: no CPI/PPI/FOMC/jobs today (Employer Costs for Employee Compensation at 10:00 ET only); PPI 9/10, CPI 9/11, FOMC 9/15-16
+- Sector momentum: Energy far and away YTD leader (+44.6% to +46.9%), Technology +30.7-30.8%, Materials +14.9-15.5%, Industrials +12.9%, Financials +5.1% (pressured today by higher yields), Communication Services weakest (-4.7%)
+- BAC (held): no thesis-relevant news — $2B senior note redemption (routine), stablecoin-initiative membership, dividend raise to $0.32/sh (ex-div already passed 9/4), Moderate Buy consensus, price flat/slightly lower. No action warranted.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Setup Quality | Notes |
+|---|---|---|---|---|
+| AAPL | 0.069 | n/a (no champion) | 56 | iPhone launch catalyst; momentum/trend/RS all positive but mean-reversion -0.47 drags ensemble; spread 9.55% fails liquidity gate |
+| CHWY | -0.037 | n/a (no champion) | 48 | earnings today; breakout 0.81 but mean-reversion -0.53, trend weak (-0.20 MA structure) |
+| OXY | -0.077 | n/a (no champion) | not run | oil-spike beneficiary; ensemble weaker than AAPL/CHWY, not evaluated further |
+| CVX | -0.094 | n/a (no champion) | not run | oil-spike beneficiary; ensemble weaker still |
+| XOM | -0.134 | n/a (no champion) | not run | oil-spike beneficiary; weakest of the five despite sector tailwind — mean-reversion drag (z-score +1.93, RSI 61) dominates |
+
+### Trade Ideas
+None. Top two candidates by ensemble score (AAPL, CHWY) both run through `evaluate` — both NO-TRADE, well below the validated 0.55 minimum. Energy names (OXY/CVX/XOM) scored weaker still despite the sector's clear YTD/today momentum — mean-reversion sleeve penalizing already-extended moves in all three (z-scores +1.4 to +2.0) — not worth spending an `evaluate` call to confirm a near-certain NO-TRADE.
+
+### NO-TRADE Candidates
+- **AAPL** — reasons, verbatim: no ML confirmation available (require_ml_probability=false); ensemble score 0.07 below the validated minimum 0.55; sleeve disagreement {momentum 0.591, trend 0.574, breakout 0.398, mean_reversion -0.473, relative_strength 0.545}; setup quality 56 below minimum 60; spread/liquidity failed (spread 9.55%, illiquid or too wide).
+- **CHWY** — reasons, verbatim: no ML confirmation available (require_ml_probability=false); ensemble score -0.04 below the validated minimum 0.55; sleeve disagreement {momentum 0.332, trend 0.114, breakout 0.807, mean_reversion -0.526, relative_strength 0.224}.
+- **OXY, CVX, XOM** — not run through `evaluate`; ensemble scores -0.077, -0.094, -0.134 respectively, all weaker than AAPL/CHWY and far below 0.55.
+
+### Risk Factors
+- Second consecutive CHOPPY regime day (09-08, 09-09) — SPY/QQQ trend both negative and deepening (-0.089/-0.271 today vs -0.067/-0.217 yesterday).
+- Oil-driven inflation risk building into PPI (9/10) and CPI (9/11) ahead of FOMC (9/16) — a genuine data-heavy week, worth watching for a regime shift toward HIGH_VOL or RISK_OFF if the Saudi/Iran situation escalates further or CPI runs hot.
+- Energy sector momentum is real and strong, but every energy name scanned today scored negative on ensemble — extended short-term moves (mean-reversion sleeve heavily negative on all three) are outweighing the trend/catalyst story under this system's rules; no override taken, per CLAUDE.md's one rule.
+- No champion ML model exists (`models/champion/` empty) — every candidate still fails the ML-evidence gate regardless of setup, per the 2026-08-21 documented exception in TRADING-STRATEGY.md.
+- BAC unchanged on thesis, -0.42% unrealized, nowhere near -7%; live trailing stop confirmed via `alpaca.sh orders`.
+- 0/3 trades used this week so far (Monday 09-07 was Labor Day/no action, Tuesday 09-08 NO-TRADE, today NO-TRADE).
+
+### Decision
+**HOLD** — no order placed, none staged. Neither of the two top-scoring candidates (AAPL, CHWY) clears the validated 0.55 ensemble minimum; the energy names carrying today's real sector catalyst scored weaker still on the ensemble's mean-reversion sleeve. Correct, expected outcome — proceeding to market-open re-validation with no candidate to re-check.
