@@ -462,3 +462,28 @@ on STRONG_TREND)
   09-02's one-day TRANSITION read — worth watching whether CHOPPY
   persists into the CPI (9/11)/PPI (9/10)/FOMC (9/16) data-heavy week
   ahead.
+
+## 2026-09-09
+
+- State: **CHOPPY**
+- Confidence: **0.745** (explicit `--qqq --vix 15.5` call; breadth
+  auto-computed at 0.552, no real published breadth figure available from
+  today's research) — clears the 0.40 NO-TRADE minimum; second
+  consecutive CHOPPY read (first was 09-08)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) also returned CHOPPY — same scores, confidence 0.67
+- Trend (SPY/QQQ): -0.089 / -0.271 (explicit call) vs -0.089 / null
+  (scan's internal call, `trend_qqq` still never computed there) —
+  QQQ trend deeper negative than 09-08's -0.217
+- Volatility (20d): 0.1166 | VIX: 15.5 (explicit, Perplexity-sourced
+  midpoint of a 15.3-15.9 range) | Breadth (%>50dma): 0.552 (auto-proxy,
+  no real published statistic sourced today)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  0.2, trend 0.2, breakout 0.3, mean_reversion 1.0, relative_strength
+  0.5} — the CHOPPY weight set
+- Note: oil spiking toward $100/bbl (Saudi energy-facility attacks, Iran
+  tension) plus continued rate-hike-odds pricing ahead of the Sep 15-16
+  FOMC decision is consistent with the deepening negative QQQ trend and
+  broad market softness (S&P futures down premarket, financials
+  underperforming on rate pressure). Second straight CHOPPY session —
+  worth watching whether this persists or shifts into Thursday's PPI/
+  Friday's CPI prints.

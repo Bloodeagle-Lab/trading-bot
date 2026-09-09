@@ -2417,3 +2417,130 @@ evaluated in full, failing the validated 0.55 ensemble minimum plus
 setup-quality and spread/liquidity independently; TTAN/UNFI/ABM all hit
 data-quality errors but carried ensemble scores at or below GME's; CASY
 weaker still. Correct, expected outcome.
+
+## 2026-09-09 — Pre-market Research
+
+### Account
+- Equity: $99,971.26 | Cash: $89,471.29 (89.5%) | Buying power: $387,285.08
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.13 (-0.27% unrealized, -$28.73)
+  — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $63.55, stop $57.195, status
+  "new"). `balance_asof` 2026-09-08, `last_equity` $100,015.20.
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **CHOPPY, confidence 0.745** (explicit `--qqq --vix 15.5` call,
+  breadth auto-computed at 0.552 — no real published breadth figure came
+  back from today's research) — clears the 0.40 NO-TRADE minimum; second
+  consecutive CHOPPY session (first was 09-08). See `memory/REGIME-LOG.md`.
+- WTI ~$93-95, Brent ~$98-99, both firmer again — attacks on energy
+  facilities in southern Saudi Arabia (fires, temporary shutdowns) pushing
+  crude toward $100/bbl amid continued Iran/Middle East tension; highest
+  levels logged yet this cycle.
+- S&P 500 futures ~7,660-7,706, down roughly -0.2% to -0.6% premarket
+  (sources disagree on magnitude, one outlier +0.1%); VIX ~15.3-15.9,
+  roughly flat to slightly up vs. yesterday's close.
+- Today's catalysts: oil-driven inflation risk (Saudi strikes, Iran
+  tension) pressuring futures and lifting energy names (XLE +1.1%);
+  financials/regional banks lagging on rate pressure (XLF -1.4%, KRE
+  -1.3%, 10Y yield ~4.81%); semiconductors/AI still the constructive
+  offset (SMH outperforming). Data-heavy week ahead dominates the macro
+  narrative (see calendar below).
+- Earnings before open today: Chewy (CHWY), J.Jill (JILL), Oddity Tech
+  (ODD), Core & Main (CNM), Signet Jewelers (SIG). (CASY/TTAN/GME/UNFI/
+  ABM all reported yesterday, 09-08, per the earnings calendar.)
+- Economic calendar: no CPI/PPI/FOMC today (MBA Mortgage Applications
+  only scheduled print). **PPI Sep 10 (tomorrow), CPI Sep 11, FOMC rate
+  decision Sep 15-16** all inside the next 7 days.
+- Sector momentum YTD: Energy still the clear leader (+43-47%),
+  Technology ~+31%, Materials/Industrials next; Communication Services
+  and Consumer Discretionary the weakest (~-4 to -5%), Utilities mixed.
+- Held-ticker news (BAC): no new thesis-relevant news — a Canadian-dollar
+  senior-note redemption (C$1.43B, previously logged), stablecoin-
+  consortium participation (BofA/Citi/Goldman + others), and routine
+  strategic-deal headlines (Jio Credit stake, infrastructure-finance
+  initiative), all routine (mechanism-test position, no thesis to break).
+  Next earnings Oct 14, 2026. Price ~$62.13-62.71 across sources, -0.27%
+  unrealized on the position, nowhere near -7%; not urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| JILL | 0.216 | — (no champion) | Earnings BMO today; top-scoring but below 0.55 minimum |
+| ODD | 0.116 | — | Earnings BMO today |
+| CNM | 0.087 | — | Earnings BMO today |
+| CHWY | -0.037 | — | Earnings BMO today |
+| SIG | -0.201 | — | Earnings BMO today |
+
+### Trade Ideas
+None. Attempted `evaluate` on the top three by ensemble score (JILL, ODD,
+CNM):
+
+- **JILL** — entry $23.82 / stop $22.49 / target $26.48 (R:R 2.0),
+  NO-TRADE.
+- **ODD** — entry $16.39 / stop $14.72 / target $19.73 (R:R 2.0),
+  NO-TRADE.
+- **CNM** — not scored; `evaluate` raised `ValueError: no usable quote
+  (bid=41.8, ask=0.0)` — same recurring pre-market data-quality pattern
+  as DLTR (08-26), CHA (08-28), PDD (08-31), DELL (09-01), DRI (09-03),
+  and TTAN/UNFI/ABM (09-08). Not retried further; CNM's ensemble score
+  (0.087) was already well below the 0.55 minimum, so a clean quote
+  would very likely have produced the same NO-TRADE outcome.
+
+### NO-TRADE Candidates
+- **JILL** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.22 below the
+  validated minimum 0.55; spread/liquidity failed (spread 47.65%,
+  illiquid or too wide).
+- **ODD** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.12 below the
+  validated minimum 0.55; sleeve disagreement {momentum 0.56, trend
+  0.205, breakout -0.02, mean_reversion -0.157, relative_strength
+  0.531}; setup quality 58 below minimum 60; spread/liquidity failed
+  (spread 32.09%, illiquid or too wide).
+- **CNM** — not scored; quote errored (bid=41.8, ask=0.0). Ensemble
+  score (0.087) below the 0.55 minimum regardless.
+- **CHWY**, **SIG** — not run through `evaluate`; ensemble scores
+  (-0.037, -0.201) negative, weaker than every ticker above, no need to
+  spend a call confirming a weaker NO-TRADE.
+
+### Risk Factors
+- **Second consecutive CHOPPY regime read** — confidence 0.745 (explicit
+  call), comfortably clear of 0.40. `scan`'s own internal call (no
+  `--vix`/`--breadth`, still no `--qqq`) also returned CHOPPY —
+  {STRONG_TREND: 0.0, CHOPPY: 0.7, ...}, confidence 0.67, agreeing on
+  state again (same long-flagged `--qqq`-null-on-scan/confidence-gap
+  quirk, immaterial today since both clear 0.40). SPY trend remains
+  negative (-0.089) and QQQ trend, unavailable from `scan`'s internal
+  call, was -0.271 on the explicit call — a deeper negative print than
+  09-08's -0.217, consistent with the oil/rate-driven pullback
+  broadening rather than reversing.
+- **Recurring quote-data-quality bug hit again** (CNM `ask=0.0`) — same
+  pattern flagged repeatedly across the last two weeks; didn't change
+  today's outcome (CNM's ensemble score was already well below the 0.55
+  minimum), but the recurrence continues to support the weekly-review
+  flag to check whether this correlates with pre-market/low-volume data
+  specifically.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **BAC unchanged on thesis** (senior-note redemption, stablecoin/deal
+  headlines all routine) — -0.27% unrealized, nowhere near -7%.
+- **Heavy data week continues**: PPI (9/10, tomorrow), CPI (9/11), FOMC
+  (9/15-16) all inside the next 7 days; oil spiking toward $100/bbl on
+  the Saudi energy-facility attacks is a fresh inflation-risk catalyst
+  layered on top of the existing rate-decision uncertainty — worth
+  watching closely for a regime/volatility shift into Thursday/Friday's
+  prints.
+- **Branch note:** this session's assigned branch (`main-lv4dwn`) was
+  created directly from `origin/main` at its current head (`a94f78b`,
+  09-08's market-open commit) — no stray unmerged branches found on
+  `origin` and no recovery/merge needed before this research, a clean
+  arrival unlike most prior weeks' sessions.
+
+### Decision
+**HOLD** — no order placed, none staged. JILL and ODD both evaluated in
+full, failing the validated 0.55 ensemble minimum plus (for ODD) sleeve
+disagreement, setup quality, and spread/liquidity independently; CNM hit
+a data-quality error but carried a weaker ensemble score than either;
+CHWY/SIG weaker still. Correct, expected outcome.
