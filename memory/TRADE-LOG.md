@@ -561,3 +561,35 @@ pushed straight to `main` (no branch-protection block encountered this
 time); see `RESEARCH-LOG.md`'s and `REGIME-LOG.md`'s 2026-09-09
 reconciliation notes for the duplicate pre-market entry, both of which
 independently reached the same HOLD outcome.
+
+### 2026-09-10 — EOD Snapshot (Day 21, Thursday)
+
+**Portfolio:** $99,996.63 | **Cash:** $89,471.29 (89.5%) | **Day P&L:** -$85.33 (-0.09%) | **Phase P&L:** -$3.37 (-0.00%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.28 | -0.80% | -$3.36 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). Third consecutive CHOPPY regime day (confidence 0.745 explicit,
+clears the 0.40 minimum) — SPY trend flipped positive for the first time
+this cycle, but `scan`'s internal call disagreed, reading STRONG_TREND
+(confidence 0.585) instead, a genuine state divergence (not just a
+confidence gap) flagged for weekly-review — see `REGIME-LOG.md`'s
+2026-09-10 entry. FLWS/LOVE/M all evaluated or attempted pre-market and
+again independently at market-open; all NO-TRADE (ensemble scores
+0.45/0.44/0.10, below the 0.55 minimum) — LOVE/M also hit the recurring
+quote-data-quality bug (`ask=0.0`). Correct HOLD both sessions. Oil
+effectively at $100/bbl (Saudi energy-facility attacks, Iran tension)
+with VIX drifting up a third straight session (~16.45-16.47) ahead of
+tomorrow's CPI and next week's FOMC. Day P&L computed against the
+2026-09-09 EOD snapshot ($100,081.96); phase P&L against the Day 0 real
+baseline ($100,000.00). 0/3 trades used this week (started 2026-09-08
+Tuesday) — cap not at risk. **Persistence/branch note:** this session
+found one unmerged stray branch on arrival, `main-5xhhcx` (today's
+pre-market `main-1vmkoj` + market-open `main-sc6l5s`, already
+self-reconciled as duplicate independent HOLD reads — see
+`RESEARCH-LOG.md`'s and `REGIME-LOG.md`'s 2026-09-10 entries),
+fast-forward merged into `main` before this EOD snapshot.
