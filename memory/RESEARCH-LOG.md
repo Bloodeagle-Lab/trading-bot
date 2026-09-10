@@ -2564,3 +2564,137 @@ unchanged: **HOLD**, no trade, in both independent reads. No discrepancy
 requiring escalation; kept this entry (11:19 UTC) as the canonical
 pre-market record since it ran first and is the one `market-open`
 should have referenced.
+
+## 2026-09-10 — Pre-market Research (run inline by market-open, no prior entry found)
+
+Session on designated branch `main-sc6l5s`, arrived already current with
+`origin/main` (`7f52540`, 09-09's EOD snapshot) — no stray branches to
+recover. No 2026-09-10 pre-market entry existed on arrival, so this
+`market-open` run executed `routines/pre-market.md` STEPS 1-6 inline
+first, per `CLAUDE.md`/`routines/market-open.md` STEP 1.
+
+### Account
+- Equity: $100,069.28 | Cash: $89,471.29 (89.4%) | Buying power: $387,559.53
+- Positions: BAC 169 @ $62.30, current $62.71 (+0.66% unrealized, +$69.29).
+  Manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $63.55, stop $57.195, status
+  "new"). `last_equity` $100,062.52 (prior day close).
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **CHOPPY, confidence 0.745** (explicit `--qqq --vix 16.47` call)
+  — clears the 0.40 NO-TRADE minimum; third consecutive CHOPPY session
+  (09-08, 09-09, 09-10). See `memory/REGIME-LOG.md` for the full record,
+  including a materially wider-than-usual disagreement with `scan`'s
+  internal regime call today (STRONG_TREND, not just a confidence gap).
+- WTI ~$96-99, Brent ~$101-102, both firmer again on escalating US-Iran
+  military conflict (fresh strikes reported overnight) — highest levels
+  logged yet this cycle, above 09-09's $93-95/$98-99 read.
+- S&P 500 futures roughly flat to slightly up premarket (~7,650-7,663,
+  +0.04% to +0.1% on most feeds; a couple of delayed quotes show -0.2 to
+  -0.6% but those trail the Iran-strike headline) as an oil-price rally
+  "takes a breather"; VIX ~16.4-16.5, up from yesterday's 15.72 close.
+- Today's catalysts: PPI (8:30am ET) and weekly jobless claims are the
+  macro focus, with Oracle earnings after the close (AI-capex read-
+  through) and 10Y yield near a 3-year high pressuring valuations.
+  Pre-market earnings: Macy's (M), 1-800-Flowers (FLWS), MasterCraft Boat
+  (MCFT), Shoe Carnival (SHOE), Designer Brands (DBI), Vince Holding
+  (VNCE), Lovesac (LOVE), Imperial Petroleum (IMPP), TEN Ltd (TEN),
+  Yuanbao (YB); KALV/EMP/BABYF/BLN per a secondary calendar source.
+- Economic calendar: **PPI today (Sep 10)**, CPI tomorrow (Sep 11), FOMC
+  rate decision Sep 15-16 — all still inside the next week.
+- Sector momentum YTD: Energy still the clear leader (+46-48%), Technology
+  ~+30-31%, Materials ~+13-14%; Consumer Discretionary (~-5%) and
+  Communication Services (~-5%) the weakest.
+- Held-ticker news (BAC): no new thesis-relevant news — Co-President Jim
+  DeMare confirmed for the Sep 23 BofA Securities Financials CEO
+  Conference, routine dividend/debt-redemption calendar items (ex-div
+  Sep 4, senior-note redemptions Sep 15), stablecoin-consortium and
+  routine strategic-deal coverage, all previously logged or immaterial.
+  Price ~$62.67-62.76 across sources, +0.66% unrealized, nowhere near -7%.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| FLWS | 0.446 | — (no champion) | Earnings BMO today; top-scoring but below 0.55 minimum |
+| LOVE | 0.444 | — | Earnings BMO today |
+| M | 0.098 | — | Earnings BMO today |
+| SHOE | -0.248 | — | Earnings BMO today |
+| DBI | -0.311 | — | Earnings BMO today |
+
+### Trade Ideas
+None. Attempted `evaluate` on the top two by ensemble score (FLWS, LOVE):
+
+- **FLWS** — entry $3.98 / stop $3.66 / target $4.62 (R:R 2.0), NO-TRADE.
+- **LOVE** — not scored; `evaluate` raised `ValueError: no usable quote
+  (bid=13.0, ask=0.0)` — same recurring pre-market data-quality pattern
+  flagged repeatedly since 08-26 (DLTR, CHA, PDD, DELL, DRI, TTAN/UNFI/
+  ABM, CNM). Not retried further; LOVE's ensemble score (0.444) was
+  already below the 0.55 minimum, so a clean quote would very likely
+  have produced the same NO-TRADE outcome.
+
+### NO-TRADE Candidates
+- **FLWS** — reasons, verbatim: no ML confirmation available
+  (require_ml_probability=false); ensemble score 0.45 below the
+  validated minimum 0.55; sleeve disagreement {momentum 0.65, trend
+  0.286, breakout 0.311, mean_reversion -0.622, relative_strength
+  0.559}; spread/liquidity failed (spread 25.13%, illiquid or too wide).
+- **LOVE** — not scored; quote errored (bid=13.0, ask=0.0). Ensemble
+  score (0.444) below the 0.55 minimum regardless.
+- **M** — not run through `evaluate`; ensemble score (0.098) far below
+  FLWS/LOVE, no need to spend a call confirming a weaker NO-TRADE.
+- **SHOE**, **DBI** — not run through `evaluate`; ensemble scores
+  (-0.248, -0.311) negative, weaker than every ticker above.
+
+### Risk Factors
+- **Third consecutive CHOPPY regime day**, confidence 0.745 (explicit
+  call) — but today's `scan`/`evaluate` internal regime call diverged on
+  **state itself** (STRONG_TREND, confidence 0.585-0.66), not just
+  confidence magnitude as in prior weeks' notes. Root cause: the
+  internal call's `trend_qqq` is null (long-flagged quirk — scan/evaluate
+  never pass `--qqq`), and today `trend_spy` alone is strongly positive
+  (+0.703, vs -0.089 on 09-08/09-09), which is enough on its own to flip
+  the internal classifier to STRONG_TREND while the explicit call (real
+  QQQ trend -0.309) still reads CHOPPY. This changed the sleeve weights
+  `scan`/`evaluate` actually applied (STRONG_TREND weights: momentum 1.0,
+  trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength 0.8 —
+  not the CHOPPY weight set), unlike 09-08/09-09 where both calls agreed
+  on state. Did not change today's outcome (FLWS/LOVE still NO-TRADE on
+  ensemble score alone), but this is a more consequential instance of the
+  recurring quirk than previously logged — worth flagging for
+  weekly-review as worth a fix (pass `--qqq` through scan/evaluate's
+  internal regime call, or at minimum stop trusting scan's internal state
+  as a state disagreement grows).
+- **Recurring quote-data-quality bug hit again** (LOVE `ask=0.0`) — same
+  pattern flagged repeatedly for weeks; didn't change today's outcome.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **BAC unchanged on thesis** — +0.66% unrealized, nowhere near -7%.
+- **Heavy data week continues**: PPI today, CPI tomorrow, FOMC 9/15-16;
+  oil pushing to new cycle highs ($100+/bbl Brent) on escalating US-Iran
+  conflict — watch closely for a regime/volatility shift around today's
+  PPI print and tomorrow's CPI.
+
+### Decision
+**HOLD** — no order placed, none staged. FLWS evaluated in full, failing
+the validated 0.55 ensemble minimum plus sleeve disagreement and
+spread/liquidity independently; LOVE hit a data-quality error but carried
+a weaker ensemble score than FLWS; M/SHOE/DBI weaker still. Correct,
+expected outcome.
+
+## 2026-09-10 — market-open: no PASS candidates, confirmed at the open
+
+STEP 2 re-validation: since the pre-market data above was pulled live at
+effectively market-open time this session (single session ran both
+routines inline), and no candidate was staged as a trade idea (Trade
+Ideas: None), there was nothing to re-validate with a second fresh data
+pull — a PASS was never in play regardless of pre-market-to-open drift.
+No candidate reached PASS. Nothing to execute (STEP 3 empty), no
+notification sent (STEP 5 conditioned on a placed trade).
+
+**Verified live against Alpaca (`quant_cli.py positions`):** BAC 169 sh
+@ $62.30 avg entry, current $62.71 (+0.66% unrealized, +$69.29), live
+10% trailing GTC stop confirmed (`flags` empty, no missing-stop issue).
+Account equity $100,069.28, cash $89,471.29 (89.4%). 0/3 trades used this
+week (Monday 09-07 Labor Day/closed; 09-08, 09-09, 09-10 all NO-TRADE).
+Correct, expected HOLD.

@@ -494,3 +494,36 @@ on STRONG_TREND)
   source-range noise already documented above, no material disagreement.
   Kept this entry as the canonical one; see `RESEARCH-LOG.md`'s
   2026-09-09 reconciliation note for the full duplicate-entry account.
+
+## 2026-09-10
+
+- State: **CHOPPY**
+- Confidence: **0.745** (explicit `--qqq --vix 16.47` call; breadth
+  auto-computed at 0.552, no real published breadth figure sourced
+  today) — clears the 0.40 NO-TRADE minimum; third consecutive CHOPPY
+  read (09-08, 09-09, 09-10)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call). `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) diverged **on state**, not just confidence, today: STRONG_TREND {STRONG_TREND: 0.6, CHOPPY: 0.0, ...}, confidence 0.585; `evaluate`'s internal call (with `--vix` passed through) read STRONG_TREND at confidence 0.66.
+- Trend (SPY/QQQ): +0.703 / -0.309 (explicit call) vs +0.703 / null
+  (scan/evaluate's internal call, `trend_qqq` still never computed
+  there). SPY trend flipped sharply positive vs 09-08/09-09's -0.089 —
+  with `trend_qqq` null internally, SPY alone is enough to flip the
+  internal classifier to STRONG_TREND even though the real QQQ trend
+  (-0.309, deeper negative than 09-09's -0.271) keeps the explicit,
+  full-featured call at CHOPPY.
+- Volatility (20d): 0.1199 | VIX: 16.47 (explicit, Cboe/MarketWatch
+  midpoint) | Breadth (%>50dma): 0.552 (auto-proxy, no real published
+  statistic sourced today)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength
+  0.8} — the **STRONG_TREND** weight set, because `scan`/`evaluate`'s
+  internal regime call (not this log's canonical explicit CHOPPY call)
+  is what actually drives their sleeve weighting. Prior sessions noted
+  this `--qqq`-null quirk as an immaterial confidence-magnitude gap;
+  today it flips the state and the weight set used for scoring — did not
+  change today's outcome (FLWS/LOVE still NO-TRADE on ensemble score
+  alone) but is a materially larger instance of the same bug, flagged
+  for weekly-review.
+- Note: oil at new cycle highs (WTI ~$96-99, Brent ~$101-102) on
+  escalating US-Iran military conflict; S&P futures roughly flat as the
+  oil rally "takes a breather" ahead of today's PPI print and tomorrow's
+  CPI. Third straight CHOPPY session by the canonical (explicit) call.
