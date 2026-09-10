@@ -494,3 +494,33 @@ on STRONG_TREND)
   source-range noise already documented above, no material disagreement.
   Kept this entry as the canonical one; see `RESEARCH-LOG.md`'s
   2026-09-09 reconciliation note for the full duplicate-entry account.
+
+## 2026-09-10
+
+- State: **CHOPPY**
+- Confidence: **0.745** (explicit `--qqq --vix 16.45` call; breadth
+  auto-computed at 0.552, no real published breadth figure available from
+  today's research) — clears the 0.40 NO-TRADE minimum; third
+  consecutive CHOPPY read (09-08, 09-09, 09-10)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`, still no real breadth) instead read **STRONG_TREND** — {STRONG_TREND: 0.6, CHOPPY: 0.0, ...}, confidence 0.585 — first genuine state disagreement between the two calls this cycle (see note below)
+- Trend (SPY/QQQ): +0.703 / null (both explicit and internal calls agree
+  on SPY; `trend_qqq` still never computed by either path) — SPY trend
+  flipped positive for the first time this cycle after three sessions
+  negative
+- Volatility (20d): 0.1199 | VIX: 16.45 (explicit, Perplexity-sourced
+  midpoint of a 16.4-16.5 range) | Breadth (%>50dma): 0.552 (auto-proxy,
+  no real published statistic sourced today)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength
+  0.8} — the STRONG_TREND weight set (from `scan`'s internal regime call,
+  which the ensemble stage actually consumes) despite the explicit
+  `regime` command's canonical CHOPPY read
+- Note: SPY's positive trend flip is consistent with AI/big-tech earnings
+  optimism (Oracle/Broadcom backlog cited yesterday) offsetting the
+  oil/yield headwind, while VIX continuing to drift up (~15.7 → ~16.45)
+  and QQQ remaining unreadable from both calls keeps the explicit
+  CHOPPY/0.745 read the more defensible canonical state — a mixed tape,
+  not a clean trend, consistent with financials lagging on rate pressure
+  while energy/tech outperform. Third straight CHOPPY session on the
+  explicit call; worth watching into today's PPI/jobless-claims prints
+  and tomorrow's CPI ahead of next week's FOMC.
