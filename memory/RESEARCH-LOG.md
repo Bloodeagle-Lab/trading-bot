@@ -2693,3 +2693,35 @@ the validated 0.55 ensemble minimum plus sleeve disagreement and
 spread/liquidity independently; LOVE and M both hit the recurring
 quote-data-quality error but carried ensemble scores already below the
 0.55 minimum; SHOE/DBI weaker still. Correct, expected outcome.
+
+### Duplicate entry reconciliation (main-sc6l5s, inline pre-market + market-open)
+
+`main-sc6l5s` (this week's `market-open` session) arrived without seeing
+the entry above — its stale clone had no 2026-09-10 pre-market on
+`origin/main` yet — so it ran `routines/pre-market.md` STEPS 1-6 inline
+per `CLAUDE.md`/`routines/market-open.md` STEP 1 before its own
+market-open work, producing an independent, differently-scanned research
+pass at 12:38 UTC (vs. this entry's 11:18 UTC): equity $100,069.28
+(-$18.59 vs. this entry's snapshot ~80 minutes earlier), same CHOPPY
+regime call (see `REGIME-LOG.md`'s reconciliation note, including the
+same-day STRONG_TREND-vs-CHOPPY internal-call divergence both runs
+independently observed). Its `scan` still surfaced FLWS/LOVE at the top
+(same ensemble scores) but only attempted `evaluate` on FLWS/LOVE, not M
+— both still failed the 0.55 ensemble minimum, so the outcome is
+unchanged: **HOLD**, no trade, in both independent reads. No discrepancy
+requiring escalation; kept this entry (11:18 UTC) as the canonical
+pre-market record since it ran first.
+
+**Market-open re-validation (from `main-sc6l5s`, STEP 2):** since that
+session's pre-market data was pulled live at effectively market-open
+time (single session ran both routines inline), and no candidate was
+staged as a trade idea (Trade Ideas: None), there was nothing to
+re-validate with a second fresh data pull — a PASS was never in play
+regardless of pre-market-to-open drift. No candidate reached PASS.
+Nothing to execute, no notification sent (conditioned on a placed
+trade). Verified live against Alpaca (`quant_cli.py positions`): BAC 169
+sh @ $62.30 avg entry, current $62.71 (+0.66% unrealized, +$69.29), live
+10% trailing GTC stop confirmed (`flags` empty, no missing-stop issue).
+Account equity $100,069.28, cash $89,471.29 (89.4%). 0/3 trades used
+this week (Monday 09-07 Labor Day/closed; 09-08, 09-09, 09-10 all
+NO-TRADE). Correct, expected HOLD.

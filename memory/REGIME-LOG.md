@@ -524,3 +524,25 @@ on STRONG_TREND)
   while energy/tech outperform. Third straight CHOPPY session on the
   explicit call; worth watching into today's PPI/jobless-claims prints
   and tomorrow's CPI ahead of next week's FOMC.
+- **Duplicate independent read (`main-sc6l5s`, run inline by market-open
+  after it found no pre-market entry on its own stale clone):** same
+  state/confidence on the explicit call (CHOPPY, 0.745, VIX 16.47 vs this
+  entry's 16.45 — noise within source range), and independently observed
+  the same STRONG_TREND-vs-CHOPPY internal-call divergence — its `scan`
+  internal call read STRONG_TREND at confidence 0.585 (identical to this
+  entry) and its `evaluate` internal call (with `--vix` passed through)
+  read STRONG_TREND at confidence 0.66. Its explicit call additionally
+  captured a real (non-null) QQQ trend read of -0.309 (deeper negative
+  than 09-09's -0.271), pointing to `trend_qqq` being available on some
+  code paths but not `scan`'s internal one specifically — this is a more
+  consequential instance of the long-flagged `--qqq`-null-on-scan quirk
+  than prior sessions, since it flips both the state and the sleeve
+  weight set actually used for scoring (STRONG_TREND weights, not
+  CHOPPY's), not just the confidence number. Did not change either
+  session's trading outcome (FLWS/LOVE/M all NO-TRADE on ensemble score
+  alone regardless of weight set). No discrepancy requiring escalation;
+  kept this entry (11:18 UTC) as the canonical record since it ran first.
+  Flagged for weekly-review: wire `--qqq` through `scan`/`evaluate`'s
+  internal `regime` call, and/or stop trusting scan's internal state once
+  it diverges from the explicit call on state itself, not just
+  confidence.
