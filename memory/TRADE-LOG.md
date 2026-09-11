@@ -593,3 +593,36 @@ pre-market `main-1vmkoj` + market-open `main-sc6l5s`, already
 self-reconciled as duplicate independent HOLD reads — see
 `RESEARCH-LOG.md`'s and `REGIME-LOG.md`'s 2026-09-10 entries),
 fast-forward merged into `main` before this EOD snapshot.
+
+### 2026-09-11 — EOD Snapshot (Day 22, Friday)
+
+**Portfolio:** $100,095.48 | **Cash:** $89,471.29 (89.4%) | **Day P&L:** $98.85 (0.10%) | **Phase P&L:** $95.48 (0.10%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $62.865 | +0.94% | +$95.49 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). Fourth consecutive CHOPPY regime day (confidence 0.745 explicit,
+comfortably clear of the 0.40 minimum; `scan`'s internal call again
+diverged to STRONG_TREND at 0.585, same long-flagged `--qqq`-null quirk,
+immaterial today). TLX (quote-data-quality bug, `ask=0.0`, ensemble
+0.065) and KR (ensemble -0.136) both NO-TRADE, well below the 0.55
+minimum — correct HOLD. Today's 8:30am ET CPI print was the session's
+dominant catalyst (VIX up a fourth straight session to 17.6, S&P futures
+down premarket ahead of it); no position sized around it, appropriately
+cautious per the NO-TRADE/low-confidence gates. Day P&L computed against
+the 2026-09-10 EOD snapshot ($99,996.63); phase P&L against the Day 0
+real baseline ($100,000.00). 0/3 trades used this week (started
+2026-09-08 Tuesday) — cap not at risk. **Branch note:** this session's
+designated branch is `main-00nkit`, not `main`; `origin/main` on arrival
+was stale at the 2026-09-03 pre-market commit (`1b3d6ac`) while
+`main-00nkit` already carried the full history through today's
+pre-market research (`f0a30db`) — same recurring branch-visibility
+pattern logged every prior week (see `RISK-LOG.md`). Per this session's
+explicit branch assignment (no push to any branch but `main-00nkit`
+without permission), this commit is pushed there, not to `main` as
+`routines/daily-summary.md` STEP 6 literally says — still needs a
+human/session merge into `main`.
