@@ -956,3 +956,36 @@ conditioned on a placed trade).
 Account equity $99,961.12, cash $89,471.29 (89.5%). 0/3 trades used this
 week (Monday 09-07 Labor Day/closed, Tuesday 09-08 NO-TRADE, today
 NO-TRADE). Correct, expected HOLD.
+
+## 2026-09-11 — market-open: no PASS candidates, confirmed at the open; BAC verified live
+
+Today's pre-market research entry (`RESEARCH-LOG.md` 2026-09-11) was
+present on arrival — fourth consecutive CHOPPY-regime day (confidence
+0.745 explicit, clears the 0.40 minimum; `scan`'s internal call again
+diverged, reading STRONG_TREND at 0.585 on the same long-flagged
+`--qqq`-null-on-scan quirk, immaterial today). Pre-market found **zero
+trade ideas**: TLX (top-scoring candidate, FDA PDUFA catalyst today)
+errored on `evaluate` with the recurring quote-data-quality bug
+(bid=10.3, ask=0.0) before the NO-TRADE gate could run, but its ensemble
+score (0.065) was already far below the 0.55 minimum regardless; KR
+(earnings today) scored -0.136, weaker still, and was not run through
+`evaluate`. Dominant risk factor was the 8:30am ET CPI print ahead of
+next week's FOMC (Sep 15-16) — correctly no position sized into that
+uncertainty.
+
+**STEP 2 re-validation:** since no candidate was staged as a trade idea
+pre-market (Trade Ideas: None), there is nothing to re-validate with a
+second fresh data pull — a PASS was never in play regardless of
+pre-market-to-open drift. Re-ran `quant_cli.py regime` fresh at the open
+as a sanity check: STRONG_TREND, confidence 0.585 (internal call only,
+same `--qqq`-null quirk as pre-market's internal read) — doesn't change
+the outcome since no candidate was close to the 0.55 minimum either way.
+No candidate reached PASS. Nothing to execute (STEP 3 empty), no
+notification sent (STEP 5 conditioned on a placed trade).
+
+**Verified live against Alpaca (`quant_cli.py positions`):** BAC 169 sh
+@ $62.30 avg entry, current $63.1542 (+1.37% unrealized, +$144.36), live
+10% trailing GTC stop confirmed (`flags` empty, no missing-stop issue) —
+not close to the +15%/+20% tighten thresholds or the -7% cut level.
+Account equity $100,144.35, cash $89,471.29 (89.4%). 0/3 trades used
+this week (started 2026-09-08 Tuesday). Correct, expected HOLD.
