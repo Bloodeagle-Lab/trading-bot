@@ -2725,3 +2725,118 @@ sh @ $62.30 avg entry, current $62.71 (+0.66% unrealized, +$69.29), live
 Account equity $100,069.28, cash $89,471.29 (89.4%). 0/3 trades used
 this week (Monday 09-07 Labor Day/closed; 09-08, 09-09, 09-10 all
 NO-TRADE). Correct, expected HOLD.
+
+## 2026-09-11 — Pre-market Research
+
+### Account
+- Equity: $100,094.63 | Cash: $89,471.29 (89.4%) | Buying power: $387,630.51
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.86 (+0.90% unrealized, +$94.64)
+  — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md` entry.
+  Trailing 10% GTC stop confirmed live (hwm $63.55, stop $57.195, status
+  "new"). `balance_asof` 2026-09-10, `last_equity` $100,043.93.
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **CHOPPY, confidence 0.745** (explicit `--qqq --vix 17.6
+  --breadth 0.55` call) — clears the 0.40 NO-TRADE minimum; fourth
+  consecutive CHOPPY session (09-08 through 09-11). See
+  `memory/REGIME-LOG.md`.
+- WTI ~$101-104, Brent ~$105-108, both still elevated near/above $100/bbl
+  — sources disagree on exact print but agree on direction, consistent
+  with the ongoing Saudi energy-facility-attack/Iran tension narrative
+  from the last several sessions.
+- S&P 500 futures ~7,598-7,606, down roughly -0.5% to -0.6% premarket;
+  VIX ~17.3-17.8 (up from yesterday's 16.45 — fourth straight session
+  higher).
+- Today's dominant catalyst: **August CPI, 8:30am ET** — widely flagged
+  as the most consequential print of the week for Fed rate-path pricing
+  ahead of the Sep 15-16 FOMC decision (Fed Governor Waller specifically
+  tied the next rate decision to this report). Secondary: Telix
+  Pharmaceuticals (TLX) has a Sep 11 FDA PDUFA action date for Pixclara.
+- Earnings before open today: KR (Kroger), HOFT, MNY, CMCM, IHT, OCCI,
+  RENT — KR is the only liquid/large-cap name; the rest are
+  small/illiquid, not evaluated.
+- Economic calendar: **CPI today 8:30am ET** (the day's key print); PPI
+  already released yesterday (09-10); **FOMC rate decision Sep 15-16**
+  remains the next major event after today.
+- Sector momentum YTD: Energy still the clear leader (+42-47%),
+  Technology next (+29-31%), Materials mid-pack (+12-13%); Consumer
+  Discretionary and Communication Services weakest (~-5 to -6%),
+  Utilities flat (~+1%) — unchanged ranking from recent sessions.
+- Held-ticker news (BAC): no thesis-relevant news — Goldman Sachs
+  reiterated its Buy rating (constructive), a routine $2.0B senior-note
+  redemption due Sep 15, and continued stablecoin-consortium coverage
+  (2027 initiative), all routine. Price ~$62.56-62.86, +0.90% unrealized
+  on the position, nowhere near -7%; not urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| TLX | 0.065 | — (no champion) | FDA PDUFA decision (Pixclara) today |
+| KR | -0.136 | — | Earnings BMO today |
+
+### Trade Ideas
+None. Attempted `evaluate` on the top-scoring candidate (TLX):
+
+- **TLX** — not scored; `evaluate` raised `ValueError: no usable quote
+  (bid=10.3, ask=0.0)` — same recurring pre-market data-quality pattern
+  flagged repeatedly since 08-26 (DLTR, CHA, PDD, DELL, DRI, TTAN/UNFI/
+  ABM, CNM, LOVE/M). Not retried further; TLX's ensemble score (0.065)
+  was already far below the 0.55 minimum, so a clean quote would very
+  likely have produced the same NO-TRADE outcome.
+- **KR** — not run through `evaluate`; ensemble score (-0.136) negative,
+  weaker than TLX, no need to spend a call confirming a weaker NO-TRADE.
+
+### NO-TRADE Candidates
+- **TLX** — quote errored before the NO-TRADE gate ran; ensemble score
+  0.065, far below the 0.55 minimum regardless.
+- **KR** — not run through `evaluate`; ensemble score -0.136, negative,
+  weaker than TLX.
+
+### Risk Factors
+- **Fourth consecutive CHOPPY regime read** — confidence 0.745 (explicit
+  call), comfortably clear of 0.40. `scan`'s own internal call (no
+  `--vix`/`--breadth`, still no `--qqq`) diverged again, reading
+  STRONG_TREND (confidence 0.585) — same long-flagged
+  `--qqq`-null-on-scan quirk first noted as consequential on 09-10;
+  immaterial today since both TLX and KR failed the 0.55 minimum under
+  either weight set.
+- **CPI print at 8:30am ET today is the dominant catalyst** — VIX has
+  now risen four straight sessions (15.3 -> 15.5 -> 16.45 -> 17.6) into
+  the print, and S&P futures are down premarket; a hot or cold surprise
+  could sharply move the next FOMC's (9/15-16) rate-path pricing. No
+  position sized around this print — appropriately cautious given
+  `no_trade`'s low-regime-confidence and risk-off gates exist precisely
+  for pre-catalyst uncertainty like this.
+- **Recurring quote-data-quality bug hit again** (TLX `ask=0.0`) — same
+  pattern flagged repeatedly across the last three weeks; didn't change
+  today's outcome (TLX's ensemble score was already well below the 0.55
+  minimum), continues to support the weekly-review flag.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **BAC unchanged on thesis** (Goldman Buy reiteration, routine
+  redemption/stablecoin headlines) — +0.90% unrealized, nowhere near
+  -7%.
+- **Oil still elevated** (~$100-104 WTI) — Energy sector momentum intact
+  (+42-47% YTD) but no single-stock energy catalyst surfaced today
+  strong enough to evaluate.
+- **Branch/persistence note:** this session's assigned branch
+  (`main-y9tgr1`) was created from a stale `origin/main` snapshot ending
+  at 2026-09-09's EOD snapshot; found the full 2026-09-10 chain
+  (pre-market `main-1vmkoj` -> market-open `main-sc6l5s` -> EOD
+  `main-nj80o8`, already self-reconciled as a duplicate-pre-market HOLD)
+  unmerged on `origin`, recovered via fast-forward merge of
+  `main-nj80o8` (confirmed superset of the other two), and pushed to
+  both `main-y9tgr1` and `main` before starting today's research — same
+  recurring branch-assignment issue as every prior week, now flagged
+  nine-plus consecutive weeks running.
+
+### Decision
+**HOLD** — no order placed, none staged. TLX hit the recurring pre-market
+quote-data-quality bug before scoring could complete, but its ensemble
+score (0.065) was already far below the 0.55 minimum; KR scored negative
+(-0.136), weaker still. CPI print at 8:30am ET is today's dominant risk —
+correctly sitting out ahead of it rather than sizing a position into the
+uncertainty. Correct, expected outcome. 0/3 trades used this week (week
+started 2026-09-08 Tuesday) — cap not at risk.

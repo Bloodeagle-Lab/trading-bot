@@ -546,3 +546,34 @@ on STRONG_TREND)
   internal `regime` call, and/or stop trusting scan's internal state once
   it diverges from the explicit call on state itself, not just
   confidence.
+
+## 2026-09-11
+
+- State: **CHOPPY**
+- Confidence: **0.745** (explicit `--qqq --vix 17.6 --breadth 0.55`
+  call) — clears the 0.40 NO-TRADE minimum; fourth consecutive CHOPPY
+  read (09-08, 09-09, 09-10, 09-11)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) instead read **STRONG_TREND** — {STRONG_TREND: 0.6, CHOPPY: 0.0, ...}, confidence 0.585, same divergence first flagged as consequential on 09-10
+- Trend (SPY/QQQ): +0.721 / -0.284 (explicit call; SPY positive third
+  straight session, QQQ still negative) vs +0.721 / null (scan's
+  internal call, `trend_qqq` still never computed there)
+- Volatility (20d): 0.1067 | VIX: 17.6 (explicit, Perplexity-sourced
+  midpoint of a 17.3-17.8 range) — fourth consecutive session higher
+  (15.3 -> 15.5 -> 16.45 -> 17.6) | Breadth (%>50dma): 0.55
+  (Perplexity-derived estimate, no single authoritative published figure
+  sourced today)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength
+  0.8} — the STRONG_TREND weight set (from `scan`'s internal regime
+  call, which the ensemble stage actually consumes) despite the explicit
+  `regime` command's canonical CHOPPY read; immaterial today since both
+  scanned tickers (TLX 0.065, KR -0.136) failed the 0.55 minimum under
+  either weight set
+- Note: VIX's fourth straight higher close, alongside S&P futures down
+  premarket, is consistent with markets positioning defensively ahead of
+  today's 8:30am ET CPI print — the week's most Fed-sensitive data point,
+  directly tied by Fed Governor Waller to the Sep 15-16 FOMC decision.
+  Oil remains elevated (~$100-104 WTI) on the ongoing Saudi/Iran tension
+  narrative. Fourth straight CHOPPY session on the explicit call; worth
+  watching whether today's CPI print breaks the regime one way or the
+  other into next week's FOMC.
