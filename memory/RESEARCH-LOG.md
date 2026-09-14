@@ -2840,3 +2840,122 @@ score (0.065) was already far below the 0.55 minimum; KR scored negative
 correctly sitting out ahead of it rather than sizing a position into the
 uncertainty. Correct, expected outcome. 0/3 trades used this week (week
 started 2026-09-08 Tuesday) — cap not at risk.
+
+## 2026-09-14 — Pre-market Research
+
+### Account
+- Equity: $100,040.55 | Cash: $89,471.29 (89.4%) | Buying power: $387,479.09
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $62.54 (+0.385% unrealized,
+  +$40.56) — manual mechanism-test position, see 2026-08-24 `TRADE-LOG.md`
+  entry. Trailing 10% GTC stop confirmed live (hwm $63.83, stop $57.447,
+  status "new"). `balance_asof` 2026-09-11, `last_equity` $100,065.90.
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **CHOPPY, confidence 0.745** (explicit `--qqq --vix 15.84
+  --breadth 0.55` call) — clears the 0.40 NO-TRADE minimum; fifth
+  consecutive CHOPPY session (09-08 through 09-14). See
+  `memory/REGIME-LOG.md`.
+- WTI ~$100-103, Brent ~$104-108, both still elevated near/above $100/bbl
+  — sources disagree on exact print but agree on direction; driven by
+  Houthi strikes threatening Saudi exports and ongoing Hormuz-shipping
+  tension. Today's specific event: GCC foreign ministers meet Iran's FM
+  in Salalah, Oman to push a temporary Hormuz shipping arrangement — a
+  confirmed framework would likely extend Friday's oil pullback, a
+  collapse could spike oil further.
+- S&P 500 futures ~+0.8% premarket (~7,659); VIX sources conflicted
+  sharply — Friday 09-11 close was 15.84 (-11.21% day, per Yahoo/CBOE/
+  Barchart/CNBC), but one delayed MarketWatch quote showed an intraday
+  18.00 (+13.64%) that doesn't reconcile with every other source's
+  -11.21% headline for the same day; used the corroborated 15.84 close
+  for today's `regime --vix` call as the more reliable figure.
+- Today's dominant catalyst: **no top-tier U.S. macro release** — CPI,
+  PPI, and the jobs report are all not due until October. **FOMC meeting
+  day 1 is today**; the rate decision itself is Wednesday 09-16. Today's
+  scheduled item of note is a 3-Month/6-Month Treasury bill auction at
+  3:30pm ET. Geopolitics (Hormuz talks, above) is the more market-moving
+  story than any single domestic data point.
+- Earnings before open today: RFIL, HAIN, CODA, CSHR — all small/
+  illiquid, not evaluated as candidates.
+- Economic calendar: nothing top-tier today; next CPI (10/14), PPI
+  (10/15), jobs report (10/2) all next month. FOMC decision Wed 09-16 is
+  the week's central event.
+- Sector momentum YTD: Energy still the clear leader (+42%), Technology
+  next (+30%, XLK), Materials (+16%), Industrials (+13%), Health Care
+  (+10%), Consumer Staples (+10%), Real Estate (+9%); Financials weakest
+  of those quoted (+5.4%) — BAC's sector is the laggard, unchanged read
+  from recent sessions.
+- Held-ticker news (BAC): no thesis-relevant news — same 21-bank
+  stablecoin-consortium story as prior sessions (constructive, routine),
+  a routine $2.0B senior-note redemption due tomorrow (09-15). Price
+  ~$62.54-62.72, +0.385% unrealized, nowhere near -7%; not urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| HPE | -0.007 | — (no champion) | AI-infra buyback/dividend story, record Q3 (09-02) still driving momentum |
+| CRCL | -0.114 | — | Arc mainnet launch 09-16 catalyst |
+
+### Trade Ideas
+None. Attempted `evaluate` on the top-scoring candidate (HPE):
+
+- **HPE** — not scored; `evaluate` raised `ValueError: no usable quote
+  (bid=58.07, ask=0.0)` — same recurring pre-market data-quality pattern
+  flagged repeatedly since 08-26 (DLTR, CHA, PDD, DELL, DRI, TTAN/UNFI/
+  ABM, CNM, LOVE/M, TLX). Not retried further; HPE's ensemble score
+  (-0.007) was already far below the 0.55 minimum, so a clean quote
+  would very likely have produced the same NO-TRADE outcome.
+- **CRCL** — not run through `evaluate`; ensemble score (-0.114) more
+  negative than HPE, no need to spend a call confirming a weaker
+  NO-TRADE.
+
+### NO-TRADE Candidates
+- **HPE** — quote errored before the NO-TRADE gate ran; ensemble score
+  -0.007, far below the 0.55 minimum regardless.
+- **CRCL** — not run through `evaluate`; ensemble score -0.114, more
+  negative than HPE.
+
+### Risk Factors
+- **Fifth consecutive CHOPPY regime read** — confidence 0.745 (explicit
+  call), comfortably clear of 0.40. `scan`'s own internal call (no
+  `--vix`/`--breadth`, still no `--qqq`) again diverged on confidence
+  only (0.67, still CHOPPY this time, not the STRONG_TREND flip seen
+  09-10/09-11) — same long-flagged `--qqq`-null-on-scan quirk;
+  immaterial today since both HPE and CRCL failed the 0.55 minimum
+  under either weight set.
+- **FOMC meeting begins today, decision Wednesday 09-16** — the week's
+  central catalyst; no position sized around it today given CHOPPY
+  regime and no verified single-name catalyst strong enough to clear the
+  ensemble bar.
+- **Hormuz shipping talks today** (GCC-Iran, Salalah, Oman) — binary
+  oil-price risk (framework vs. collapse); no direct energy-sector
+  candidate surfaced today with a clean quote and a strong enough
+  ensemble score to evaluate.
+- **Recurring quote-data-quality bug hit again** (HPE `ask=0.0`) — same
+  pattern flagged repeatedly across the last four-plus weeks; didn't
+  change today's outcome (HPE's ensemble score was already well below
+  the 0.55 minimum), continues to support the weekly-review flag.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **BAC unchanged on thesis** (stablecoin-consortium story, routine note
+  redemption tomorrow) — +0.385% unrealized, nowhere near -7%.
+- **VIX source conflict noted above** — used the corroborated 15.84
+  close rather than the outlying 18.00 delayed quote; if that outlier
+  reflects a real intraday spike rather than a stale/bad feed, today's
+  regime confidence could be optimistic. Flagged for awareness, not
+  acted on.
+- **Branch/persistence note:** this session's assigned branch
+  (`main-qf1ces`) arrived with `origin/main` already current through
+  `pre-market 2026-09-11` (`f0a30db`) — first clean arrival with zero
+  stray branches to recover since the multi-week streak began.
+
+### Decision
+**HOLD** — no order placed, none staged. HPE hit the recurring pre-market
+quote-data-quality bug before scoring could complete, but its ensemble
+score (-0.007) was already far below the 0.55 minimum; CRCL scored more
+negative (-0.114), weaker still. No verified single-name catalyst today
+clears the bar, and FOMC's Wednesday decision plus today's Hormuz talks
+argue for staying out rather than sizing into pre-decision uncertainty.
+Correct, expected outcome. 0/3 trades used this week (new week started
+2026-09-14 Monday) — cap not at risk.

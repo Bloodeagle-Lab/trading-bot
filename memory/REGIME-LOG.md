@@ -577,3 +577,37 @@ on STRONG_TREND)
   narrative. Fourth straight CHOPPY session on the explicit call; worth
   watching whether today's CPI print breaks the regime one way or the
   other into next week's FOMC.
+
+## 2026-09-14
+
+- State: **CHOPPY**
+- Confidence: **0.745** (explicit `--qqq --vix 15.84 --breadth 0.55`
+  call) — clears the 0.40 NO-TRADE minimum; fifth consecutive CHOPPY
+  read (09-08, 09-09, 09-10, 09-11, 09-14; market closed 09-12/09-13
+  weekend)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) also read **CHOPPY** this time — {STRONG_TREND: 0.0, CHOPPY: 0.7, ...}, confidence 0.67 — same long-flagged `--qqq`-null-on-scan quirk, but only a confidence gap today, not the state flip seen 09-10/09-11
+- Trend (SPY/QQQ): -0.073 / -0.277 (explicit call; SPY negative, QQQ more
+  negative) vs -0.073 / null (scan's internal call, `trend_qqq` still
+  never computed there)
+- Volatility (20d): 0.1167 | VIX: 15.84 (explicit, Friday 09-11's
+  corroborated close per Yahoo/CBOE/Barchart/CNBC, -11.21% day) —
+  sources conflicted sharply today: one delayed MarketWatch quote showed
+  an outlying intraday 18.00 (+13.64%) that doesn't reconcile with every
+  other source's -11.21% headline for the same day; used 15.84 as the
+  more reliable, corroborated figure | Breadth (%>50dma): 0.55
+  (Perplexity-derived estimate, no single authoritative published figure
+  sourced today)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength
+  0.8} — the CHOPPY weight set, consistent between the explicit call and
+  `scan`'s internal call this time (no divergence in state); immaterial
+  to today's outcome anyway since both scanned tickers (HPE -0.007, CRCL
+  -0.114) failed the 0.55 minimum
+- Note: first trading day of a new week (Friday 09-11 was the last
+  session; weekend 09-12/09-13). No top-tier U.S. macro release today —
+  CPI/PPI/jobs all pushed to October — with FOMC meeting day 1 today and
+  the rate decision itself Wednesday 09-16 as the week's central
+  catalyst. Oil remains elevated (~$100-108 WTI/Brent) on Houthi-strike/
+  Hormuz-shipping tension, with GCC-Iran talks in Salalah, Oman today as
+  a binary near-term catalyst for the oil price. Fifth straight CHOPPY
+  session on the explicit call, now spanning two full weeks.
