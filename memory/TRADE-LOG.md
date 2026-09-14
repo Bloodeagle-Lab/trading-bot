@@ -626,3 +626,38 @@ explicit branch assignment (no push to any branch but `main-00nkit`
 without permission), this commit is pushed there, not to `main` as
 `routines/daily-summary.md` STEP 6 literally says — still needs a
 human/session merge into `main`.
+
+### 2026-09-14 — EOD Snapshot (Day 25, Monday)
+
+**Portfolio:** $99,456.66 | **Cash:** $89,471.29 (90.0%) | **Day P&L:** -$638.82 (-0.64%) | **Phase P&L:** -$543.34 (-0.54%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $59.085 | -5.16% | -$543.34 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). BAC dropped sharply intraday from pre-market's +0.385% to -5.16%
+— the largest single-session move logged for this position yet, now
+within 2 points of the -7% manual-cut threshold; no rule action due yet
+(cut is manual at -7%, trail-tighten thresholds are gain-only), but
+worth a first-thing check tomorrow rather than waiting for `midday`.
+Fifth consecutive CHOPPY regime day (confidence 0.745, clear of the 0.40
+minimum); HPE hit the recurring quote-data-quality bug (`ask=0.0`)
+before scoring, CRCL scored -0.114 — both far below the 0.55 ensemble
+minimum, correct HOLD (see `RESEARCH-LOG.md`). FOMC meeting day 1 today,
+rate decision Wednesday 09-16 — week's central catalyst, nothing sized
+around it. First trading day of a new week — 0/3 trades used, cap not
+at risk. Day P&L computed against the recovered 2026-09-11 EOD snapshot
+($100,095.48, this session's actual last trading-day close); phase P&L
+against the Day 0 real baseline ($100,000.00). **Persistence/branch
+note:** this session's designated branch is `main-e1dqa0`; found three
+unmerged stray branches for 2026-09-11 on arrival —
+`main-suzcwe` (market-open), `main-00nkit` (EOD snapshot, recovered
+above), `main-3k3gm9` (weekly-review, chains both) — merged
+`main-3k3gm9` cleanly (no conflicts) before this snapshot so today's
+Day P&L is against the real prior close rather than stale 2026-09-10.
+Per branch assignment, this commit is pushed to `main-e1dqa0`, not
+`main` — still needs a human/session merge, same recurring
+infrastructure issue logged every week since 2026-08-20.
