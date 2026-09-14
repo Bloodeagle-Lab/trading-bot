@@ -511,3 +511,163 @@ candidates finally clearing the ensemble minimum (a first) is real
 evidence the engine can find something — but the operational risk
 underneath the strategy is now large enough that it, not the strategy
 itself, is this review's central finding.
+
+## Week ending 2026-09-11
+
+*Fourth straight week of live paper trading with zero strategy-scored
+trades — BAC (manual mechanism test, opened 2026-08-24, never scored by
+the pipeline) is again the only position, carried through the whole week
+untouched. This review's first task, as the last three reviews', was
+recovering unmerged stray branches before trusting any metric: two this
+week (`main-suzcwe` market-open, `main-00nkit` EOD), both touching
+different files and both fast-forward/merge-clean with zero conflicts —
+the cleanest recovery in over a month, unlike last week's real 3-way
+conflict. The week's other operational story is the `--qqq`-null
+regime-visibility bug graduating from a one-week anomaly to a recurring
+pattern: `scan`/`evaluate`'s internal regime call disagreed with the
+canonical explicit call on *state* (not just confidence) on two more
+days this week (09-10, 09-11), the second consecutive week that's
+happened. On the strategy side, this is the first week in this log's
+history the bot finished ahead of the S&P 500 — entirely because the
+book stayed ~89% in cash while the index sold off into Friday's CPI
+print, not because of any executed trade.*
+
+### Stats
+| Metric | Value |
+|---|---|
+| Starting portfolio | $100,060.83 (2026-09-04 EOD, prior Friday — Monday 09-07 was Labor Day, market closed) |
+| Ending portfolio | $100,069.28 (this review's live `quant_cli.py positions` pull, ~20:06 UTC/4:06pm ET, just after the close; the day's own `daily-summary` EOD snapshot, committed 19:03 UTC/3:03pm ET — before the close — showed $100,095.48, see reconciliation note below) |
+| Week return | +$8.45 (+0.01%) |
+| S&P 500 week | ≈ -0.86% (est.) — prior Friday 09-04 close $7,726.14; Thursday 09-10's confirmed close $7,591.70 (FRED/Yahoo/MarketWatch agree, -1.74% through Thursday); Friday's official close was not yet published at data-pull time (market had just closed), with intraday reads clustered $7,658-7,670 (+0.87% to +1.03% on the day, post-CPI relief rally) — midpoint ~$7,660 used for the estimate above. One source (MarketScreener, 11:03am ET snapshot) quoted a directly-stated "-2.01%" 1-week change that doesn't reconcile with the confirmed daily closes and is treated as an outlier, not used. |
+| Bot vs S&P | ≈ +0.87pp — first week in this log the bot finished ahead of the index; passive (cash allocation through an index selloff), not earned by any trade |
+| Trades | 0 new (0/3 used) — BAC carried in from 2026-08-24, manual mechanism test, not a strategy signal; W:0 / L:0 / open:1 |
+| Win rate | n/a — no closed trades |
+| Best trade | n/a (BAC open, +0.66% / +$69.29 unrealized at this review's pull) |
+| Worst trade | n/a — no closed trades |
+| Profit factor | n/a — no closed trades |
+| NO-TRADE candidates logged | 17 — GME, TTAN, UNFI, ABM, CASY (09-08); JILL, ODD, CNM, CHWY, SIG (09-09); FLWS, LOVE, M, SHOE, DBI (09-10); TLX, KR (09-11). High count expected, not a problem — but note two quiet weeks now sit behind DELL/SNOW (week ending 09-04) as the only candidates ever to clear the 0.55 ensemble minimum in this log; the gate holding this week just means nothing this specific week got that close, not that the engine has gone cold. |
+
+### Closed Trades
+| Ticker | Entry | Exit | R | P&L | Regime | Notes |
+|---|---|---|---|---|---|---|
+| — | — | — | — | — | — | none — zero closed trades this week |
+
+### Open Positions at Week End
+| Ticker | Entry | Close | Unrealized | Stop |
+|---|---|---|---|---|
+| BAC | $62.30 | $62.71 | +$69.29 (+0.66%) | 10% trailing GTC, live and confirmed all 4 sessions |
+
+### Regime Performance This Week
+| Regime | Trades | Expectancy R | Notes |
+|---|---|---|---|
+| CHOPPY (canonical/explicit call) | 0 | n/a | All 4 trading days (09-08 through 09-11), confidence 0.745 each day, comfortably clear of the 0.40 minimum — first full week of CHOPPY in this log's history. |
+| STRONG_TREND (`scan`/`evaluate`'s internal call, actually used for sleeve weights) | 0 | n/a | Diverged from the canonical CHOPPY read on 2 of 4 days (09-10, 09-11), confidence 0.585 — the wrong sleeve-weight set was applied to scoring on those two days. BAC's own entry regime (STRONG_TREND, 08-24) predates this week and bypassed the pipeline entirely. |
+
+No candidate on any day this week got past the 0.55 ensemble minimum
+under either weight set, so — as every week since inception — this
+still can't separate "regime engine right, sizing/sleeves wrong" from
+"regime engine wrong." The material finding is operational, not
+strategic: 09-10 and 09-11 are the second and third days this log has
+seen `scan`/`evaluate`'s internal regime call disagree with the
+canonical explicit call on *state*, not just confidence magnitude (first
+was 09-02/09-04, week ending 09-04) — now a pattern spanning two
+consecutive weeks, still with zero realized consequence purely because
+no candidate has cleared 0.55 on an affected day in either week.
+
+### Model / Champion-Challenger
+- Champion version in use: **none trained yet** — `models/champion/` is empty, unchanged since 2026-08-21.
+- Challenger candidates evaluated this week: **none** — no `research/promotion.py` run this week; `memory/MODEL-LOG.md`'s entries remain the four 2026-08-21 RETIRED attempts.
+
+### What Worked
+- Zero rule violations across all 17 NO-TRADE candidates this week —
+  every independent gate (ensemble minimum, sleeve disagreement, setup
+  quality, spread/liquidity) did its job on every candidate that reached
+  it.
+- BAC's live 10% trailing GTC stop verified intact in every single
+  session (pre-market, market-open, EOD) across all four trading days —
+  no missing-stop drift, fourth straight week.
+- This week's persistence-bug recovery was the cleanest in over a
+  month: two stray branches (`main-suzcwe` market-open, `main-00nkit`
+  EOD) touched different files and merged with zero conflicts, vs. last
+  week's real 3-way merge conflict.
+- First week in this log's history the bot finished ahead of the S&P
+  500 (+0.87pp) — a real, if entirely passive, result of the ~89%-cash
+  posture during an index selloff into the CPI print.
+- Correctly declined to size any position (TLX, KR) into the week's
+  single dominant macro catalyst (Friday's 8:30am CPI print) rather than
+  gambling on the surprise either way.
+
+### What Didn't Work
+- Fourth straight week with zero strategy-scored trades — "does the
+  engine ever convert a real edge into a filled trade" is now untested
+  across a full month of live paper trading.
+- The `--qqq`-null regime-visibility bug's *state*-level disagreement
+  (not just a confidence gap) recurred on two more days this week
+  (09-10, 09-11) — a second consecutive week of the same escalated
+  failure mode first seen 09-02/09-04. Across both weeks, 4 separate
+  trading days have now run on the wrong sleeve-weight set; it still
+  hasn't flipped an actual decision only because no candidate has
+  cleared the 0.55 ensemble minimum on any affected day so far.
+- The persistence/branch-assignment bug recurred for a tenth-plus
+  consecutive week (`main-suzcwe`, `main-00nkit`) — mechanically painless
+  this time, but the root cause (a human checking all 5 routines'
+  `outcomes[0].git_repository.git_info` config, flagged since 2026-08-20)
+  remains unaddressed with no visible progress; this session was itself
+  assigned yet another new branch (`main-3k3gm9`, not `main`), the same
+  pattern that has produced every stray branch to date.
+- New this week: the scheduled `daily-summary` EOD snapshot was
+  committed at 19:03 UTC/3:03pm ET — 57 minutes before the actual 4:00pm
+  ET close — so its logged $100,095.48 figure is not a true closing
+  balance; this review's post-close pull an hour later shows $100,069.28.
+  Not a strategy problem, but a data-integrity gap worth naming and
+  checking against the `daily-summary` cron schedule.
+- The recurring pre-market quote-data-quality bug (`ask=0.0`) hit 7 more
+  times this week (TTAN, UNFI, ABM, CNM, LOVE, M, TLX) — an 18-plus-week
+  pattern that has never yet mattered, but the sample size of "almost
+  mattered" keeps growing.
+
+### Key Lessons
+- A recurring operational bug's record of "hasn't caused bad P&L yet" is
+  a statement about how many candidates have cleared the ensemble bar on
+  an affected day (zero, so far) — not a statement that the bug is safe
+  to leave unfixed indefinitely, especially as candidates get closer to
+  0.55 over time.
+- The bot's first week ahead of the index came from doing nothing, not
+  from an edge — worth remembering not to over-read one week's relative
+  number as validation of the strategy while the rule/ML engine is still
+  zero-for-four-weeks on producing an actual filled trade.
+- Two consecutive weeks of *state*-level regime disagreement (not just a
+  confidence gap) is enough evidence this is a structural gap in how
+  `scan`/`evaluate` compute their internal regime call, not sampling
+  noise — it belongs on the standing code-level TODO list for
+  `quant_cli.py`, independent of any single week's trading outcome.
+
+### Adjustments for Next Week
+- None to `memory/TRADING-STRATEGY.md` — nothing this week is a
+  trading-rule result (zero trades again); the real findings are
+  infrastructure (git persistence, regime internal-call state
+  disagreement, EOD-snapshot timing), which this file deliberately
+  doesn't govern. Non-strategy follow-ups carried forward: (1) still-
+  overdue human check of all 5 routines' `outcomes[0].git_repository
+  .git_info` config (flagged since 2026-08-20, now a tenth-plus
+  occurrence); (2) wire `--qqq`/a real-trend input through `scan`'s and
+  `evaluate`'s internal `regime` call — now caused a full state
+  disagreement on 4 separate trading days across two consecutive weeks,
+  not just one; (3) new this week — check whether `daily-summary`'s cron
+  fires before the actual market close (today's ran at 19:03 UTC/3:03pm
+  ET) and adjust the schedule so logged "EOD" snapshots reflect the true
+  close.
+
+### Overall Grade: C+
+
+One notch up from last week's C — not because the standing operational
+risks resolved (they didn't: the regime *state*-disagreement bug
+recurred for a second straight week, still unfixed) — but because this
+week's persistence-bug recovery was clean for the first time in over a
+month, trading discipline stayed perfect across a full week of CHOPPY-
+regime candidates, and the bot posted its first-ever week ahead of the
+S&P 500. That outperformance is passive, not earned: zero strategy
+trades for a fourth straight week means the central open question — can
+this engine ever convert an edge into a filled, profitable trade — is
+exactly as untested as it was last week, which is why this grade stays a
+"+" off a C rather than climbing further.
