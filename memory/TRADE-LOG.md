@@ -593,3 +593,31 @@ pre-market `main-1vmkoj` + market-open `main-sc6l5s`, already
 self-reconciled as duplicate independent HOLD reads — see
 `RESEARCH-LOG.md`'s and `REGIME-LOG.md`'s 2026-09-10 entries),
 fast-forward merged into `main` before this EOD snapshot.
+
+### 2026-09-15 — EOD Snapshot (Day 26, Tuesday)
+
+**Portfolio:** $99,565.66 | **Cash:** $89,471.29 (89.9%) | **Day P&L:** -$430.97 (-0.43%) | **Phase P&L:** -$434.34 (-0.43%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $59.73 | -4.10% | -$434.33 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). BAC is now -4.12% unrealized, its worst reading since entry and a
+sharp move from the +0.385% noted in 09-11's pre-market research — not
+close to the -7% hard-cut line, so no manual action taken, but worth
+watching into tomorrow. Day P&L computed against the last logged EOD
+snapshot, 2026-09-10 ($99,996.63); phase P&L against the Day 0 real
+baseline ($100,000.00). **Continuity gap:** no EOD snapshot exists in this
+file for 2026-09-11 through 2026-09-14 — only pre-market research ran on
+09-11 and 09-14 (both HOLD, CHOPPY regime, see `RESEARCH-LOG.md`), and
+`git branch -r` shows no stray branches for those dates, so Day P&L above
+spans five calendar days (09-10 close → 09-15 close), not one; worth a
+weekly-review check on whether market-open/midday/daily-summary fired
+09-11 through 09-14. Regime has now read CHOPPY five consecutive sessions
+(confidence 0.745, clear of the 0.40 minimum) with FOMC's rate decision
+tomorrow (09-16) as the week's central catalyst — no candidate has cleared
+the 0.55 ensemble minimum this week. 0/3 trades used this week (started
+2026-09-14 Monday) — cap not at risk.
