@@ -611,3 +611,36 @@ on STRONG_TREND)
   Hormuz-shipping tension, with GCC-Iran talks in Salalah, Oman today as
   a binary near-term catalyst for the oil price. Fifth straight CHOPPY
   session on the explicit call, now spanning two full weeks.
+
+## 2026-09-15
+
+- State: **CHOPPY**
+- Confidence: **0.745** (explicit `--qqq --vix 17.10 --breadth 0.50`
+  call) — clears the 0.40 NO-TRADE minimum; sixth consecutive CHOPPY
+  read (09-08, 09-09, 09-10, 09-11, 09-14, 09-15; market closed
+  09-12/09-13 weekend)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) also read **CHOPPY**, confidence 0.67 — same long-flagged `--qqq`-null-on-scan quirk, confidence gap only, no state divergence today
+- Trend (SPY/QQQ): -0.07 / -0.285 (explicit call; both negative) vs
+  -0.07 / null (scan's internal call, `trend_qqq` still never computed
+  there)
+- Volatility (20d): 0.1166 | VIX: 17.10 (explicit, Monday 09-14's close,
+  +7.95% day) — Cboe spot reading ~17.40 this morning, fourth straight
+  higher close, now clearly elevated off Friday 09-11's 15.84 | Breadth
+  (%>50dma): 0.50 (Perplexity-derived estimate; scan's internal call
+  separately computed 0.586 — no single authoritative published figure
+  sourced today)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  1.0, trend 1.0, breakout 1.0, mean_reversion 0.0, relative_strength
+  0.8} — the CHOPPY weight set, consistent between the explicit call and
+  `scan`'s internal call; immaterial to today's outcome anyway since
+  both scanned tickers (S 0.317, CENX -0.158) failed the 0.55 minimum
+- Note: FOMC meeting day 2 today — rate decision Wednesday 09-16 at
+  2:00pm ET, the week's central catalyst; CPI (09-11)/PPI (09-10)
+  already released and priced in. VIX's fourth straight higher close is
+  consistent with markets positioning defensively into the decision.
+  Oil remains elevated (~$101-108 WTI/Brent) on the ongoing Saudi/Iran
+  Hormuz-tension narrative. Separately (regime-independent): BAC, the
+  only open position, has a genuine adverse company-specific catalyst
+  overnight (CEO guidance on weaker Q3 IB/trading revenue) — see
+  `RESEARCH-LOG.md`'s 2026-09-15 entry for the full account and the
+  ClickUp alert sent for it.

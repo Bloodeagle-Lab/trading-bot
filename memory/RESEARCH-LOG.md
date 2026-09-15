@@ -2959,3 +2959,132 @@ clears the bar, and FOMC's Wednesday decision plus today's Hormuz talks
 argue for staying out rather than sizing into pre-decision uncertainty.
 Correct, expected outcome. 0/3 trades used this week (new week started
 2026-09-14 Monday) — cap not at risk.
+
+## 2026-09-15 — Pre-market Research
+
+### Account
+- Equity: $99,439.64 | Cash: $89,471.29 (90.0%) | Buying power: $385,796.53
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $58.98 (**-5.32% unrealized,
+  -$560.35**) — manual mechanism-test position, see 2026-08-24
+  `TRADE-LOG.md` entry. Trailing 10% GTC stop confirmed live (hwm $63.83,
+  stop $57.447, status "new") — current price sits ~2.6% above the stop.
+  `balance_asof` 2026-09-14, `last_equity` $99,521.72.
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **CHOPPY, confidence 0.745** (explicit `--qqq --vix 17.10
+  --breadth 0.50` call) — clears the 0.40 NO-TRADE minimum; sixth
+  consecutive CHOPPY session (09-08 through 09-15). See
+  `memory/REGIME-LOG.md`.
+- WTI ~$101-104, Brent ~$105-108, both still elevated near/above
+  $100/bbl — sources conflict on exact print but agree on direction;
+  ongoing Saudi/Iran Hormuz-tension narrative continues, no new
+  single-name energy catalyst surfaced today.
+- S&P 500 futures down ~0.3-0.5% premarket (~7,600-7,670 depending on
+  contract); Dow futures -0.6%, Nasdaq 100 futures -0.6% — broad
+  pre-FOMC risk-off tone. VIX jumped to **17.10 close (+7.95% Monday)**,
+  Cboe spot reading ~17.40 this morning — fourth straight higher close,
+  clearly elevated off Friday's 15.84.
+- Today's dominant catalyst: **FOMC meeting day 2 — rate decision
+  Wednesday 09-16 at 2:00pm ET** (meeting began yesterday 09-15). CPI
+  (09-11) and PPI (09-10) already released and priced in; no top-tier
+  macro print today. Other scheduled items: Empire State Manufacturing
+  Survey (8:30am), H.15 Selected Interest Rates (3:15pm).
+- Earnings before open today: FPS, VRA, BIOX, COE — all small/illiquid,
+  not evaluated as candidates. TCOM (Trip.com) reports after close today
+  — large-cap but not actionable pre-market.
+- Sector momentum YTD: Energy still the clear leader (+42-46%),
+  Technology next (+28-30%), Materials (+12-16%), Industrials, Health
+  Care, Consumer Staples all positive; Financials weakest/negative in
+  more recent snapshots — BAC's sector, unchanged laggard read, now
+  compounded by BAC's own company-specific bad news (below).
+- **Held-ticker news (BAC) — genuine thesis-relevant, not routine:** CEO
+  Brian Moynihan told investors Monday that Q3 investment banking fees
+  and trading revenue will be flat/weaker versus a strong Q2 (fees
+  expected down ≥10% in consulting and trading), triggering a **-5.14%
+  close Monday ($59.47) on heavy volume (~60.8M shares, 64% above
+  average)**, extending to ~$58.95-58.98 in pre-market. This is the
+  first genuine adverse catalyst on BAC since the 08-24 mechanism-test
+  entry — every prior session cited only routine/constructive
+  stablecoin-consortium news. Separately, the previously-flagged $2.0B
+  senior-note redemption executed today as scheduled (routine, not
+  thesis-relevant). Yesterday's EOD snapshot (recovered from
+  `main-e1dqa0`, see Persistence note below) already flagged this for a
+  "first-thing check tomorrow" — this is that check.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| S (SentinelOne) | 0.317 | — (no champion) | Wedbush Outperform initiation, $25 PT |
+| CENX (Century Aluminum) | -0.158 | — | Tariff-relief upgrade momentum continuing |
+
+### Trade Ideas
+None. Attempted `evaluate` on the top-scoring candidate (S):
+
+- **S** — not scored; `evaluate` raised `ValueError: no usable quote
+  (bid=21.32, ask=0.0)` — same recurring pre-market data-quality pattern
+  flagged repeatedly since 08-26. Not retried further; S's ensemble score
+  (0.317) was already below the 0.55 minimum, so a clean quote would
+  very likely have produced the same NO-TRADE outcome.
+- **CENX** — not run through `evaluate`; ensemble score (-0.158) more
+  negative than S, no need to spend a call confirming a weaker NO-TRADE.
+
+### NO-TRADE Candidates
+- **S** — quote errored before the NO-TRADE gate ran; ensemble score
+  0.317, below the 0.55 minimum regardless.
+- **CENX** — not run through `evaluate`; ensemble score -0.158, more
+  negative than S.
+
+### Risk Factors
+- **Sixth consecutive CHOPPY regime read** — confidence 0.745 (explicit
+  call), comfortably clear of 0.40. `scan`'s own internal call (no
+  `--vix`/`--breadth`, still no `--qqq`) diverged only on confidence
+  (0.67) with vix/breadth null — same long-flagged `--qqq`-null-on-scan
+  quirk; immaterial today since both S and CENX failed the 0.55 minimum
+  under either weight set.
+- **BAC thesis-relevant adverse news overnight** — CEO Moynihan flagged
+  weaker Q3 investment-banking fees and trading revenue, driving
+  Monday's -5.14% close and a further pre-market extension to -5.32%
+  unrealized ($58.98 vs $62.30 entry). Trailing 10% GTC stop live at
+  $57.447 (hwm $63.83) — current price is ~2.6% above the stop, not yet
+  at the -7% mandatory-cut threshold. Per `TRADING-STRATEGY.md`'s
+  sell-side rule ("thesis broken … → close, even if not yet at -7%"),
+  this is a live candidate for the market-open/midday sell-side
+  evaluation — flagged via ClickUp now per this routine's "thesis broke
+  overnight" trigger; the close/hold decision itself belongs to that
+  later pass, not this research-only routine.
+- FOMC decision tomorrow (Wed 09-16, 2:00pm ET) — the week's dominant
+  catalyst; no position sized around it today.
+- Oil still elevated (~$101-108 WTI/Brent) on the continuing Hormuz/
+  Saudi-Iran tension narrative — no new single-name energy catalyst
+  surfaced today.
+- Recurring quote-data-quality bug hit again (S `ask=0.0`) — same
+  pattern flagged repeatedly across the last four-plus weeks; didn't
+  change today's outcome (S's ensemble score was already below the 0.55
+  minimum), continues to support the weekly-review flag.
+- No champion ML model exists (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **Branch/persistence note:** this session's assigned branch
+  (`main-6t47yq`) arrived in sync with `origin/main` through
+  `pre-market 2026-09-14` (`eb4379a`), but found one unmerged stray
+  branch chain, `main-e1dqa0` (6 commits: market-open/EOD/weekly-review
+  2026-09-11 plus **EOD snapshot 2026-09-14**, itself already a merge of
+  two smaller stray branches `main-00nkit`/`main-3k3gm9` from the prior
+  session), fast-forward merged cleanly and pushed to `main-6t47yq`
+  before starting today's research — same recurring branch-assignment
+  issue flagged every week since 2026-08-20. Per this session's explicit
+  branch instructions, work stays on `main-6t47yq` (not `main`) pending
+  a human/session merge.
+
+### Decision
+**HOLD** — no order placed, none staged. S hit the recurring pre-market
+quote-data-quality bug before scoring could complete, but its ensemble
+score (0.317) was already below the 0.55 minimum; CENX scored negative
+(-0.158), weaker still. No verified single-name catalyst today clears
+the bar, and FOMC's Wednesday decision argues for staying out. BAC's
+overnight thesis-relevant news (CEO guidance, -5.32% unrealized) is
+flagged urgently for the market-open/midday sell-side pass but does not
+itself trigger a buy/sell action in this research-only routine. Correct,
+expected outcome. 0/3 trades used this week (started 2026-09-14 Monday)
+— cap not at risk.
