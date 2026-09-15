@@ -989,3 +989,44 @@ notification sent (STEP 5 conditioned on a placed trade).
 not close to the +15%/+20% tighten thresholds or the -7% cut level.
 Account equity $100,144.35, cash $89,471.29 (89.4%). 0/3 trades used
 this week (started 2026-09-08 Tuesday). Correct, expected HOLD.
+
+## 2026-09-15 — market-open: no PASS candidates, confirmed at the open; BAC thesis-flag noted, not yet at cut
+
+Today's pre-market research entry (`RESEARCH-LOG.md` 2026-09-15) was
+present on arrival — sixth consecutive CHOPPY-regime day (confidence
+0.745 explicit, clears the 0.40 minimum). Pre-market found **zero trade
+ideas**: S (SentinelOne, top-scoring candidate on a Wedbush initiation)
+errored on `evaluate` with the recurring quote-data-quality bug
+(bid=21.32, ask=0.0) before the NO-TRADE gate could run, but its
+ensemble score (0.317) was already below the 0.55 validated minimum
+regardless; CENX scored -0.158, weaker still, not run through
+`evaluate`. FOMC rate decision tomorrow (Wed 09-16, 2:00pm ET) is the
+week's dominant catalyst — correctly no position sized into that
+uncertainty.
+
+**STEP 2 re-validation:** since no candidate was staged as a trade idea
+pre-market (Trade Ideas: None), there is nothing to re-validate with a
+second fresh data pull — a PASS was never in play regardless of
+pre-market-to-open drift. No candidate reached PASS. Nothing to execute
+(STEP 3 empty), no notification sent (STEP 5 conditioned on a placed
+trade).
+
+**Verified live against Alpaca (`quant_cli.py positions`):** BAC 169 sh
+@ $62.30 avg entry, current $59.35 (-4.735% unrealized, -$498.55), live
+10% trailing GTC stop confirmed (hwm $63.83, stop $57.447, status
+"new") — current price sits ~2.9% above the stop, not at the -7%
+mandatory-cut threshold. **Thesis-relevant note (not acted on here):**
+today's pre-market research flagged CEO Moynihan's Q3 investment-banking/
+trading-revenue guidance cut (Monday's -5.14% close on 64%-above-average
+volume) as the first genuine adverse catalyst on this position since the
+08-24 mechanism-test entry, and explicitly routes the close/hold
+decision to the market-open/midday sell-side pass per
+`TRADING-STRATEGY.md`'s "thesis broken → close, even if not yet at -7%"
+rule. Per `CLAUDE.md`'s division of labor (`market-open` = buy-side
+execution only; sell-side rules are "evaluated at midday and
+opportunistically" per `TRADING-STRATEGY.md`), that thesis-break
+determination is left to today's `midday` routine, not decided here —
+recorded so `midday` has this session's confirmation that BAC has not
+yet breached -7% as of the open. Account equity $99,501.44, cash
+$89,471.29 (89.9%). 0/3 trades used this week (started 2026-09-14
+Monday). Correct, expected HOLD.
