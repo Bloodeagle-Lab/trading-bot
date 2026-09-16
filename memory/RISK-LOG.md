@@ -38,6 +38,20 @@ No entries yet. Populated automatically (reconciliation) and by
 ### Reconciliation — 2026-08-20 12:12:02
 No drift — local state matched broker.
 
+## 2026-09-15 12:xx — midday: BAC watch, close to -7% hard cap
+
+`quant_cli.py stops-check` returned `hold` for BAC (unrealized -5.4%,
+current $58.93 vs. $62.30 entry, no rule triggered — -7% cap not hit).
+Sharp two-session decline (~$62.5 → $58.93) driven by CEO Moynihan's
+weak Q3 guidance (IB fees -10 to -20% YoY, flat trading revenue) at the
+09-14 Barclays conference, dragging the bank sector broadly lower — see
+`memory/RESEARCH-LOG.md`'s 2026-09-15 midday addendum for sourcing. Not
+closed: no thesis to break (manual mechanism-test position, no
+catalyst-driven thesis per 2026-08-24's resolution) and the -7% hard cap
+is a mechanical threshold this routine does not pre-empt with its own
+judgment. 10% trailing GTC stop remains live. Watch item for tomorrow's
+`midday`/`daily-summary` — 1.6 points from the hard cut.
+
 ## 2026-08-20 — SYSTEMIC: cloud routine persistence blocked
 
 The first cloud `pre-market` routine run completed its full decision

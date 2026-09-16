@@ -3088,3 +3088,26 @@ flagged urgently for the market-open/midday sell-side pass but does not
 itself trigger a buy/sell action in this research-only routine. Correct,
 expected outcome. 0/3 trades used this week (started 2026-09-14 Monday)
 — cap not at risk.
+
+### 2026-09-15 — Midday Addendum
+
+- **BAC moved sharply** — current $58.93 vs. yesterday's ~$62.54-62.72,
+  unrealized -5.4% (`quant_cli.py stops-check`: action `hold`, "unrealized
+  -5.4%, no rule triggered" — -7% hard cap not yet hit, correctly not
+  overridden). Researched via `scripts/perplexity.sh`: CEO Brian Moynihan,
+  speaking at the Barclays Global Financial Services Conference on 09-14,
+  guided Q3 investment-banking fees down 10-20% YoY ($1.6-1.8B) and Q3
+  sales/trading revenue flat YoY — company-specific negative guidance that
+  dragged the broader bank sector lower alongside it. Real, verifiable
+  cause, not an unexplained move. See
+  https://www.barrons.com/articles/bank-of-america-ceo-stock-selloff-d260ee22
+  and https://www.investing.com/news/stock-market-news/why-is-bank-of-america-stock-sliding-today-93CH-4900189.
+- BAC remains the manual-mechanism-test position with no catalyst-driven
+  thesis to break (per the 2026-08-24 `TRADE-LOG.md` resolution) — this
+  routine does not treat a guidance-driven sector selloff as a discretionary
+  "thesis broken" close on a position that never had a thesis; the -7%
+  hard cap and the live 10% trailing GTC stop are the mechanical rules that
+  govern it, and neither fired. Not overridden, per `CLAUDE.md`'s rule
+  against second-guessing a deterministic `hold`. Flagged in
+  `memory/RISK-LOG.md` as a watch item — this position is 1.6 points from
+  the -7% hard cut.
