@@ -3111,3 +3111,136 @@ expected outcome. 0/3 trades used this week (started 2026-09-14 Monday)
   against second-guessing a deterministic `hold`. Flagged in
   `memory/RISK-LOG.md` as a watch item — this position is 1.6 points from
   the -7% hard cut.
+
+## 2026-09-16 — Pre-market Research
+
+### Account
+- Equity: $99,548.76 | Cash: $89,471.29 (89.9%) | Buying power: $386,102.08
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: BAC 169 @ $62.30, current $59.63 (-4.286% unrealized,
+  -$451.23) — manual mechanism-test position, see 2026-08-24
+  `TRADE-LOG.md` entry. Trailing 10% GTC stop confirmed live (hwm $63.83,
+  stop $57.447, status "new") — current price sits ~3.66% above the
+  stop. `balance_asof` 2026-09-15, `last_equity` $99,530.17.
+- Open orders: 1 (the BAC protective trailing stop above)
+
+### Market Context
+- Regime: **CHOPPY, confidence 0.745** (explicit `--qqq --vix 17.2
+  --breadth 0.55` call) — clears the 0.40 NO-TRADE minimum; seventh
+  consecutive CHOPPY session (09-08 through 09-16, excluding the 09-12/
+  09-13 weekend). See `memory/REGIME-LOG.md`.
+- WTI ~$102-106, Brent ~$106-109 — sources scatter across a wide range
+  but agree oil remains firmly elevated near/above $105; ongoing Saudi/
+  Iran Hormuz-tension narrative, no new single incremental catalyst
+  overnight.
+- S&P 500 futures roughly flat to slightly positive premarket (+0.1-0.2%,
+  ~7,660-7,673 depending on source/contract); Nasdaq 100 futures +0.4%,
+  Dow futures +0.1%. VIX ~17.0-17.5 (sources: Cboe 16.90, MarketWatch
+  17.05, Yahoo 17.51, CNBC 17.58) — roughly flat to yesterday's 17.10-17.20
+  close, first session this week without a clear further VIX increase.
+- Today's dominant catalyst: **FOMC rate decision at 2:00pm ET** (meeting
+  day 2, began 09-15) — markets pricing roughly a 50-50 chance of a rate
+  *hike* (the notable/unusual framing this cycle, not a cut), which
+  would mark the start of a new hiking cycle if it happens; Powell press
+  conference and updated economic projections follow at 2:30pm ET. Other
+  scheduled items: Advance Retail Sales / Core Retail Sales (8:30am ET),
+  Crude Oil Inventories (10:30am ET). No CPI/PPI/jobs data today — those
+  already released earlier this month.
+- Earnings before open today: LUXE, ISPR — both small/illiquid, not
+  evaluated as candidates. Lennar (LEN) earnings and an ON Semiconductor
+  (ON) analyst day are on today's calendar — both pulled into the
+  candidate scan below given LEN's near-term earnings catalyst and ON's
+  analyst-day event, though neither ultimately scored well.
+- Economic calendar: no top-tier inflation/jobs print today — FOMC
+  decision is the week's (and today's) central event, as it has been all
+  week.
+- Sector momentum YTD: Energy still the clear leader (+47.5%), Technology
+  next (+27.6%), Materials (+11.9%); Consumer Discretionary weakest
+  (-7.1%), followed by Utilities (-3.2%) and Communication Services
+  (-3.1%) — 8 of 11 sectors positive YTD. Financials (BAC's sector) not
+  quoted in today's specific breakdown but has read as a laggard in prior
+  sessions.
+- Held-ticker news (BAC): no new adverse catalyst overnight — same CEO
+  Moynihan Q3 investment-banking/trading-fee guidance-cut story already
+  logged 09-15, still the operative explanation for the drawdown. Mildly
+  positive counter-items in today's flow: a **+14% dividend increase**
+  ($0.32/share quarterly, payable 09-25) and continued buybacks under the
+  $40B authorization — neither changes the mechanical stop/cut rules.
+  Price ~$59.5-59.8, -4.286% unrealized, well clear of the -7% hard cut;
+  not urgent.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| STM | 0.131 | — (no champion) | Positive industry-outlook premarket mover |
+| TEM | 0.031 | — | Piper Sandler upgrade to Overweight, PT raised |
+| ON | 0.030 | — | Analyst day today |
+| DVN | -0.024 | — | Oil-price/energy-theme premarket mover |
+| LEN | -0.136 | — | Earnings today |
+
+### Trade Ideas
+None. Ran the full pipeline on the top 3 scorers (STM, TEM, ON) — all
+NO-TRADE:
+
+- **STM** — ensemble 0.131 (well below 0.55 minimum); sleeve
+  disagreement (momentum -0.53 vs mean-reversion +0.70); setup quality 55
+  below the 60 minimum; spread 24.65% far outside the 6% paper-mode limit.
+- **TEM** — ensemble 0.031; same sleeve-disagreement pattern (momentum
+  -0.75 vs mean-reversion +0.70); setup quality 55 below minimum; spread
+  9.14% outside the 6% limit.
+- **ON** — ensemble 0.030; setup quality 53 below minimum; spread 8.83%
+  outside the 6% limit.
+
+DVN (-0.024) and LEN (-0.136) scored negative — weaker than all three
+`evaluate`d tickers, no need to spend a call confirming a weaker
+NO-TRADE.
+
+### NO-TRADE Candidates
+- **STM** — ensemble 0.131, sleeve disagreement, setup quality 55 < 60,
+  spread 24.65% too wide.
+- **TEM** — ensemble 0.031, sleeve disagreement, setup quality 55 < 60,
+  spread 9.14% too wide.
+- **ON** — ensemble 0.030, setup quality 53 < 60, spread 8.83% too wide.
+- **DVN** — not run through `evaluate`; ensemble -0.024.
+- **LEN** — not run through `evaluate`; ensemble -0.136, weakest scorer.
+
+### Risk Factors
+- **Seventh consecutive CHOPPY regime read** — confidence 0.745
+  (explicit call), comfortably clear of 0.40. `scan`'s own internal call
+  (no `--vix`/`--breadth`, still no `--qqq`) again diverged only on
+  confidence (0.67, still CHOPPY) — same long-flagged `--qqq`-null-on-scan
+  quirk; immaterial today since all three evaluated tickers failed the
+  0.55 minimum under either weight set.
+- **FOMC rate decision today, 2:00pm ET** — the week's central catalyst,
+  with markets pricing a genuine 50-50 hike/hold split (an unusually live
+  binary outcome); no position sized around it today given CHOPPY regime
+  and no candidate clearing the ensemble bar. Volatility risk into and
+  after the 2:00pm/2:30pm announcements.
+- **Oil still elevated** (~$102-109 WTI/Brent) on the ongoing Hormuz/
+  Saudi-Iran tension narrative — Energy sector momentum leader YTD
+  (+47.5%) but no single-name energy candidate (DVN) cleared the ensemble
+  bar today.
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **BAC -4.286% unrealized** (guidance-cut selloff, now day 2) — improved
+  slightly from yesterday's EOD (-4.10% close, -5.32% intraday
+  pre-market peak); trailing 10% GTC stop live at $57.447, ~3.66% below
+  current price; no new adverse catalyst overnight, dividend increase and
+  buybacks are mild positives; not near the -7% hard cut, not urgent.
+- **Wide spread readings on STM/TEM/ON** (24.65%/9.14%/8.83%) — consistent
+  with the recurring pre-market quote-data-quality pattern flagged since
+  08-26, though today it manifested as a wide-but-nonzero spread rather
+  than the usual `ask=0.0` error; didn't change any outcome since all
+  three failed the ensemble minimum regardless.
+
+### Decision
+**HOLD** — no order placed, none staged. STM/TEM/ON all scored well below
+the 0.55 ensemble minimum with sleeve disagreement and/or setup-quality
+and spread failures; DVN and LEN scored weaker still and weren't run
+through `evaluate`. No verified single-name catalyst today clears the
+bar, and today's FOMC rate decision (a genuine 50-50 hike/hold outcome)
+argues strongly for staying out rather than sizing into the announcement.
+BAC's guidance-cut drawdown (-4.286% unrealized) remains well clear of
+the -7% hard cut and has no new overnight development requiring an
+urgent alert. Correct, expected outcome. 0/3 trades used this week
+(started 2026-09-14 Monday) — cap not at risk.

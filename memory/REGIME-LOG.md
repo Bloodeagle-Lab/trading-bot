@@ -644,3 +644,38 @@ on STRONG_TREND)
   overnight (CEO guidance on weaker Q3 IB/trading revenue) — see
   `RESEARCH-LOG.md`'s 2026-09-15 entry for the full account and the
   ClickUp alert sent for it.
+
+## 2026-09-16
+
+- State: **CHOPPY**
+- Confidence: **0.745** (explicit `--qqq --vix 17.2 --breadth 0.55`
+  call) — clears the 0.40 NO-TRADE minimum; seventh consecutive CHOPPY
+  read (09-08, 09-09, 09-10, 09-11, 09-14, 09-15, 09-16; market closed
+  09-12/09-13 weekend)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.0} (explicit call); `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) also read **CHOPPY**, confidence 0.67 — same long-flagged `--qqq`-null-on-scan quirk, confidence gap only, no state divergence today
+- Trend (SPY/QQQ): -0.05 / -0.257 (explicit call; both negative) vs
+  -0.05 / null (scan's internal call, `trend_qqq` still never computed
+  there)
+- Volatility (20d): 0.1132 | VIX: 17.2 (explicit, Perplexity-sourced
+  midpoint of a 16.90-17.58 range) — roughly flat vs yesterday's
+  17.10-17.20 close, first session this week without a further increase
+  | Breadth (%>50dma): 0.55 (Perplexity-derived estimate; scan's internal
+  call separately computed 0.586 — no single authoritative published
+  figure sourced today)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  0.2, trend 0.2, breakout 0.3, mean_reversion 1.0, relative_strength
+  0.5} — the CHOPPY weight set, consistent between the explicit call and
+  `scan`'s internal call; immaterial to today's outcome anyway since all
+  three evaluated tickers (STM 0.131, TEM 0.031, ON 0.030) failed the
+  0.55 minimum
+- Note: **FOMC rate decision today, 2:00pm ET** (meeting day 2, began
+  09-15) — markets pricing roughly a 50-50 hike/hold split, an unusually
+  live binary outcome (a hike would mark a new hiking cycle); Powell
+  press conference and updated projections follow at 2:30pm ET. No CPI/
+  PPI/jobs data today. VIX roughly flat rather than continuing its prior
+  four-session climb, consistent with markets having largely
+  pre-positioned ahead of the decision. Oil remains elevated (~$102-109
+  WTI/Brent) on the ongoing Saudi/Iran Hormuz-tension narrative. BAC (the
+  only open position) has no new adverse catalyst overnight — same
+  guidance-cut story as 09-15, -4.286% unrealized, well clear of the -7%
+  hard cut — see `RESEARCH-LOG.md`'s 2026-09-16 entry.
