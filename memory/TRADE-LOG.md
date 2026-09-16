@@ -699,3 +699,59 @@ market-open, chaining 09-14's EOD), plus two branches cut from the stale
 its now-inaccurate "continuity gap" note in the process — same recurring
 branch-assignment issue flagged every week since 2026-08-20, this time
 spanning five sessions' worth of unmerged work.
+
+### 2026-09-16 — SELL BAC
+
+- Shares: 169 @ $57.64 (sell order id: 5fc10166-c7fb-4b96-ab7a-083680ee5b5e)
+- Realized P&L: -$787.54 (-7.48%, -2.63R vs. the $300 risk budget sized at entry)
+- Reason: -7% hard stop hit — `quant_cli.py stops-check` returned
+  `close` ("unrealized -7.5% <= hard loss cut -7%"); executed via
+  `quant_cli.py close BAC`, which also cancelled the original 10%
+  trailing GTC stop (order id `85214135-e5a1-4df2-abc4-1cd4cd946e68`,
+  unfilled, hwm $63.83, trail stop $57.447 — the hard -7% cut fired
+  first). **No `market-open`/`midday` run landed on any branch for
+  2026-09-16** (only `pre-market` did — see `REGIME-LOG.md`/
+  `RESEARCH-LOG.md`), so the sell-side `stops-check` pipeline that
+  would normally catch this at midday never ran today; this
+  `daily-summary` session ran `stops-check`/`close` itself on
+  discovering the breach via `positions` (-7.46% unrealized) rather
+  than let a known "no exceptions" hard-rule breach go unactioned
+  overnight, per `memory/TRADING-STRATEGY.md`'s sell-side rules. This
+  was the manual-mechanism-test position from 2026-08-24 (never a
+  scored strategy signal); closing it returns the account to 100% cash,
+  zero open positions.
+
+### 2026-09-16 — EOD Snapshot (Day 27, Wednesday)
+
+**Portfolio:** $99,212.45 | **Cash:** $99,212.45 (100%) | **Day P&L:** -$353.21 (-0.35%) | **Phase P&L:** -$787.55 (-0.79%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| (none) | | | | | | |
+
+**Notes:** One trade today — SELL BAC, closed at $57.64 for a realized
+loss of -$787.54 (-7.48%) after `quant_cli.py positions` showed it at
+-7.46% unrealized, past the -7% hard-cut line; `stops-check` confirmed
+`close` and `quant_cli.py close BAC` executed it, cancelling the live
+10% trailing stop in the process (see entry above for the full
+rationale, including today's missing `market-open`/`midday` runs). The
+account is now 100% cash, zero open positions, zero flags
+(`quant_cli.py positions` `flags` empty). Day P&L computed against the
+2026-09-15 EOD snapshot ($99,565.66); phase P&L against the Day 0 real
+baseline ($100,000.00) — essentially all of it (-$787.55) is this one
+realized loss, since every prior day's phase P&L was BAC's unrealized
+swing. Seventh consecutive CHOPPY regime day (confidence 0.745, per
+`REGIME-LOG.md`'s 09-16 pre-market entry), FOMC rate decision at 2pm ET
+today was the session's dominant catalyst — no new position sized
+around it. 0/3 new trades used this week (started 2026-09-14 Monday) —
+this sell doesn't count against the cap, which gates buys only.
+Tomorrow: account is flat; resume normal regime/scan/evaluate at
+pre-market, and flag for weekly-review that midday coverage was missed
+today (stray-branch/scheduling issue, same recurring infrastructure
+problem tracked in `RISK-LOG.md`). **Branch note:** this session's
+designated branch is `main-nhrdf4`, which does not yet exist on
+`origin` (no stray branches found for 2026-09-16 beyond today's
+pre-market, already merged into `main` at `45e7587`) — this commit is
+pushed to `main-nhrdf4`, not `main`, per branch assignment; still needs
+a human/session merge, same recurring issue logged every week since
+2026-08-20.
