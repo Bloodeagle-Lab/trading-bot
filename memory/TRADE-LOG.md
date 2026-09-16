@@ -661,3 +661,41 @@ Day P&L is against the real prior close rather than stale 2026-09-10.
 Per branch assignment, this commit is pushed to `main-e1dqa0`, not
 `main` — still needs a human/session merge, same recurring
 infrastructure issue logged every week since 2026-08-20.
+
+### 2026-09-15 — EOD Snapshot (Day 26, Tuesday)
+
+**Portfolio:** $99,565.66 | **Cash:** $89,471.29 (89.9%) | **Day P&L:** $109.00 (+0.11%) | **Phase P&L:** -$434.34 (-0.43%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| BAC | 169 | $62.30 | $59.73 | -4.10% | -$434.33 | trailing 10% |
+
+**Notes:** No trades today; BAC (manual mechanism-test position from
+2026-08-24) remains the only open position, live 10% trailing GTC stop
+confirmed (`quant_cli.py positions` `flags` empty, no missing-stop
+issue). BAC closed -4.10% unrealized, an improvement from pre-market's
+-5.32% (CEO Moynihan's Q3 IB-fee/trading-revenue guidance selloff,
+flagged in `RESEARCH-LOG.md`'s 2026-09-15 entries) but still its
+second-worst close since entry; not close to the -7% hard-cut line, no
+manual action taken. Day P&L computed against the actual 2026-09-14 EOD
+snapshot ($99,456.66, recovered above in this same reconciliation) rather
+than the stale 2026-09-10 figure a stray branch (`main-buozje`) had used
+before that chain was visible to it — see this session's persistence
+note below. Phase P&L against the Day 0 real baseline ($100,000.00).
+Fifth->sixth consecutive CHOPPY regime day (confidence 0.745, clear of
+the 0.40 minimum); S/CENX both NO-TRADE, well below the 0.55 minimum
+(see `RESEARCH-LOG.md`). FOMC rate decision tomorrow (09-16, 2:00pm ET)
+— week's central catalyst, nothing sized around it. 0/3 trades used this
+week (started 2026-09-14 Monday) — cap not at risk. **Persistence/branch
+note:** this session recovered a multi-branch tangle spanning 2026-09-11
+through 2026-09-15 — `main-suzcwe`/`main-00nkit`/`main-3k3gm9` (09-11
+market-open/EOD/weekly-review), `main-e1dqa0` (09-14 EOD, itself already
+chaining the 09-11 set), `main-6t47yq`/`main-3fxmw7` (09-15 pre-market/
+market-open, chaining 09-14's EOD), plus two branches cut from the stale
+`eb4379a` snapshot that never saw any of the above — `main-rdrv1v`
+(09-15 midday) and `main-buozje` (this EOD entry). Reconciled by taking
+`main-3fxmw7` as the superset base and merging `main-rdrv1v` then
+`main-buozje` on top, correcting `main-buozje`'s Day P&L baseline and
+its now-inaccurate "continuity gap" note in the process — same recurring
+branch-assignment issue flagged every week since 2026-08-20, this time
+spanning five sessions' worth of unmerged work.
