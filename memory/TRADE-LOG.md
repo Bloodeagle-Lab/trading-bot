@@ -755,3 +755,40 @@ pre-market, already merged into `main` at `45e7587`) — this commit is
 pushed to `main-nhrdf4`, not `main`, per branch assignment; still needs
 a human/session merge, same recurring issue logged every week since
 2026-08-20.
+
+### 2026-09-17 — EOD Snapshot (Day 28, Thursday)
+
+**Portfolio:** $99,212.45 | **Cash:** $99,212.45 (100%) | **Day P&L:** $0.00 (0.00%) | **Phase P&L:** -$787.55 (-0.79%)
+
+| Ticker | Shares | Entry | Close | Day Chg | Unrealized P&L | Stop |
+|---|---|---|---|---|---|---|
+| (none) | | | | | | |
+
+**Notes:** No trades today; account remains flat (100% cash, zero open
+positions, zero flags — `quant_cli.py positions` `flags` empty)
+following yesterday's -7% hard-stop close of BAC. Pre-market scanned
+QCOM (0.118), BE (0.031), GNRC (0.003), MARA (0.003), IREN (-0.001) —
+all far below the 0.55 ensemble minimum, correct HOLD; market-open
+confirmed no PASS candidates at the open. Eighth consecutive CHOPPY
+regime day, confidence softening to 0.535 (lowest of the streak,
+TRANSITION a close second at 0.6) — worth watching, not yet a state
+flip. Day P&L computed against the 2026-09-16 EOD snapshot ($99,212.45,
+recovered from stray branch `main-nhrdf4`/`main-f6twxw`/`main-k69a0u` —
+see those entries and `RISK-LOG.md`'s 09-17 market-open note); phase
+P&L against the Day 0 real baseline ($100,000.00), unchanged from
+yesterday since there was no fill today. 0/3 trades used this week
+(started 2026-09-14 Monday) — cap not at risk. No `midday` run landed
+on any branch today (same recurring stray-branch/scheduling gap as
+09-16); with the account flat and zero flags, there was nothing a
+midday pass would have needed to act on, but flag for weekly-review
+alongside 09-16's missed coverage. Tomorrow: resume normal
+regime/scan/evaluate at pre-market; no open positions to monitor.
+**Branch note:** this session's designated branch is `main-pdsp6r`;
+found the full 09-16/09-17 history unmerged on stray branch
+`main-k69a0u` (itself chaining `main-f6twxw`/`main-nhrdf4`) — fast-
+forward merged into `main-pdsp6r` before this snapshot so today's Day
+P&L is against the real prior close rather than stale 2026-09-15
+($99,565.66). Per branch assignment, this commit is pushed to
+`main-pdsp6r`, not `main`, per branch assignment; still needs a
+human/session merge, same recurring issue logged every week since
+2026-08-20.
