@@ -679,3 +679,40 @@ on STRONG_TREND)
   only open position) has no new adverse catalyst overnight — same
   guidance-cut story as 09-15, -4.286% unrealized, well clear of the -7%
   hard cut — see `RESEARCH-LOG.md`'s 2026-09-16 entry.
+
+## 2026-09-17
+
+- State: **CHOPPY**
+- Confidence: **0.535** (explicit `--qqq --vix 15.96 --breadth 0.80`
+  call) — clears the 0.40 NO-TRADE minimum, but the lowest confidence of
+  this entire CHOPPY streak (prior readings held at 0.745); eighth
+  consecutive CHOPPY read (09-08, 09-09, 09-10, 09-11, 09-14, 09-15,
+  09-16, 09-17; market closed 09-12/09-13 weekend)
+- Scores: {STRONG_TREND: 0.0, CHOPPY: 0.7, HIGH_VOL: 0.0, RISK_OFF: 0.0, TRANSITION: 0.6} (explicit call) — TRANSITION scoring a close second to CHOPPY is new today, the first real softening signal in this streak; `scan`'s own internal call (no `--vix`/`--breadth`, still no `--qqq`) also read **CHOPPY**, confidence 0.67 — same long-flagged `--qqq`-null-on-scan quirk, confidence gap only, no state divergence today
+- Trend (SPY/QQQ): -0.055 / -0.285 (explicit call; both negative) vs
+  -0.055 / null (scan's internal call, `trend_qqq` still never computed
+  there)
+- Volatility (20d): 0.097 | VIX: 15.96 (explicit, Cboe spot 7:34am ET) —
+  a sharp cool-off from yesterday's 17.71 close, a post-FOMC vol crush
+  rather than continued stress | Breadth (%>50dma): 0.80
+  (Perplexity-sourced, "400 of 500 S&P 500 constituents above their
+  50-day" — a competing Investing.com index-level reading of 30.81 was
+  not a usable percentage and discarded; scan's internal call separately
+  computed 0.586 — the usual no-single-authoritative-figure gap)
+- Sleeve weights applied in today's `scan`/`evaluate` calls: {momentum
+  0.2, trend 0.2, breakout 0.3, mean_reversion 1.0, relative_strength
+  0.5} — the CHOPPY weight set, consistent between the explicit call and
+  `scan`'s internal call; immaterial to today's outcome since all five
+  scanned tickers (QCOM 0.118, BE 0.031, GNRC 0.003, MARA 0.003, IREN
+  -0.001) failed the 0.55 minimum
+- Note: **FOMC hiked 25bp yesterday (09-16)** to 3.75-4.00% (12-0 vote)
+  — a hawkish surprise that signaled further hikes ahead; equities
+  closed red digesting it. VIX has since crushed lower rather than
+  extending higher, an unusual combination for a hawkish surprise, worth
+  watching rather than treating as confirmed risk-off. Oil rolling over
+  today (WTI/Brent both down 1-4%) on Saudi pipeline-restoration news —
+  first crack in the weeks-long Hormuz-tension premium. Account is flat
+  (100% cash) — BAC, the only open position, was closed yesterday at the
+  -7% hard stop (see `TRADE-LOG.md`'s 2026-09-16 entries, recovered this
+  session from stray branch `main-nhrdf4`) — see `RESEARCH-LOG.md`'s
+  2026-09-17 entry.

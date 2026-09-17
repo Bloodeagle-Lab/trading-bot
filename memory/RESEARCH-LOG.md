@@ -3244,3 +3244,158 @@ BAC's guidance-cut drawdown (-4.286% unrealized) remains well clear of
 the -7% hard cut and has no new overnight development requiring an
 urgent alert. Correct, expected outcome. 0/3 trades used this week
 (started 2026-09-14 Monday) — cap not at risk.
+
+## 2026-09-17 — Pre-market Research
+
+### Account
+- Equity: $99,212.45 | Cash: $99,212.45 (100%) | Buying power: $396,849.80
+  | Daytrade count: not returned by endpoint, assumed 0/4
+- Positions: **none — flat, 100% cash.** BAC (the manual mechanism-test
+  position from 2026-08-24) was closed yesterday at the -7% hard stop
+  (sold 169 sh @ $57.64, realized -$787.54/-7.48%) — see `TRADE-LOG.md`'s
+  2026-09-16 "SELL BAC" and EOD entries, recovered this session from
+  unmerged stray branch `main-nhrdf4` (see Persistence note below).
+- Open orders: none (the BAC trailing stop was cancelled when the -7%
+  hard cut fired ahead of it).
+
+### Market Context
+- Regime: **CHOPPY, confidence 0.535** (explicit `--qqq --vix 15.96
+  --breadth 0.80` call) — clears the 0.40 NO-TRADE minimum but is the
+  lowest confidence reading of this entire CHOPPY streak (prior readings
+  0.745); eighth consecutive CHOPPY session (09-08 through 09-17,
+  excluding 09-12/09-13 weekend), though TRANSITION scored a
+  meaningfully close second (0.6) today — a genuine softening signal
+  worth flagging for `REGIME-LOG.md`, not just the usual `--qqq`-null
+  scan-vs-explicit gap. See `memory/REGIME-LOG.md`.
+- **FOMC hiked 25bp yesterday (09-16)** to 3.75-4.00%, 12-0 vote — a
+  hawkish surprise (markets had been pricing a genuine 50-50 hike/hold)
+  that signaled another hike within the year; equities closed red
+  09-16 digesting it. VIX has since cooled sharply to **~15.96** this
+  morning (Cboe spot, 7:34am ET) from yesterday's 17.71 close — a
+  post-event vol crush rather than continued stress.
+- WTI ~$101-103, Brent ~$104-106 — both down 1-4% from yesterday on
+  reports Saudi Arabia will restore roughly half its East-West pipeline
+  capacity within days (full restoration in six weeks) — first real
+  incremental bearish oil catalyst after weeks of Hormuz/Saudi-Iran
+  tension keeping prices elevated.
+- S&P 500 futures mixed/scattered across sources (roughly flat to +0.3%,
+  ~7,660-7,680 depending on feed/timestamp) — no clean premarket
+  direction. 10-year Treasury yield is today's dominant cross-asset
+  driver per multiple sources, with commentary split on whether it
+  keeps backing up post-hike or pulls back.
+- Today's dominant catalysts: post-Fed hawkish digestion; **12:30pm ET
+  macro batch** — Initial Jobless Claims and Housing Starts/Building
+  Permits (both 8:30am ET per one source, 12:30pm UTC per another —
+  treated as the 8:30am ET pre-market print); Philadelphia Fed
+  Manufacturing Index. No CPI/PPI/jobs-report-proper today (August CPI
+  already released 09-11; next PPI not until 10-15).
+- Earnings before open today: IPHA, IH, VFS, DAVA, KNDI — all
+  small/foreign-listed, not evaluated as candidates.
+- Sector-specific catalysts pulled into today's scan: **GNRC/BE**
+  (Amazon $8B data-center power deal, announced/reported overnight),
+  **QCOM** (continued read-through from Amazon's up-to-$60B AWS-Qualcomm
+  AI-chip collaboration, originally announced 09-08), **IREN/MARA**
+  (crypto-linked, high-beta Bitcoin proxies, JPMorgan upgrade
+  read-through on IREN). None of these are same-day fresh catalysts —
+  all are multi-day-old news still being cited as "in focus," a caveat
+  carried into the scan results below.
+- Economic calendar: no top-tier inflation/jobs print today, per above —
+  Initial Jobless Claims and Housing Starts are the session's scheduled
+  data, not high-impact enough alone to be a trade catalyst.
+- Sector momentum YTD: Energy still the clear leader (+42-43%),
+  Technology next (+27.8%), Materials third (+11.0%); Consumer
+  Discretionary weakest (-7.7%), Communication Services and Utilities
+  also negative — broadly consistent with prior sessions' readings.
+- Held-ticker news: N/A — no open positions today.
+
+### Candidate Scan (scripts/quant_cli.py scan)
+| Ticker | Ensemble | ML Prob | Notes |
+|---|---|---|---|
+| QCOM | 0.118 | — (no champion) | AI-chip deal read-through (stale, 09-08 news) |
+| BE | 0.031 | — | Amazon data-center power deal read-through |
+| GNRC | 0.003 | — | Amazon $8B data-center power deal |
+| MARA | 0.003 | — | Bitcoin/crypto proxy |
+| IREN | -0.001 | — | Bitcoin proxy, JPMorgan upgrade read-through |
+
+All five scored far below the 0.55 minimum, each showing sharply
+negative momentum/relative-strength (20d returns -13.7% to -39.3%) —
+the "AI/data-center/crypto in focus" headlines are describing names that
+have actually been selling off hard, not rallying; today's catalyst
+framing does not match the price action.
+
+### Trade Ideas
+None. Ran the full pipeline on the top scorer (QCOM) plus BE and GNRC:
+
+- **QCOM** — ensemble 0.118 (well below 0.55 minimum); sleeve
+  disagreement (momentum -0.58, relative-strength -0.59 vs
+  mean-reversion +0.68); spread 10.10%, outside the 6% paper-mode limit.
+- **BE** — hit the recurring quote-data-quality bug (bid=254.82,
+  ask=0.0) before `evaluate` could score it; ensemble 0.031 already well
+  below the 0.55 minimum regardless, no need to force the call through.
+- **GNRC** — same quote-data-quality bug (bid=165.23, ask=0.0); ensemble
+  0.003, weakest of the three, no need to force the call through.
+
+MARA (0.003) and IREN (-0.001) scored weaker still — not run through
+`evaluate`.
+
+### NO-TRADE Candidates
+- **QCOM** — ensemble 0.118, sleeve disagreement, spread 10.10% too wide.
+- **BE** — ensemble 0.031, quote-data-quality error (ask=0.0).
+- **GNRC** — ensemble 0.003, quote-data-quality error (ask=0.0).
+- **MARA** — not run through `evaluate`; ensemble 0.003.
+- **IREN** — not run through `evaluate`; ensemble -0.001, weakest scorer.
+
+### Risk Factors
+- **Eighth consecutive CHOPPY regime read, but lowest confidence of the
+  streak** (0.535 vs the prior 0.745 plateau) — TRANSITION scored a
+  close second (0.6 vs CHOPPY's 0.7), the first real softening signal
+  in this regime read since 09-08; still clears the 0.40 NO-TRADE
+  minimum today, but worth watching at `midday`/`market-open` for a
+  possible state flip. `scan`'s own internal call (no `--vix`/
+  `--breadth`, still no `--qqq`) read a higher confidence (0.67) on the
+  same CHOPPY-vs-TRANSITION split — same long-flagged `--qqq`-null-on-
+  scan quirk, immaterial to today's outcome since all five candidates
+  failed the 0.55 minimum regardless.
+- **Post-FOMC-hike digestion** — a hawkish 25bp hike (3.75-4.00%, 12-0),
+  signaling more hikes ahead, with equities closing red yesterday; VIX
+  has since crushed lower (~15.96, from 17.71) rather than staying
+  elevated, a somewhat unusual combination worth noting but not acted
+  on — no candidate cleared the ensemble bar regardless.
+- **Oil rolling over** on the Saudi pipeline-restoration news
+  (WTI/Brent both down 1-4%) — the first real crack in the Hormuz-
+  tension premium that has held oil elevated for weeks; Energy remains
+  YTD sector leader but no single-name energy candidate was scanned
+  today (none carried a same-day catalyst).
+- **No champion ML model exists** (`models/champion/` empty) — every
+  candidate still fails the ML-evidence gate regardless of setup.
+- **Account is flat** — first session with zero open positions since
+  the 08-24 BAC mechanism-test entry; 0/3 trades used this week (week
+  started 09-14 Monday), full capacity available, but the -7% hard-cut
+  loss on BAC and today's weak, sold-off candidate set both argue for
+  continued patience rather than forcing a fill.
+- **Stale/multi-day-old catalyst framing** on all five scanned tickers
+  (GNRC/BE/QCOM/IREN/MARA) — none had a fresh same-day catalyst; all
+  were "still in focus" from news 1-9 days old, and all five are
+  actually down sharply over the past 20-60 days despite that framing.
+  A reminder to weight same-day verified catalysts over recycled
+  headline lists when better candidates aren't found.
+- **Persistence/branch note:** this session found one unmerged stray
+  branch on arrival, `main-nhrdf4` (2026-09-16's EOD snapshot: the -7%
+  hard-stop close of BAC, run by a `daily-summary` session after no
+  `market-open`/`midday` run landed on any branch that day) — fast-
+  forward merged into this session's branch before starting today's
+  research so the account snapshot above reflects the real closed
+  position. Same recurring branch-assignment/scheduling-gap issue
+  flagged every week since 2026-08-20; also flag for `weekly-review`
+  that 09-16 `market-open`/`midday` coverage was missed entirely.
+
+### Decision
+**HOLD** — no order placed, none staged. All five scanned candidates
+(QCOM, BE, GNRC, MARA, IREN) scored far below the 0.55 ensemble minimum,
+with negative momentum/relative-strength despite headline "catalyst in
+focus" framing, plus a spread failure (QCOM) and quote-data-quality
+errors (BE, GNRC). Account is flat (100% cash) after BAC's -7%
+hard-stop close yesterday — no urgent action needed, no new position
+justified by today's weak candidate set. Correct, expected outcome.
+0/3 trades used this week (started 2026-09-14 Monday) — cap not at
+risk.
