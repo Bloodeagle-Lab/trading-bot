@@ -1044,3 +1044,61 @@ recorded so `midday` has this session's confirmation that BAC has not
 yet breached -7% as of the open. Account equity $99,501.44, cash
 $89,471.29 (89.9%). 0/3 trades used this week (started 2026-09-14
 Monday). Correct, expected HOLD.
+
+## 2026-09-17 — market-open: no PASS candidates, confirmed at the open; account flat, BAC -7% close recovered from stray branch
+
+This session found **no `RESEARCH-LOG.md` entry for 2026-09-17 on its
+starting branch** (`main-k69a0u`, forked from `main` at `45e7587`, the
+2026-09-16 pre-market commit) — but the work already existed, unmerged,
+on stray branch `main-f6twxw` (itself chaining `main-nhrdf4`). Rather
+than re-run pre-market research from scratch and risk a duplicate entry
+(the recurring pattern flagged in this file every week since 08-20),
+this session fast-forward-merged `main-f6twxw` into `main-k69a0u` before
+proceeding — bringing in:
+- **`TRADE-LOG.md`'s 2026-09-16 "SELL BAC" and EOD entries**: BAC (the
+  08-24 manual mechanism-test position) was closed at the -7% hard stop
+  yesterday (169 sh @ $57.64, realized -$787.54/-7.48%) by a
+  `daily-summary` session after no `market-open`/`midday` run landed on
+  any branch that day — flagged there for `weekly-review` that 09-16
+  buy-side/sell-side coverage was missed entirely.
+- **Today's 2026-09-17 pre-market research** (eighth consecutive CHOPPY
+  regime, confidence 0.535 — the lowest of the streak, TRANSITION a
+  close second at 0.6, a genuine softening signal): QCOM (0.118), BE
+  (0.031), GNRC (0.003), MARA (0.003), IREN (-0.001) all scanned, all
+  **far below** the 0.55 ensemble minimum — **zero trade ideas** staged.
+
+This session independently verified the pre-market read before
+discovering the stray branch: same live-account state (flat, $99,212.45
+equity/cash), same regime call (`quant_cli.py regime --qqq --vix 17.71
+--breadth 0.52` → CHOPPY 0.745, using yesterday's VIX close since this
+session ran a beat later; pre-market's own 0.535 explicit call used the
+fresher 7:34am ET VIX spot 15.96 — no material difference, same CHOPPY
+state, same outcome), and independently scanned GNRC/BE (0.003/0.031,
+matching pre-market's figures exactly) before finding the branch — no
+conflicting read, just redundant work avoided by merging rather than
+re-running.
+
+**STEP 2 re-validation:** pre-market staged **zero trade ideas**
+(`RESEARCH-LOG.md`'s 2026-09-17 "Trade Ideas: None"), so there is
+nothing to re-validate with a fresh data pull — no candidate was ever
+close to PASS regardless of pre-market-to-open drift. No candidate
+reached PASS. Nothing to execute (STEP 3 empty), no notification sent
+(STEP 5 conditioned on a placed trade).
+
+**Verified live against Alpaca (`quant_cli.py positions` +
+`quant_cli.py reconcile`):** zero open positions, zero open orders —
+account is flat, equity $99,212.45, cash $99,212.45 (100%), buying power
+$396,849.80, daytrade count 0. `reconcile` returned `drift_found: []` —
+local and broker state agree, no unresolved discrepancy from
+yesterday's undocumented-until-now BAC close. 0/3 trades used this week
+(started 2026-09-14 Monday) — this week's sell doesn't count against
+the buy-side cap. Correct, expected HOLD. **This session's designated
+branch is `main-k69a0u`**, not `main`; per branch assignment (no push to
+any branch but `main-k69a0u` without permission), this commit and the
+recovered history are pushed there, not to `main` as
+`routines/market-open.md` STEP 6 literally says — still needs a
+human/session merge into `main`, same recurring infrastructure issue
+logged every week since 2026-08-20.
+
+### Reconciliation — 2026-09-17 12:36:58
+No drift — local state matched broker.
